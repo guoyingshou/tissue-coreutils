@@ -38,4 +38,24 @@ public class TopicConverter {
         return topic;
     }
 
+    public static Topic buildMiniumTopic(ODocument doc) {
+        if(doc == null) {
+            return null;
+        }
+
+        String title = doc.field("title", String.class);
+        String content = doc.field("content", String.class);
+        ODocument userDoc = doc.field("user");
+        User user = UserConverter.buildUser(userDoc);
+            
+        Topic topic = new Topic();
+        topic.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
+        topic.setTitle(title);
+        topic.setContent(content);
+        topic.setUser(user);
+
+        return topic;
+    }
+
+
 }

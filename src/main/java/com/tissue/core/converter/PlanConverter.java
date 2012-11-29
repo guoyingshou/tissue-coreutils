@@ -3,6 +3,7 @@ package com.tissue.core.converter;
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.domain.profile.User;
 import com.tissue.domain.plan.Plan;
+import com.tissue.domain.plan.Topic;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -30,6 +31,9 @@ public class PlanConverter {
         Integer duration = planDoc.field("duration", Integer.class);
         Date createTime = planDoc.field("createTime", Date.class);
 
+        ODocument topicDoc = planDoc.field("topic");
+        Topic topic = TopicConverter.buildMiniumTopic(topicDoc);
+
         ODocument userDoc = planDoc.field("user");
         User user = UserConverter.buildUser(userDoc);
 
@@ -40,6 +44,7 @@ public class PlanConverter {
         plan.setId(OrientIdentityUtil.encode(planDoc.getIdentity().toString()));
         plan.setDuration(duration);
         plan.setCreateTime(createTime);
+        plan.setTopic(topic);
 
         plan.setUser(user);
         if(members != null) {
