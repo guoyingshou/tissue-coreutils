@@ -6,6 +6,7 @@ import com.tissue.domain.plan.Post;
 import com.tissue.domain.plan.PostMessage;
 import com.tissue.domain.plan.Answer;
 import com.tissue.domain.plan.QuestionComment;
+import com.tissue.domain.plan.Plan;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -73,17 +74,23 @@ public class PostConverter {
     public static Post buildMiniumPost(ODocument postDoc) {
         String postTitle = postDoc.field("title", String.class);
         String postType = postDoc.field("type", String.class);
+        String postContent = postDoc.field("content", String.class);
         Date postCreateTime = postDoc.field("createTime", Date.class);
 
         ODocument postUserDoc = postDoc.field("user");
         User postUser = UserConverter.buildUser(postUserDoc);
 
+        ODocument planDoc = postDoc.field("plan");
+        Plan plan = PlanConverter.buildPlan(planDoc);
+
         Post post = new Post();
         post.setId(OrientIdentityUtil.encode(postDoc.getIdentity().toString()));
         post.setTitle(postTitle);
+        post.setContent(postContent);
         post.setType(postType);
         post.setCreateTime(postCreateTime);
         post.setUser(postUser);
+        post.setPlan(plan);
 
         return post;
     }

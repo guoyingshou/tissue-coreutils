@@ -14,8 +14,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Map;
 
 public class EventConverter {
+
+    public static List<Event> buildEvents(List<ODocument> eventsDoc) {
+        List<Event> events = new ArrayList();
+        if(eventsDoc != null) {
+            for(ODocument eventDoc : eventsDoc) {
+                Event event = buildEvent(eventDoc);
+                events.add(event);
+            }
+        }
+        return events;
+    }
 
     public static Event buildEvent(ODocument eventDoc) {
         if(eventDoc == null) {
@@ -24,33 +36,22 @@ public class EventConverter {
 
         Date published = eventDoc.field("published", Date.class);
         String type = eventDoc.field("type", String.class);
-        System.out.println(type);
 
-        //ODocument userDoc = eventDoc.field("actor");
-        //User actor = UserConverter.buildUser(userDoc);
+        ODocument userDoc = eventDoc.field("actor");
+        User actor = UserConverter.buildUser(userDoc);
 
-        ODocument objectDoc = eventDoc.field("object");
-        switch(type) {
-            case "topic": 
-                Topic topic = TopicConverter.buildMiniumTopic(objectDoc);
-                System.out.println("<<<" + topic.getTitle());
-                break;
-            case "plan": 
-                Plan plan = PlanConverter.buildPlan(objectDoc);
-                System.out.println("<<<" + plan.getDuration());
-                break;
-            case "post":
-                Post post = PostConverter.buildPost(objectDoc);
-                break;
-            default:
-                System.out.println("do nothing");
-                break;
-        }
+        Map object = eventDoc.field("object", Map.class);
+        Map target = eventDoc.field("target", Map.class);
 
         Event event = new Event();
         event.setId(OrientIdentityUtil.encode(eventDoc.getIdentity().toString()));
         event.setPublished(published);
-        System.out.println("event build...");
+        event.setType(type);
+        event.setActor(actor);
+        event.setObject(object);
+        if(target != null) {
+            event.setTarget(target);
+        }
         return event;
     }
 
