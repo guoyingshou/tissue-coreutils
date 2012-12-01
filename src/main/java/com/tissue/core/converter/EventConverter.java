@@ -14,9 +14,31 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Map;
 
 public class EventConverter {
+
+    public static ODocument convertEvent(Event event) {
+        ODocument eventDoc = new ODocument("Event");
+        eventDoc.field("published", event.getPublished());
+        eventDoc.field("type", event.getType());
+        eventDoc.field("actor", new ORecordId(OrientIdentityUtil.decode(event.getActor().getId())));
+        eventDoc.field("object", event.getObject());
+        eventDoc.field("target", event.getTarget());
+
+        List<User> users = event.getNotifies();
+        if(users != null) {
+            Set<ORecordId> notifiesDoc = new HashSet();
+            for(User user : users) {
+                String ridUser = OrientIdentityUtil.decode(user.getId());
+                notifiesDoc.add(new ORecordId(ridUser));
+            }
+            eventDoc.field("notifies", notifiesDoc);
+        }
+
+        return eventDoc;
+    }
 
     public static List<Event> buildEvents(List<ODocument> eventsDoc) {
         List<Event> events = new ArrayList();

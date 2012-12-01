@@ -18,11 +18,9 @@ public class PlanConverter {
     public static List<Plan> buildPlans(Set<ODocument> plansDoc) {
         List<Plan> plans = new ArrayList();
 
-        if(plansDoc != null) {
-            for(ODocument planDoc : plansDoc) {
-                Plan plan = buildPlan(planDoc);
-                plans.add(plan);
-            }
+        for(ODocument planDoc : plansDoc) {
+            Plan plan = buildPlan(planDoc);
+            plans.add(plan);
         }
         return plans;
     }
@@ -32,20 +30,22 @@ public class PlanConverter {
         Date createTime = planDoc.field("createTime", Date.class);
 
         ODocument topicDoc = planDoc.field("topic");
-        Topic topic = TopicConverter.buildMiniumTopic(topicDoc);
+        Topic topic = TopicConverter.buildTopicWithoutChild(topicDoc);
 
         ODocument userDoc = planDoc.field("user");
         User user = UserConverter.buildUser(userDoc);
 
+        List<User> members = null;
         Set<ODocument> membersDoc = planDoc.field("members");
-        List<User> members = UserConverter.buildMembers(membersDoc);
+        if(membersDoc != null) {
+            members = UserConverter.buildMembers(membersDoc);
+        }
 
         Plan plan = new Plan();
         plan.setId(OrientIdentityUtil.encode(planDoc.getIdentity().toString()));
         plan.setDuration(duration);
         plan.setCreateTime(createTime);
         plan.setTopic(topic);
-
         plan.setUser(user);
         if(members != null) {
             plan.setMembers(members);

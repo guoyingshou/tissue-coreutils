@@ -32,22 +32,27 @@ public class PostConverter {
     }
 
     public static Post buildPost(ODocument postDoc) {
-        if(postDoc == null) {
-            return null;
-        }
-
         ODocument userDoc = postDoc.field("user");
         User postUser = UserConverter.buildUser(userDoc);
 
+        List<PostMessage> messages = null;
         Set<ODocument> messagesDoc = postDoc.field("messages");
-        List<PostMessage> messages = PostMessageConverter.buildMessages(messagesDoc);
+        if(messagesDoc != null) {
+            messages = PostMessageConverter.buildPostMessages(messagesDoc);
+        }
 
         //for question type post
+        List<Answer> answers = null;
         Set<ODocument> answersDoc = postDoc.field("answers");
-        List<Answer> answers = AnswerConverter.buildAnswers(answersDoc);
+        if(answersDoc != null) {
+            answers = AnswerConverter.buildAnswers(answersDoc);
+        }
 
+        List<QuestionComment> questionComments = null;
         Set<ODocument> questionCommentsDoc = postDoc.field("comments");
-        List<QuestionComment> questionComments = QuestionCommentConverter.buildQuestionComments(questionCommentsDoc);
+        if(questionCommentsDoc != null) {
+            questionComments = QuestionCommentConverter.buildQuestionComments(questionCommentsDoc);
+        }
 
         //construct the post after preprocessing all the necessary fields
         String title = postDoc.field("title", String.class);
@@ -59,19 +64,25 @@ public class PostConverter {
         post.setTitle(title);
         post.setType(type);
         post.setContent(content);
-
         post.setUser(postUser);
+
         //non question type post
-        post.setMessages(messages);
+        if(messages != null) {
+            post.setMessages(messages);
+        }
 
         //qustion type post
-        post.setComments(questionComments);
-        post.setAnswers(answers);
+        if(questionComments != null) {
+            post.setComments(questionComments);
+        }
+        if(answers != null) {
+            post.setAnswers(answers);
+        }
 
         return post;
     }
 
-    public static Post buildMiniumPost(ODocument postDoc) {
+    public static Post buildPostWithoutChild(ODocument postDoc) {
         String postTitle = postDoc.field("title", String.class);
         String postType = postDoc.field("type", String.class);
         String postContent = postDoc.field("content", String.class);
@@ -98,7 +109,7 @@ public class PostConverter {
     public static List<Post> buildPosts(List<ODocument> postsDoc) {
         List<Post> posts = new ArrayList();
         for(ODocument postDoc : postsDoc) {
-            Post post = buildMiniumPost(postDoc);
+            Post post = buildPostWithoutChild(postDoc);
             posts.add(post);
         }
         return posts;

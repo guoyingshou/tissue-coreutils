@@ -15,11 +15,20 @@ import java.util.Set;
 
 public class TopicConverter {
 
-    public static Topic buildTopic(ODocument doc) {
-        if(doc == null) {
-            return null;
-        }
+    public static ODocument convertTopic(Topic topic) {
+        ODocument doc = new ODocument("Topic");
+        doc.field("title", topic.getTitle());
+        doc.field("content", topic.getContent());
+        doc.field("createTime", topic.getCreateTime());
+        doc.field("tags", topic.getTags());
 
+        ORecordId userRecord = new ORecordId(OrientIdentityUtil.decode(topic.getUser().getId()));
+        doc.field("user", userRecord);
+
+        return doc;
+    }
+
+    public static Topic buildTopic(ODocument doc) {
         String title = doc.field("title", String.class);
         String content = doc.field("content", String.class);
             
@@ -29,7 +38,10 @@ public class TopicConverter {
         topic.setContent(content);
 
         Set<ODocument> plansDoc = doc.field("plans", Set.class);
-        List<Plan> plans = PlanConverter.buildPlans(plansDoc);
+        List<Plan> plans = null;
+        if(plansDoc != null) {
+            plans = PlanConverter.buildPlans(plansDoc);
+        }
 
         if(plans != null) {
             topic.setPlans(plans);
@@ -38,11 +50,7 @@ public class TopicConverter {
         return topic;
     }
 
-    public static Topic buildMiniumTopic(ODocument doc) {
-        if(doc == null) {
-            return null;
-        }
-
+    public static Topic buildTopicWithoutChild(ODocument doc) {
         String title = doc.field("title", String.class);
         String content = doc.field("content", String.class);
         ODocument userDoc = doc.field("user");
