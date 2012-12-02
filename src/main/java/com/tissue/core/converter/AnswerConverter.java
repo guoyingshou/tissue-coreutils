@@ -64,7 +64,7 @@ public class AnswerConverter {
         ODocument userDoc = answerDoc.field("user");
         User user = UserConverter.buildUser(userDoc);
 
-        ODocument postDoc = answerDoc.field("post");
+        ODocument postDoc = answerDoc.field("question");
         Post post = PostConverter.buildPostWithoutChild(postDoc);
 
         Answer answer = new Answer();

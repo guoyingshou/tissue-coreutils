@@ -48,19 +48,6 @@ public class PostMessageCommentConverter {
         List<PostMessageComment> messageComments = new ArrayList();
 
         for(ODocument commentDoc : commentsDoc) {
-            /**
-            String commentContent = commentDoc.field("content", String.class);
-            Date commentCreateTime = commentDoc.field("createTime", Date.class);
-
-            ODocument commentUserDoc = commentDoc.field("user");
-            User commentUser = UserConverter.buildUser(commentUserDoc);
-
-            PostMessageComment messageComment = new PostMessageComment();
-            messageComment.setContent(commentContent);
-            messageComment.setCreateTime(commentCreateTime);
-            messageComment.setUser(commentUser);
-            */
-
             PostMessageComment messageComment = buildPostMessageComment(commentDoc);
             messageComments.add(messageComment);
         }

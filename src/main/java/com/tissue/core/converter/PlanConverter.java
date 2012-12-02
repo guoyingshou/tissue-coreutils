@@ -15,6 +15,22 @@ import java.util.Set;
 
 public class PlanConverter {
 
+    public static ODocument convertPlan(Plan plan) {
+
+        ODocument doc = new ODocument("Plan");
+        doc.field("duration", plan.getDuration());
+        doc.field("createTime", plan.getCreateTime());
+        doc.field("members", plan.getMembers());
+
+        ORecordId topicRecord = new ORecordId(OrientIdentityUtil.decode(plan.getTopic().getId()));
+        doc.field("topic", topicRecord);
+
+        ORecordId userRecord = new ORecordId(OrientIdentityUtil.decode(plan.getUser().getId()));
+        doc.field("user", userRecord);
+ 
+        return doc;
+    }
+
     public static List<Plan> buildPlans(Set<ODocument> plansDoc) {
         List<Plan> plans = new ArrayList();
 
