@@ -15,21 +15,23 @@ import java.util.Set;
 public class InvitationConverter {
 
     public static Invitation buildInvitation(ODocument invitationDoc) {
-        if(invitationDoc == null) {
-            return null;
-        }
-
         String content = invitationDoc.field("content", String.class);
         Date createTime = invitationDoc.field("createTime", Date.class);
+        Date updateTime = invitationDoc.field("updateTime", Date.class);
 
-        ODocument userDoc = invitationDoc.field("out");
-        User user = UserConverter.buildUser(userDoc);
+        ODocument userOutDoc = invitationDoc.field("out");
+        User invitor = UserConverter.buildUser(userOutDoc);
+
+        ODocument userInDoc = invitationDoc.field("in");
+        User invitee = UserConverter.buildUser(userInDoc);
 
         Invitation invitation = new Invitation();
         invitation.setId(OrientIdentityUtil.encode(invitationDoc.getIdentity().toString()));
         invitation.setContent(content);
         invitation.setCreateTime(createTime);
-        invitation.setInvitor(user);
+        invitation.setUpdateTime(updateTime);
+        invitation.setInvitor(invitor);
+        invitation.setInvitee(invitee);
 
         return invitation;
     }
