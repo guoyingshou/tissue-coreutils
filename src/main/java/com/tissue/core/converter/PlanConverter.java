@@ -53,6 +53,7 @@ public class PlanConverter {
 
         List<User> members = null;
         Set<ODocument> membersDoc = planDoc.field("members");
+
         if(membersDoc != null) {
             members = UserConverter.buildMembers(membersDoc);
         }

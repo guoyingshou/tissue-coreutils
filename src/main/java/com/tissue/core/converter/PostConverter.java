@@ -35,6 +35,9 @@ public class PostConverter {
         ODocument userDoc = postDoc.field("user");
         User postUser = UserConverter.buildUser(userDoc);
 
+        ODocument planDoc = postDoc.field("plan");
+        Plan postPlan = PlanConverter.buildPlan(planDoc);
+
         List<PostMessage> messages = null;
         Set<ODocument> messagesDoc = postDoc.field("messages");
         if(messagesDoc != null) {
@@ -58,12 +61,15 @@ public class PostConverter {
         String title = postDoc.field("title", String.class);
         String content = postDoc.field("content", String.class);
         String type = postDoc.field("type", String.class);
+        Date createTime = postDoc.field("createTime", Date.class);
 
         Post post = new Post();
         post.setId(OrientIdentityUtil.encode(postDoc.getIdentity().toString()));
         post.setTitle(title);
         post.setType(type);
         post.setContent(content);
+        post.setCreateTime(createTime);
+        post.setPlan(postPlan);
         post.setUser(postUser);
 
         //non question type post
