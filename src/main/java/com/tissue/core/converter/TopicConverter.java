@@ -31,11 +31,13 @@ public class TopicConverter {
     public static Topic buildTopic(ODocument doc) {
         String title = doc.field("title", String.class);
         String content = doc.field("content", String.class);
+        Set<String> tags = doc.field("tags", Set.class);
             
         Topic topic = new Topic();
         topic.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
         topic.setTitle(title);
         topic.setContent(content);
+        topic.setTags(tags);
 
         Set<ODocument> plansDoc = doc.field("plans", Set.class);
         List<Plan> plans = null;
