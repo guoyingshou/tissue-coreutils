@@ -30,6 +30,7 @@ public class PostMessageCommentConverter {
     }
 
     public static PostMessageComment buildPostMessageComment(ODocument commentDoc) {
+        
         String commentContent = commentDoc.field("content", String.class);
         Date commentCreateTime = commentDoc.field("createTime", Date.class);
 
@@ -37,6 +38,7 @@ public class PostMessageCommentConverter {
         User commentUser = UserConverter.buildUser(commentUserDoc);
 
         PostMessageComment messageComment = new PostMessageComment();
+        messageComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
         messageComment.setContent(commentContent);
         messageComment.setCreateTime(commentCreateTime);
         messageComment.setUser(commentUser);
@@ -66,6 +68,7 @@ public class PostMessageCommentConverter {
         PostMessage postMessage = PostMessageConverter.buildPostMessageWithoutChild(postMessageDoc);
 
         PostMessageComment messageComment = new PostMessageComment();
+        messageComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
         messageComment.setContent(commentContent);
         messageComment.setCreateTime(commentCreateTime);
         messageComment.setUser(commentUser);
