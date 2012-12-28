@@ -3,6 +3,15 @@ package com.tissue.core.converter;
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.domain.profile.User;
 import com.tissue.domain.social.Event;
+import com.tissue.domain.social.TopicEvent;
+import com.tissue.domain.social.PlanEvent;
+import com.tissue.domain.social.MemberEvent;
+/**
+import com.tissue.domain.social.ConceptEvent;
+import com.tissue.domain.social.NoteEvent;
+import com.tissue.domain.social.TuturialEvent;
+import com.tissue.domain.social.QuestionEvent;
+*/
 import com.tissue.domain.plan.Topic;
 import com.tissue.domain.plan.Plan;
 import com.tissue.domain.plan.Post;
@@ -65,7 +74,19 @@ public class EventConverter {
         Map object = eventDoc.field("object", Map.class);
         Map target = eventDoc.field("target", Map.class);
 
-        Event event = new Event();
+        Event event = null;
+        switch(type) {
+            case "topic": 
+                event = new TopicEvent();
+                break;
+            case "plan": 
+                event = new PlanEvent();
+                break;
+            case "members": 
+                event = new MemberEvent();
+                break;
+            default: event = new Event(); //concept, note, tutorial, question
+        }
         event.setId(OrientIdentityUtil.encode(eventDoc.getIdentity().toString()));
         event.setPublished(published);
         event.setType(type);
