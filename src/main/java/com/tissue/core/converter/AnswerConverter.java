@@ -51,7 +51,7 @@ public class AnswerConverter {
         answer.setContent(answerContent);
         answer.setCreateTime(answerCreateTime);
         if(answerComments != null) {
-            answer.setAnswerComments(answerComments); 
+            answer.setComments(answerComments); 
         }
 
         return answer;

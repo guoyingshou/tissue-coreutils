@@ -43,6 +43,7 @@ public class AnswerCommentConverter {
         User commentUser = UserConverter.buildUser(commentUserDoc);
 
         AnswerComment answerComment = new AnswerComment();
+        answerComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
         answerComment.setContent(commentContent);
         answerComment.setCreateTime(commentCreateTime);
         answerComment.setUser(commentUser);
@@ -61,6 +62,7 @@ public class AnswerCommentConverter {
         Answer answer = AnswerConverter.buildAnswerWithoutChild(answerDoc);
 
         AnswerComment answerComment = new AnswerComment();
+        answerComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
         answerComment.setContent(commentContent);
         answerComment.setCreateTime(commentCreateTime);
         answerComment.setUser(commentUser);
