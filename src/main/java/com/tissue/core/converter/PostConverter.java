@@ -32,73 +32,61 @@ public class PostConverter {
     }
 
     public static Post buildPost(ODocument postDoc) {
-        ODocument userDoc = postDoc.field("user");
-        User postUser = UserConverter.buildUser(userDoc);
-
-        ODocument planDoc = postDoc.field("plan");
-        Plan postPlan = PlanConverter.buildPlan(planDoc);
-
-        List<PostMessage> messages = null;
-        Set<ODocument> messagesDoc = postDoc.field("messages");
-        if(messagesDoc != null) {
-            messages = PostMessageConverter.buildPostMessages(messagesDoc);
-        }
-
-        //for question type post
-        List<Answer> answers = null;
-        Set<ODocument> answersDoc = postDoc.field("answers");
-        if(answersDoc != null) {
-            answers = AnswerConverter.buildAnswers(answersDoc);
-        }
-
-        List<QuestionComment> questionComments = null;
-        Set<ODocument> questionCommentsDoc = postDoc.field("comments");
-        if(questionCommentsDoc != null) {
-            questionComments = QuestionCommentConverter.buildQuestionComments(questionCommentsDoc);
-        }
-
-        //construct the post after preprocessing all the necessary fields
-        String title = postDoc.field("title", String.class);
-        String content = postDoc.field("content", String.class);
-        String type = postDoc.field("type", String.class);
-        Date createTime = postDoc.field("createTime", Date.class);
-
         Post post = new Post();
         post.setId(OrientIdentityUtil.encode(postDoc.getIdentity().toString()));
+
+        String title = postDoc.field("title", String.class);
         post.setTitle(title);
+
+        String type = postDoc.field("type", String.class);
         post.setType(type);
+
+        String content = postDoc.field("content", String.class);
         post.setContent(content);
+
+        Date createTime = postDoc.field("createTime", Date.class);
         post.setCreateTime(createTime);
-        post.setPlan(postPlan);
+
+        ODocument userDoc = postDoc.field("user");
+        User postUser = UserConverter.buildUser(userDoc);
         post.setUser(postUser);
 
-        //non question type post
-        if(messages != null) {
-            post.setMessages(messages);
+        ODocument planDoc = postDoc.field("plan");
+        if(planDoc != null) {
+            Plan postPlan = PlanConverter.buildPlan(planDoc);
+            post.setPlan(postPlan);
         }
 
-        //qustion type post
-        if(questionComments != null) {
-            post.setComments(questionComments);
+        if("question".equals(type)) {
+            Set<ODocument> questionCommentsDoc = postDoc.field("comments");
+            if(questionCommentsDoc != null) {
+                List<QuestionComment> questionComments = QuestionCommentConverter.buildQuestionComments(questionCommentsDoc);
+                post.setComments(questionComments);
+            }
+
+            Set<ODocument> answersDoc = postDoc.field("answers");
+            if(answersDoc != null) {
+                List<Answer> answers = AnswerConverter.buildAnswers(answersDoc);
+                post.setAnswers(answers);
+            }
         }
-        if(answers != null) {
-            post.setAnswers(answers);
+        else {
+            Set<ODocument> messagesDoc = postDoc.field("messages");
+            if(messagesDoc != null) {
+                List<PostMessage> messages = PostMessageConverter.buildPostMessages(messagesDoc);
+                post.setMessages(messages);
+            }
         }
 
         return post;
     }
 
     public static Post buildPostWithoutChild(ODocument postDoc) {
+
         String postTitle = postDoc.field("title", String.class);
         String postType = postDoc.field("type", String.class);
         String postContent = postDoc.field("content", String.class);
         Date postCreateTime = postDoc.field("createTime", Date.class);
-
-        ODocument postUserDoc = postDoc.field("user");
-        User postUser = UserConverter.buildUser(postUserDoc);
-
-        ODocument planDoc = postDoc.field("plan");
-        Plan plan = PlanConverter.buildPlan(planDoc);
 
         Post post = new Post();
         post.setId(OrientIdentityUtil.encode(postDoc.getIdentity().toString()));
@@ -106,8 +94,16 @@ public class PostConverter {
         post.setContent(postContent);
         post.setType(postType);
         post.setCreateTime(postCreateTime);
+ 
+        ODocument postUserDoc = postDoc.field("user");
+        User postUser = UserConverter.buildUser(postUserDoc);
         post.setUser(postUser);
-        post.setPlan(plan);
+
+        ODocument planDoc = postDoc.field("plan");
+        if(planDoc != null) {
+            Plan plan = PlanConverter.buildPlan(planDoc);
+            post.setPlan(plan);
+        }
 
         return post;
     }
@@ -120,6 +116,4 @@ public class PostConverter {
         }
         return posts;
     }
-
-
 }

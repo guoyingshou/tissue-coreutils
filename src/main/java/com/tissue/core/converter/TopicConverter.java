@@ -29,39 +29,49 @@ public class TopicConverter {
     }
 
     public static Topic buildTopic(ODocument doc) {
-        String title = doc.field("title", String.class);
-        String content = doc.field("content", String.class);
-        Set<String> tags = doc.field("tags", Set.class);
-            
         Topic topic = new Topic();
         topic.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
+
+        String title = doc.field("title", String.class);
         topic.setTitle(title);
+
+        String content = doc.field("content", String.class);
         topic.setContent(content);
+
+        Date createTime = doc.field("createTime", Date.class);
+        topic.setCreateTime(createTime);
+
+        Set<String> tags = doc.field("tags", Set.class);
         topic.setTags(tags);
 
         Set<ODocument> plansDoc = doc.field("plans", Set.class);
-        List<Plan> plans = null;
         if(plansDoc != null) {
-            plans = PlanConverter.buildPlans(plansDoc);
-        }
-
-        if(plans != null) {
+            List<Plan> plans = PlanConverter.buildPlans(plansDoc);
             topic.setPlans(plans);
         }
+
+        ODocument userDoc = doc.field("user");
+        User user = UserConverter.buildUser(userDoc);
+        topic.setUser(user);
 
         return topic;
     }
 
     public static Topic buildTopicWithoutChild(ODocument doc) {
-        String title = doc.field("title", String.class);
-        String content = doc.field("content", String.class);
-        ODocument userDoc = doc.field("user");
-        User user = UserConverter.buildUser(userDoc);
-            
         Topic topic = new Topic();
         topic.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
+ 
+        String title = doc.field("title", String.class);
         topic.setTitle(title);
+
+        String content = doc.field("content", String.class);
         topic.setContent(content);
+
+        Date createTime = doc.field("createTime", Date.class);
+        topic.setCreateTime(createTime);
+
+        ODocument userDoc = doc.field("user");
+        User user = UserConverter.buildUser(userDoc);
         topic.setUser(user);
 
         return topic;

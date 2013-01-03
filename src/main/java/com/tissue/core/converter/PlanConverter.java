@@ -20,7 +20,7 @@ public class PlanConverter {
         ODocument doc = new ODocument("Plan");
         doc.field("duration", plan.getDuration());
         doc.field("createTime", plan.getCreateTime());
-        doc.field("members", plan.getMembers());
+        //doc.field("members", plan.getMembers());
 
         ORecordId topicRecord = new ORecordId(OrientIdentityUtil.decode(plan.getTopic().getId()));
         doc.field("topic", topicRecord);
@@ -35,8 +35,10 @@ public class PlanConverter {
         List<Plan> plans = new ArrayList();
 
         for(ODocument planDoc : plansDoc) {
-            Plan plan = buildPlan(planDoc);
-            plans.add(plan);
+            if(planDoc != null) {
+                Plan plan = buildPlan(planDoc);
+                plans.add(plan);
+            }
         }
         return plans;
     }
@@ -51,11 +53,16 @@ public class PlanConverter {
         ODocument userDoc = planDoc.field("user");
         User user = UserConverter.buildUser(userDoc);
 
-        List<User> members = null;
-        Set<ODocument> membersDoc = planDoc.field("members");
-
-        if(membersDoc != null) {
-            members = UserConverter.buildMembers(membersDoc);
+        List<User> members = new ArrayList();
+        Set<ODocument> inDocs = planDoc.field("in");
+        if(inDocs != null) {
+            for(ODocument inDoc : inDocs) {
+                ODocument memberDoc = inDoc.field("out");
+                if(memberDoc != null) {
+                    User member = UserConverter.buildUser(memberDoc);
+                    members.add(member);
+                }
+            }
         }
 
         Plan plan = new Plan();
@@ -64,9 +71,7 @@ public class PlanConverter {
         plan.setCreateTime(createTime);
         plan.setTopic(topic);
         plan.setUser(user);
-        if(members != null) {
-            plan.setMembers(members);
-        }
+        plan.setMembers(members);
 
         return plan;
     }

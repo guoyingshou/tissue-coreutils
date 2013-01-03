@@ -37,41 +37,44 @@ public class AnswerConverter {
     }
 
     public static Answer buildAnswer(ODocument answerDoc) {
-        String answerContent = answerDoc.field("content", String.class);
-        Date answerCreateTime = answerDoc.field("createTime", Date.class);
-
-        List<AnswerComment> answerComments = null;
-        Set<ODocument> commentsDoc = answerDoc.field("comments");
-        if(commentsDoc != null) {
-            answerComments = AnswerCommentConverter.buildAnswerComments(commentsDoc);
-        }
-
         Answer answer = new Answer();
         answer.setId(OrientIdentityUtil.encode(answerDoc.getIdentity().toString()));
+
+        String answerContent = answerDoc.field("content", String.class);
         answer.setContent(answerContent);
+
+        Date answerCreateTime = answerDoc.field("createTime", Date.class);
         answer.setCreateTime(answerCreateTime);
-        if(answerComments != null) {
+
+        Set<ODocument> commentsDoc = answerDoc.field("comments");
+        if(commentsDoc != null) {
+            List<AnswerComment> answerComments = AnswerCommentConverter.buildAnswerComments(commentsDoc);
             answer.setComments(answerComments); 
         }
+
+        ODocument userDoc = answerDoc.field("user");
+        User user = UserConverter.buildUser(userDoc);
+        answer.setUser(user);
 
         return answer;
     }
 
     public static Answer buildAnswerWithoutChild(ODocument answerDoc) {
+        Answer answer = new Answer();
+        answer.setId(OrientIdentityUtil.encode(answerDoc.getIdentity().toString()));
+
         String answerContent = answerDoc.field("content", String.class);
+        answer.setContent(answerContent);
+
         Date answerCreateTime = answerDoc.field("createTime", Date.class);
+        answer.setCreateTime(answerCreateTime);
 
         ODocument userDoc = answerDoc.field("user");
         User user = UserConverter.buildUser(userDoc);
+        answer.setUser(user);
 
         ODocument postDoc = answerDoc.field("question");
         Post post = PostConverter.buildPostWithoutChild(postDoc);
-
-        Answer answer = new Answer();
-        answer.setId(OrientIdentityUtil.encode(answerDoc.getIdentity().toString()));
-        answer.setContent(answerContent);
-        answer.setCreateTime(answerCreateTime);
-        answer.setUser(user);
         answer.setQuestion(post);
 
         return answer;
