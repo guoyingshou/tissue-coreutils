@@ -22,27 +22,31 @@ public class PostMessageCommentConverter {
     public static ODocument convertPostMessageComment(PostMessageComment postMessageComment) {
         ODocument commentDoc = new ODocument("PostMessageComment");
         commentDoc.field("content", postMessageComment.getContent());
-        commentDoc.field("createTime", postMessageComment.getCreateTime());
-        commentDoc.field("user", new ORecordId(OrientIdentityUtil.decode(postMessageComment.getUser().getId())));
         commentDoc.field("postMessage", new ORecordId(OrientIdentityUtil.decode(postMessageComment.getPostMessage().getId())));
-
         return commentDoc;
     }
 
     public static PostMessageComment buildPostMessageComment(ODocument commentDoc) {
-        
-        String commentContent = commentDoc.field("content", String.class);
-        Date commentCreateTime = commentDoc.field("createTime", Date.class);
-
-        ODocument commentUserDoc = commentDoc.field("user");
-        User commentUser = UserConverter.buildUser(commentUserDoc);
 
         PostMessageComment messageComment = new PostMessageComment();
         messageComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
+       
+        String commentContent = commentDoc.field("content", String.class);
         messageComment.setContent(commentContent);
-        messageComment.setCreateTime(commentCreateTime);
-        messageComment.setUser(commentUser);
- 
+
+        Set<ODocument> inEdges = commentDoc.field("in");
+        for(ODocument inEdge : inEdges) {
+            if(inEdge.field("label").equals("postMessageComment")) {
+                Date createTime = inEdge.field("createTime", Date.class);
+                messageComment.setCreateTime(createTime);
+
+                ODocument userDoc = inEdge.field("out");
+                User user = UserConverter.buildUser(userDoc);
+                messageComment.setUser(user);
+                break;
+            }
+        }
+
         return messageComment;
     }
 
@@ -58,20 +62,10 @@ public class PostMessageCommentConverter {
     }
 
     public static PostMessageComment buildPostMessageCommentWithParent(ODocument commentDoc) {
-        String commentContent = commentDoc.field("content", String.class);
-        Date commentCreateTime = commentDoc.field("createTime", Date.class);
-
-        ODocument commentUserDoc = commentDoc.field("user");
-        User commentUser = UserConverter.buildUser(commentUserDoc);
+        PostMessageComment messageComment = buildPostMessageComment(commentDoc);
 
         ODocument postMessageDoc = commentDoc.field("postMessage");
         PostMessage postMessage = PostMessageConverter.buildPostMessageWithoutChild(postMessageDoc);
-
-        PostMessageComment messageComment = new PostMessageComment();
-        messageComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
-        messageComment.setContent(commentContent);
-        messageComment.setCreateTime(commentCreateTime);
-        messageComment.setUser(commentUser);
         messageComment.setPostMessage(postMessage);
  
         return messageComment;

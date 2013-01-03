@@ -19,10 +19,7 @@ public class QuestionCommentConverter {
     public static ODocument convertQuestionComment(QuestionComment comment) {
         ODocument commentDoc = new ODocument("QuestionComment");
         commentDoc.field("content", comment.getContent());
-        commentDoc.field("createTime", comment.getCreateTime());
-        commentDoc.field("user", new ORecordId(OrientIdentityUtil.decode(comment.getUser().getId())));
         commentDoc.field("question", new ORecordId(OrientIdentityUtil.decode(comment.getQuestion().getId())));
-
         return commentDoc;
     }
 
@@ -38,41 +35,39 @@ public class QuestionCommentConverter {
     }
 
     public static QuestionComment buildQuestionComment(ODocument commentDoc) {
-        String commentContent = commentDoc.field("content", String.class);
-        Date commentCreateTime = commentDoc.field("createTime", Date.class);
-
-        ODocument commentUserDoc = commentDoc.field("user");
-        User commentUser = UserConverter.buildUser(commentUserDoc);
 
         QuestionComment questionComment = new QuestionComment();
         questionComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
+
+        String commentContent = commentDoc.field("content", String.class);
         questionComment.setContent(commentContent);
-        questionComment.setCreateTime(commentCreateTime);
-        questionComment.setUser(commentUser);
+
+        Set<ODocument> inEdges = commentDoc.field("in");
+        for(ODocument inEdge : inEdges) {
+            if(inEdge.field("label").equals("questionComment")) {
+                Date createTime = inEdge.field("createTime", Date.class);
+                questionComment.setCreateTime(createTime);
+
+                ODocument userDoc = inEdge.field("out");
+                User user = UserConverter.buildUser(userDoc);
+                questionComment.setUser(user);
+                break;
+            }
+        }
 
         return questionComment;
  
     }
 
     public static QuestionComment buildQuestionCommentWithParent(ODocument commentDoc) {
-        String commentContent = commentDoc.field("content", String.class);
-        Date commentCreateTime = commentDoc.field("createTime", Date.class);
 
-        ODocument commentUserDoc = commentDoc.field("user");
-        User commentUser = UserConverter.buildUser(commentUserDoc);
+        QuestionComment questionComment = buildQuestionComment(commentDoc);
 
         ODocument questionDoc = commentDoc.field("question");
         Post question = PostConverter.buildPostWithoutChild(questionDoc);
-
-        QuestionComment questionComment = new QuestionComment();
-        questionComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
-        questionComment.setContent(commentContent);
-        questionComment.setCreateTime(commentCreateTime);
-        questionComment.setUser(commentUser);
         questionComment.setQuestion(question);
 
         return questionComment;
- 
     }
 
 }

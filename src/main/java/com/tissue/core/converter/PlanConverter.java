@@ -20,14 +20,10 @@ public class PlanConverter {
         ODocument doc = new ODocument("Plan");
         doc.field("duration", plan.getDuration());
         doc.field("createTime", plan.getCreateTime());
-        //doc.field("members", plan.getMembers());
 
         ORecordId topicRecord = new ORecordId(OrientIdentityUtil.decode(plan.getTopic().getId()));
         doc.field("topic", topicRecord);
 
-        ORecordId userRecord = new ORecordId(OrientIdentityUtil.decode(plan.getUser().getId()));
-        doc.field("user", userRecord);
- 
         return doc;
     }
 
@@ -44,14 +40,29 @@ public class PlanConverter {
     }
 
     public static Plan buildPlan(ODocument planDoc) {
+
+        Plan plan = new Plan();
+        plan.setId(OrientIdentityUtil.encode(planDoc.getIdentity().toString()));
+
         Integer duration = planDoc.field("duration", Integer.class);
-        Date createTime = planDoc.field("createTime", Date.class);
+        plan.setDuration(duration);
 
         ODocument topicDoc = planDoc.field("topic");
         Topic topic = TopicConverter.buildTopicWithoutChild(topicDoc);
+        plan.setTopic(topic);
 
-        ODocument userDoc = planDoc.field("user");
-        User user = UserConverter.buildUser(userDoc);
+        Set<ODocument> inEdges = planDoc.field("in");
+        for(ODocument inEdge : inEdges) {
+            if(inEdge.field("label").equals("plan")) {
+                Date createTime = inEdge.field("createTime", Date.class);
+                plan.setCreateTime(createTime);
+
+                ODocument userDoc = inEdge.field("out");
+                User user = UserConverter.buildUser(userDoc);
+                plan.setUser(user);
+                break;
+            }
+        }
 
         List<User> members = new ArrayList();
         Set<ODocument> inDocs = planDoc.field("in");
@@ -64,13 +75,6 @@ public class PlanConverter {
                 }
             }
         }
-
-        Plan plan = new Plan();
-        plan.setId(OrientIdentityUtil.encode(planDoc.getIdentity().toString()));
-        plan.setDuration(duration);
-        plan.setCreateTime(createTime);
-        plan.setTopic(topic);
-        plan.setUser(user);
         plan.setMembers(members);
 
         return plan;

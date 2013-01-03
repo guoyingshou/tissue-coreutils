@@ -20,8 +20,6 @@ public class AnswerConverter {
     public static ODocument convertAnswer(Answer answer) {
         ODocument doc = new ODocument("Answer");
         doc.field("content", answer.getContent());
-        doc.field("createTime", answer.getCreateTime());
-        doc.field("user", new ORecordId(OrientIdentityUtil.decode(answer.getUser().getId())));
         doc.field("question", new ORecordId(OrientIdentityUtil.decode(answer.getQuestion().getId())));
         return doc;
     }
@@ -37,24 +35,14 @@ public class AnswerConverter {
     }
 
     public static Answer buildAnswer(ODocument answerDoc) {
-        Answer answer = new Answer();
-        answer.setId(OrientIdentityUtil.encode(answerDoc.getIdentity().toString()));
 
-        String answerContent = answerDoc.field("content", String.class);
-        answer.setContent(answerContent);
-
-        Date answerCreateTime = answerDoc.field("createTime", Date.class);
-        answer.setCreateTime(answerCreateTime);
+        Answer answer = buildAnswerWithoutChild(answerDoc);
 
         Set<ODocument> commentsDoc = answerDoc.field("comments");
         if(commentsDoc != null) {
             List<AnswerComment> answerComments = AnswerCommentConverter.buildAnswerComments(commentsDoc);
             answer.setComments(answerComments); 
         }
-
-        ODocument userDoc = answerDoc.field("user");
-        User user = UserConverter.buildUser(userDoc);
-        answer.setUser(user);
 
         return answer;
     }
@@ -66,12 +54,18 @@ public class AnswerConverter {
         String answerContent = answerDoc.field("content", String.class);
         answer.setContent(answerContent);
 
-        Date answerCreateTime = answerDoc.field("createTime", Date.class);
-        answer.setCreateTime(answerCreateTime);
+        Set<ODocument> inEdges = answerDoc.field("in");
+        for(ODocument inEdge : inEdges) {
+            if(inEdge.field("label").equals("answer")) {
+                Date createTime = inEdge.field("createTime", Date.class);
+                answer.setCreateTime(createTime);
 
-        ODocument userDoc = answerDoc.field("user");
-        User user = UserConverter.buildUser(userDoc);
-        answer.setUser(user);
+                ODocument userDoc = inEdge.field("out");
+                User user = UserConverter.buildUser(userDoc);
+                answer.setUser(user);
+                break;
+            }
+        }
 
         ODocument postDoc = answerDoc.field("question");
         Post post = PostConverter.buildPostWithoutChild(postDoc);

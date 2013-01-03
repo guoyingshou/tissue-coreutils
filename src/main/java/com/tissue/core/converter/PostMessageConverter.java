@@ -21,32 +21,18 @@ public class PostMessageConverter {
     public static ODocument convertPostMessage(PostMessage postMessage) {
         ODocument doc = new ODocument("PostMessage");
         doc.field("content", postMessage.getContent());
-        doc.field("createTime", postMessage.getCreateTime());
-        doc.field("user", new ORecordId(OrientIdentityUtil.decode(postMessage.getUser().getId())));
         doc.field("post", new ORecordId(OrientIdentityUtil.decode(postMessage.getPost().getId())));
 
         return doc;
     }
 
     public static PostMessage buildPostMessage(ODocument messageDoc) {
-        String messageContent = messageDoc.field("content", String.class);
-        Date messageCreateTime = messageDoc.field("createTime", Date.class);
 
-        ODocument userDoc = messageDoc.field("user");
-        User user = UserConverter.buildUser(userDoc);
+        PostMessage message = buildPostMessageWithoutChild(messageDoc);
 
-        List<PostMessageComment> messageComments = null;
         Set<ODocument> commentsDoc = messageDoc.field("comments");
         if(commentsDoc != null) {
-            messageComments = PostMessageCommentConverter.buildPostMessageComments(commentsDoc);
-        }
-
-        PostMessage message = new PostMessage();
-        message.setId(OrientIdentityUtil.encode(messageDoc.getIdentity().toString()));
-        message.setContent(messageContent);
-        message.setCreateTime(messageCreateTime);
-        message.setUser(user);
-        if(messageComments != null) {
+            List<PostMessageComment> messageComments = PostMessageCommentConverter.buildPostMessageComments(commentsDoc);
             message.setComments(messageComments); 
         }
  
@@ -54,20 +40,30 @@ public class PostMessageConverter {
     }
 
     public static PostMessage buildPostMessageWithoutChild(ODocument messageDoc) {
-        String messageContent = messageDoc.field("content", String.class);
-        Date messageCreateTime = messageDoc.field("createTime", Date.class);
-
-        ODocument userDoc = messageDoc.field("user");
-        User user = UserConverter.buildUser(userDoc);
-
-        ODocument postDoc = messageDoc.field("post");
-        Post post = PostConverter.buildPostWithoutChild(postDoc);
 
         PostMessage message = new PostMessage();
         message.setId(OrientIdentityUtil.encode(messageDoc.getIdentity().toString()));
+
+        String messageContent = messageDoc.field("content", String.class);
         message.setContent(messageContent);
-        message.setCreateTime(messageCreateTime);
-        message.setUser(user);
+
+        Set<ODocument> inEdges = messageDoc.field("in");
+        if(inEdges != null) {
+            for(ODocument inEdge : inEdges) {
+                if(inEdge.field("label").equals("postMessage")) {
+                    Date createTime = inEdge.field("createTime", Date.class);
+                    message.setCreateTime(createTime);
+
+                    ODocument userDoc = inEdge.field("out");
+                    User user = UserConverter.buildUser(userDoc);
+                    message.setUser(user);
+                    break;
+                }
+            }
+        }
+
+        ODocument postDoc = messageDoc.field("post");
+        Post post = PostConverter.buildPostWithoutChild(postDoc);
         message.setPost(post);
 
         return message;
