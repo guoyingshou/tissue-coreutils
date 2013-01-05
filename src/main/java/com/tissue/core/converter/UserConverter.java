@@ -18,13 +18,10 @@ public class UserConverter {
             return null;
         }
 
-        //String username = userDoc.field("username", String.class);
-        String displayName = userDoc.field("displayName", String.class);
-
         User user = new User();
-
         user.setId(OrientIdentityUtil.encode(userDoc.getIdentity().toString()));
-        //user.setUsername(username);
+
+        String displayName = userDoc.field("displayName", String.class);
         user.setDisplayName(displayName);
 
         return user;
@@ -43,7 +40,5 @@ public class UserConverter {
         }
         return members;
     }
-
-
 
 }
