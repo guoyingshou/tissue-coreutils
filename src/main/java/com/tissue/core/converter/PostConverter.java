@@ -14,6 +14,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
 
 public class PostConverter {
@@ -70,9 +71,14 @@ public class PostConverter {
         String postType = postDoc.field("type", String.class);
         post.setType(postType);
 
+        List<String> targets = Arrays.asList("concept", "note", "tutorial", "question");
+
         Set<ODocument> inEdges = postDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            if(inEdge.field("label").equals("post")) {
+            String target = inEdge.field("target", String.class);
+
+            if(targets.contains(target)) {
+            //if(inEdge.field("target").equals("post")) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 post.setCreateTime(createTime);
 

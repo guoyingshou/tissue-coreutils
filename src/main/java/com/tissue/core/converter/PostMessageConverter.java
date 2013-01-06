@@ -50,7 +50,7 @@ public class PostMessageConverter {
         Set<ODocument> inEdges = messageDoc.field("in");
         if(inEdges != null) {
             for(ODocument inEdge : inEdges) {
-                if(inEdge.field("label").equals("postMessage")) {
+                if(inEdge.field("target").equals("postMessage")) {
                     Date createTime = inEdge.field("createTime", Date.class);
                     message.setCreateTime(createTime);
 

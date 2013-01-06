@@ -53,7 +53,7 @@ public class PlanConverter {
 
         Set<ODocument> inEdges = planDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            if(inEdge.field("label").equals("plan")) {
+            if(inEdge.field("target").equals("plan")) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 plan.setCreateTime(createTime);
 

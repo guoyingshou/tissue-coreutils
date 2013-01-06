@@ -56,7 +56,7 @@ public class AnswerConverter {
 
         Set<ODocument> inEdges = answerDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            if(inEdge.field("label").equals("answer")) {
+            if(inEdge.field("target").equals("answer")) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 answer.setCreateTime(createTime);
 

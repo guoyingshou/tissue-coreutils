@@ -36,7 +36,7 @@ public class PostMessageCommentConverter {
 
         Set<ODocument> inEdges = commentDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            if(inEdge.field("label").equals("postMessageComment")) {
+            if(inEdge.field("target").equals("postMessageComment")) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 messageComment.setCreateTime(createTime);
 
