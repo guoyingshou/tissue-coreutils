@@ -50,7 +50,7 @@ public class TopicConverter {
 
         Set<ODocument> inEdges = doc.field("in");
         for(ODocument inEdge : inEdges) {
-            if(inEdge.field("target").equals("topic")) {
+            if("EdgeCreate".equals(inEdge.getClassName())) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 topic.setCreateTime(createTime);
 

@@ -21,7 +21,8 @@ public class PostConverter {
 
     public static ODocument convert(Post post) {
 
-        ODocument doc = new ODocument("Post");
+        //ODocument doc = new ODocument("Post");
+        ODocument doc = new ODocument(post.getType());
         doc.field("title", post.getTitle());
         doc.field("content", post.getContent());
         doc.field("type", post.getType());
@@ -34,6 +35,7 @@ public class PostConverter {
     public static Post buildPost(ODocument postDoc) {
         Post post = buildPostWithoutChild(postDoc);
 
+        /**
         if("question".equals(post.getType())) {
             Set<ODocument> questionCommentsDoc = postDoc.field("comments");
             if(questionCommentsDoc != null) {
@@ -54,6 +56,7 @@ public class PostConverter {
                 post.setMessages(messages);
             }
         }
+        */
 
         return post;
     }
@@ -71,14 +74,11 @@ public class PostConverter {
         String postType = postDoc.field("type", String.class);
         post.setType(postType);
 
-        List<String> targets = Arrays.asList("concept", "note", "tutorial", "question");
+        List<String> classNames = Arrays.asList("EdgeConcetp", "EdgeNote", "EdgeTutorial", "EdgeQuestion");
 
         Set<ODocument> inEdges = postDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            String target = inEdge.field("target", String.class);
-
-            if(targets.contains(target)) {
-            //if(inEdge.field("target").equals("post")) {
+            if(classNames.contains(inEdge.getClassName())) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 post.setCreateTime(createTime);
 

@@ -42,7 +42,8 @@ public class AnswerCommentConverter {
 
         Set<ODocument> inEdges = commentDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            if(inEdge.field("target").equals("answerComment")) {
+            //if(inEdge.field("target").equals("answerComment")) {
+            if("EdgeAnswerComment".equals(inEdge.getClassName())) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 answerComment.setCreateTime(createTime);
 
