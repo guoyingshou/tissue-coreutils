@@ -3,9 +3,11 @@ package com.tissue.core.converter;
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.domain.profile.User;
 import com.tissue.domain.plan.Post;
+import com.tissue.domain.plan.Cnt;
 import com.tissue.domain.plan.PostMessage;
-import com.tissue.domain.plan.Answer;
+import com.tissue.domain.plan.Question;
 import com.tissue.domain.plan.QuestionComment;
+import com.tissue.domain.plan.Answer;
 import com.tissue.domain.plan.Plan;
 
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -21,7 +23,6 @@ public class PostConverter {
 
     public static ODocument convert(Post post) {
 
-        //ODocument doc = new ODocument("Post");
         ODocument doc = new ODocument(post.getType());
         doc.field("title", post.getTitle());
         doc.field("content", post.getContent());
@@ -35,30 +36,32 @@ public class PostConverter {
     public static Post buildPost(ODocument postDoc) {
         Post post = buildPostWithoutChild(postDoc);
 
-        /**
         if("question".equals(post.getType())) {
+            Question q = new Question(post);
             Set<ODocument> questionCommentsDoc = postDoc.field("comments");
             if(questionCommentsDoc != null) {
                 List<QuestionComment> questionComments = QuestionCommentConverter.buildQuestionComments(questionCommentsDoc);
-                post.setComments(questionComments);
+                q.setComments(questionComments);
             }
 
             Set<ODocument> answersDoc = postDoc.field("answers");
             if(answersDoc != null) {
                 List<Answer> answers = AnswerConverter.buildAnswers(answersDoc);
-                post.setAnswers(answers);
+                q.setAnswers(answers);
             }
+
+            return q;
         }
         else {
+            Cnt cnt = new Cnt(post);
             Set<ODocument> messagesDoc = postDoc.field("messages");
             if(messagesDoc != null) {
                 List<PostMessage> messages = PostMessageConverter.buildPostMessages(messagesDoc);
-                post.setMessages(messages);
+                cnt.setMessages(messages);
             }
+            return cnt;
         }
-        */
 
-        return post;
     }
 
     public static Post buildPostWithoutChild(ODocument postDoc) {
@@ -74,7 +77,7 @@ public class PostConverter {
         String postType = postDoc.field("type", String.class);
         post.setType(postType);
 
-        List<String> classNames = Arrays.asList("EdgeConcetp", "EdgeNote", "EdgeTutorial", "EdgeQuestion");
+        List<String> classNames = Arrays.asList("EdgeConcept", "EdgeNote", "EdgeTutorial", "EdgeQuestion");
 
         Set<ODocument> inEdges = postDoc.field("in");
         for(ODocument inEdge : inEdges) {
