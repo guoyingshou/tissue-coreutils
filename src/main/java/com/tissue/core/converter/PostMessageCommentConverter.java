@@ -36,7 +36,6 @@ public class PostMessageCommentConverter {
 
         Set<ODocument> inEdges = commentDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            //if(inEdge.field("target").equals("postMessageComment")) {
             if("EdgePostMessageComment".equals(inEdge.getClassName())) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 messageComment.setCreateTime(createTime);
@@ -55,8 +54,11 @@ public class PostMessageCommentConverter {
         List<PostMessageComment> messageComments = new ArrayList();
 
         for(ODocument commentDoc : commentsDoc) {
-            PostMessageComment messageComment = buildPostMessageComment(commentDoc);
-            messageComments.add(messageComment);
+            String status = commentDoc.field("status", String.class);
+            if(status == null) {
+                PostMessageComment messageComment = buildPostMessageComment(commentDoc);
+                messageComments.add(messageComment);
+            }
         }
 
         return messageComments;

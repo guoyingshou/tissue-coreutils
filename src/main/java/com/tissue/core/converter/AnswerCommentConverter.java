@@ -26,8 +26,11 @@ public class AnswerCommentConverter {
         List<AnswerComment> answerComments = new ArrayList();
 
         for(ODocument commentDoc : commentsDoc) {
-            AnswerComment answerComment = buildAnswerComment(commentDoc);
-            answerComments.add(answerComment);
+            String status = commentDoc.field("status", String.class);
+            if(status == null) {
+                AnswerComment answerComment = buildAnswerComment(commentDoc);
+                answerComments.add(answerComment);
+            }
         }
 
         return answerComments;

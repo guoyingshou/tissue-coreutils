@@ -27,8 +27,11 @@ public class QuestionCommentConverter {
         List<QuestionComment> questionComments = new ArrayList();
 
         for(ODocument commentDoc : commentsDoc) {
-            QuestionComment questionComment = buildQuestionComment(commentDoc);
-            questionComments.add(questionComment);
+            String status = commentDoc.field("status", String.class);
+            if(status == null) {
+                QuestionComment questionComment = buildQuestionComment(commentDoc);
+                questionComments.add(questionComment);
+            }
         }
 
         return questionComments;
@@ -44,7 +47,6 @@ public class QuestionCommentConverter {
 
         Set<ODocument> inEdges = commentDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            //if(inEdge.field("target").equals("questionComment")) {
             if("EdgeQuestionComment".equals(inEdge.getClassName())) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 questionComment.setCreateTime(createTime);

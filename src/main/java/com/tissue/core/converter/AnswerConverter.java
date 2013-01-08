@@ -27,9 +27,12 @@ public class AnswerConverter {
     public static List<Answer> buildAnswers(Set<ODocument> answersDoc) {
         List<Answer> answers = new ArrayList();
         for(ODocument answerDoc : answersDoc) {
-            Answer answer = buildAnswer(answerDoc);
-            if(answer != null) 
-                answers.add(answer);
+            String status = answerDoc.field("status", String.class);
+            if(status == null) {
+                Answer answer = buildAnswer(answerDoc);
+                if(answer != null) 
+                    answers.add(answer);
+            }
         }
         return answers;
     }
@@ -56,7 +59,6 @@ public class AnswerConverter {
 
         Set<ODocument> inEdges = answerDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            //if(inEdge.field("target").equals("answer")) {
             if("EdgeAnswer".equals(inEdge.getClassName())) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 answer.setCreateTime(createTime);

@@ -50,7 +50,6 @@ public class PostMessageConverter {
         Set<ODocument> inEdges = messageDoc.field("in");
         if(inEdges != null) {
             for(ODocument inEdge : inEdges) {
-                //if(inEdge.field("target").equals("postMessage")) {
                 if("EdgePostMessage".equals(inEdge.getClassName())) {
                     Date createTime = inEdge.field("createTime", Date.class);
                     message.setCreateTime(createTime);
@@ -74,8 +73,12 @@ public class PostMessageConverter {
     public static List<PostMessage> buildPostMessages(Set<ODocument> messagesDoc) {
         List<PostMessage> messages = new ArrayList();
         for(ODocument messageDoc : messagesDoc) {
-            PostMessage message = buildPostMessage(messageDoc);
-            messages.add(message);
+            String status = messageDoc.field("status", String.class);
+            //deleted if status's value is set
+            if(status == null) {
+                PostMessage message = buildPostMessage(messageDoc);
+                messages.add(message);
+            }
         }
         return messages;
     }
