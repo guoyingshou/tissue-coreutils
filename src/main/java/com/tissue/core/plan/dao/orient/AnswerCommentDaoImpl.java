@@ -2,7 +2,7 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.converter.AnswerCommentConverter;
+import com.tissue.core.mapper.AnswerCommentMapper;
 import com.tissue.core.profile.User;
 import com.tissue.core.plan.Answer;
 import com.tissue.core.plan.AnswerComment;
@@ -33,7 +33,7 @@ public class AnswerCommentDaoImpl implements AnswerCommentDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument commentDoc = AnswerCommentConverter.convertAnswerComment(comment);
+            ODocument commentDoc = AnswerCommentMapper.convertAnswerComment(comment);
             commentDoc.save();
 
             String ridComment = commentDoc.getIdentity().toString();

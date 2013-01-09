@@ -1,4 +1,4 @@
-package com.tissue.core.converter;
+package com.tissue.core.mapper;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.profile.User;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class TopicConverter {
+public class TopicMapper {
 
     public static ODocument convertTopic(Topic topic) {
 
@@ -32,7 +32,7 @@ public class TopicConverter {
 
         Set<ODocument> plansDoc = doc.field("plans", Set.class);
         if(plansDoc != null) {
-            List<Plan> plans = PlanConverter.buildPlans(plansDoc);
+            List<Plan> plans = PlanMapper.buildPlans(plansDoc);
             topic.setPlans(plans);
         }
         return topic;
@@ -55,7 +55,7 @@ public class TopicConverter {
                 topic.setCreateTime(createTime);
 
                 ODocument userDoc = inEdge.field("out");
-                User user = UserConverter.buildUser(userDoc);
+                User user = UserMapper.buildUser(userDoc);
                 topic.setUser(user);
                 break;
             }

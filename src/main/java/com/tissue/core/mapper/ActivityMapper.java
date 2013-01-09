@@ -1,4 +1,4 @@
-package com.tissue.core.converter;
+package com.tissue.core.mapper;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.social.Activity;
@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 
-public class ActivityConverter {
+public class ActivityMapper {
     private static List<String> planNames = Arrays.asList("EdgeHost", "EdgeJoin");
     private static List<String> postNames = Arrays.asList("EdgeConcept", "EdgeNote", "EdgeTutorial", "EdgeQuestion");
     private static List<String> commentNames = Arrays.asList("EdgePostMessage", "EdgePostMessageComment", "EdgeQuestionComment", "EdgeAnswer", "EdgeAnswerComment");

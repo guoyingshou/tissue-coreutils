@@ -2,7 +2,7 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.util.OrientIdentityUtil;
-import com.tissue.core.converter.TopicConverter;
+import com.tissue.core.mapper.TopicMapper;
 import com.tissue.core.profile.User;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Topic;
@@ -41,7 +41,7 @@ public class TopicDaoImpl implements TopicDao {
     public Topic create(Topic topic) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = TopicConverter.convertTopic(topic);
+            ODocument doc = TopicMapper.convertTopic(topic);
             doc.save();
 
             String ridTopic = doc.getIdentity().toString();
@@ -108,7 +108,7 @@ public class TopicDaoImpl implements TopicDao {
             List<ODocument> result = db.query(q.setFetchPlan("*:-1"));
             if(result.size() > 0) {
                 ODocument doc = result.get(0);
-                topic = TopicConverter.buildTopic(doc);
+                topic = TopicMapper.buildTopic(doc);
             }
         }
         catch(Exception exc) {
@@ -135,7 +135,7 @@ public class TopicDaoImpl implements TopicDao {
             if(result.size() > 0) {
                 ODocument doc = result.get(0);
                 ODocument topicDoc = doc.field("topic");
-                topic = TopicConverter.buildTopic(topicDoc);
+                topic = TopicMapper.buildTopic(topicDoc);
             }
         }
         catch(Exception exc) {
@@ -163,7 +163,7 @@ public class TopicDaoImpl implements TopicDao {
             List<ODocument> docs = db.query(query);
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
-                Topic topic = TopicConverter.buildTopicWithoutChild(topicDoc);
+                Topic topic = TopicMapper.buildTopicWithoutChild(topicDoc);
                 topics.add(topic);
             }
         }
@@ -190,7 +190,7 @@ public class TopicDaoImpl implements TopicDao {
             OSQLSynchQuery query = new OSQLSynchQuery(qstr);
             List<ODocument> docs = db.query(query);
             for(ODocument doc : docs) {
-                Topic topic = TopicConverter.buildTopicWithoutChild(doc);
+                Topic topic = TopicMapper.buildTopicWithoutChild(doc);
                 topics.add(topic);
             }
         }
@@ -237,7 +237,7 @@ public class TopicDaoImpl implements TopicDao {
             OSQLSynchQuery query = new OSQLSynchQuery(qstr);
             List<ODocument> docs = db.query(query);
             for(ODocument doc : docs) {
-                Topic topic = TopicConverter.buildTopicWithoutChild(doc);
+                Topic topic = TopicMapper.buildTopicWithoutChild(doc);
                 topics.add(topic);
             }
         }
@@ -264,7 +264,7 @@ public class TopicDaoImpl implements TopicDao {
             OSQLSynchQuery query = new OSQLSynchQuery(qstr);
             List<ODocument> docs = db.query(query);
             for(ODocument doc : docs) {
-                Topic topic = TopicConverter.buildTopicWithoutChild(doc);
+                Topic topic = TopicMapper.buildTopicWithoutChild(doc);
                 topics.add(topic);
             }
         }
@@ -340,7 +340,7 @@ public class TopicDaoImpl implements TopicDao {
             OCommandSQL cmd = new OCommandSQL(qstr);
             List<ODocument> docs = db.command(cmd).execute(tag);
             for(ODocument doc : docs) {
-                Topic topic = TopicConverter.buildTopicWithoutChild(doc);
+                Topic topic = TopicMapper.buildTopicWithoutChild(doc);
                 topics.add(topic);
             }
         }
@@ -364,7 +364,7 @@ public class TopicDaoImpl implements TopicDao {
             OCommandSQL cmd = new OCommandSQL(qstr);
             List<ODocument> docs = db.command(cmd).execute(tag);
             for(ODocument doc : docs) {
-                Topic topic = TopicConverter.buildTopicWithoutChild(doc);
+                Topic topic = TopicMapper.buildTopicWithoutChild(doc);
                 topics.add(topic);
             }
         }

@@ -1,4 +1,4 @@
-package com.tissue.core.converter;
+package com.tissue.core.mapper;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.profile.User;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
-public class PostConverter {
+public class PostMapper {
 
     public static ODocument convert(Post post) {
 
@@ -40,13 +40,13 @@ public class PostConverter {
             Question q = new Question(post);
             Set<ODocument> questionCommentsDoc = postDoc.field("comments");
             if(questionCommentsDoc != null) {
-                List<QuestionComment> questionComments = QuestionCommentConverter.buildQuestionComments(questionCommentsDoc);
+                List<QuestionComment> questionComments = QuestionCommentMapper.buildQuestionComments(questionCommentsDoc);
                 q.setComments(questionComments);
             }
 
             Set<ODocument> answersDoc = postDoc.field("answers");
             if(answersDoc != null) {
-                List<Answer> answers = AnswerConverter.buildAnswers(answersDoc);
+                List<Answer> answers = AnswerMapper.buildAnswers(answersDoc);
                 q.setAnswers(answers);
             }
 
@@ -56,7 +56,7 @@ public class PostConverter {
             Cnt cnt = new Cnt(post);
             Set<ODocument> messagesDoc = postDoc.field("messages");
             if(messagesDoc != null) {
-                List<PostMessage> messages = PostMessageConverter.buildPostMessages(messagesDoc);
+                List<PostMessage> messages = PostMessageMapper.buildPostMessages(messagesDoc);
                 cnt.setMessages(messages);
             }
             return cnt;
@@ -86,7 +86,7 @@ public class PostConverter {
                 post.setCreateTime(createTime);
 
                 ODocument userDoc = inEdge.field("out");
-                User user = UserConverter.buildUser(userDoc);
+                User user = UserMapper.buildUser(userDoc);
                 post.setUser(user);
                 break;
             }
@@ -94,7 +94,7 @@ public class PostConverter {
 
         ODocument planDoc = postDoc.field("plan");
         if(planDoc != null) {
-            Plan plan = PlanConverter.buildPlan(planDoc);
+            Plan plan = PlanMapper.buildPlan(planDoc);
             post.setPlan(plan);
         }
 

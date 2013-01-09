@@ -2,7 +2,7 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.util.OrientIdentityUtil;
-import com.tissue.core.converter.PlanConverter;
+import com.tissue.core.mapper.PlanMapper;
 import com.tissue.core.profile.User;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
@@ -42,7 +42,7 @@ public class PlanDaoImpl implements PlanDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = PlanConverter.convertPlan(plan);
+            ODocument doc = PlanMapper.convertPlan(plan);
             doc.save();
 
             String ridPlan = doc.getIdentity().toString();
@@ -88,7 +88,7 @@ public class PlanDaoImpl implements PlanDao {
         ORecordId rid = new ORecordId(OrientIdentityUtil.decode(planId));
         ODocument planDoc = db.load(rid);
 
-        Plan plan = PlanConverter.buildPlan(planDoc);
+        Plan plan = PlanMapper.buildPlan(planDoc);
         return plan;
 
     }
@@ -107,7 +107,7 @@ public class PlanDaoImpl implements PlanDao {
             List<ODocument> result = db.query(query);
 
             for(ODocument doc : result) {
-                Plan plan = PlanConverter.buildPlan(doc);
+                Plan plan = PlanMapper.buildPlan(doc);
                 plans.add(plan);
             }
         }

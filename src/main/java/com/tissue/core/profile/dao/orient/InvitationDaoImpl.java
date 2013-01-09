@@ -2,7 +2,7 @@ package com.tissue.core.profile.dao.orient;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.converter.InvitationConverter;
+import com.tissue.core.mapper.InvitationMapper;
 import com.tissue.core.profile.Invitation;
 import com.tissue.core.profile.User;
 import com.tissue.core.profile.dao.InvitationDao;
@@ -93,7 +93,7 @@ public class InvitationDaoImpl implements InvitationDao {
             List<ODocument> result = db.query(q);
             if(result.size() > 0) {
                 ODocument invitationDoc = result.get(0);
-                invitation = InvitationConverter.buildInvitation(invitationDoc);
+                invitation = InvitationMapper.buildInvitation(invitationDoc);
             }
         }
         catch(Exception exc) {
@@ -118,7 +118,7 @@ public class InvitationDaoImpl implements InvitationDao {
             OSQLSynchQuery q = new OSQLSynchQuery(sql);
             List<ODocument> result = db.query(q);
             for(ODocument invitationDoc : result) {
-                Invitation invitation = InvitationConverter.buildInvitation(invitationDoc);
+                Invitation invitation = InvitationMapper.buildInvitation(invitationDoc);
                 invitations.add(invitation);
             }
         }
@@ -184,7 +184,7 @@ public class InvitationDaoImpl implements InvitationDao {
                 OCommandSQL cmdAddFriend = new OCommandSQL(sqlAddFriend);
                 db.command(cmdAddFriend).execute();
 
-                invitation = InvitationConverter.buildInvitation(invitationDoc);
+                invitation = InvitationMapper.buildInvitation(invitationDoc);
            }
         }
         catch(Exception exc) {

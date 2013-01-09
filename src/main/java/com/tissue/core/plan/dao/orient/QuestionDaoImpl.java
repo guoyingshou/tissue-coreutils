@@ -2,7 +2,7 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.converter.PostConverter;
+import com.tissue.core.mapper.PostMapper;
 import com.tissue.core.profile.User;
 import com.tissue.core.plan.Question;
 import com.tissue.core.plan.dao.QuestionDao;
@@ -33,7 +33,7 @@ public class QuestionDaoImpl implements QuestionDao {
     public Question create(Question question) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = PostConverter.convert(question);
+            ODocument doc = PostMapper.convert(question);
             doc.save();
 
             String ridQuestion = doc.getIdentity().toString();

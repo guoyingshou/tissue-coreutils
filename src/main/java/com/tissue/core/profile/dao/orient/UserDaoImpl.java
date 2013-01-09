@@ -1,6 +1,6 @@
 package com.tissue.core.profile.dao.orient;
 
-import com.tissue.core.converter.UserConverter;
+import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.profile.User;
@@ -121,7 +121,7 @@ public class UserDaoImpl implements UserDao {
             for(OIdentifiable id : inEdges) {
                 ODocument friendDoc = new ODocument("EdgeFriend", id.getIdentity());
                 ODocument userDoc = friendDoc.field("out");
-                User user = UserConverter.buildUser(userDoc);
+                User user = UserMapper.buildUser(userDoc);
                 users.add(user);
             }
 
@@ -129,7 +129,7 @@ public class UserDaoImpl implements UserDao {
             for(OIdentifiable id : outEdges) {
                 ODocument friendDoc = new ODocument("EdgeFriend", id.getIdentity());
                 ODocument userDoc = friendDoc.field("in");
-                User user = UserConverter.buildUser(userDoc);
+                User user = UserMapper.buildUser(userDoc);
                 users.add(user);
             }
         }

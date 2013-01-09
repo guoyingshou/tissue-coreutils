@@ -2,7 +2,7 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.converter.PostConverter;
+import com.tissue.core.mapper.PostMapper;
 import com.tissue.core.profile.User;
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.dao.PostDao;
@@ -33,7 +33,7 @@ public class PostDaoImpl implements PostDao {
     public Post create(Post post) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = PostConverter.convert(post);
+            ODocument doc = PostMapper.convert(post);
             doc.save();
 
             String ridPost = doc.getIdentity().toString();
@@ -101,7 +101,7 @@ public class PostDaoImpl implements PostDao {
             List<ODocument> result = db.query(q.setFetchPlan("*:-1"));
             if(result.size() > 0) {
                 ODocument doc = result.get(0);
-                post = PostConverter.buildPost(doc);
+                post = PostMapper.buildPost(doc);
             }
         }
         catch(Exception exc) {
@@ -133,7 +133,7 @@ public class PostDaoImpl implements PostDao {
         OSQLSynchQuery q = new OSQLSynchQuery(postQstr);
 
         List<ODocument> postsDoc = db.query(q);
-        List<Post> posts = PostConverter.buildPosts(postsDoc);
+        List<Post> posts = PostMapper.buildPosts(postsDoc);
         return posts;
     }
 
@@ -160,7 +160,7 @@ public class PostDaoImpl implements PostDao {
         OSQLSynchQuery q = new OSQLSynchQuery(sql);
 
         List<ODocument> postsDoc = db.query(q);
-        List<Post> posts = PostConverter.buildPosts(postsDoc);
+        List<Post> posts = PostMapper.buildPosts(postsDoc);
         return posts;
     }
 
@@ -223,7 +223,7 @@ public class PostDaoImpl implements PostDao {
         OSQLSynchQuery q = new OSQLSynchQuery(postQstr);
 
         List<ODocument> postsDoc = db.command(q).execute(OrientIdentityUtil.decode(topicId), type);
-        List<Post> posts = PostConverter.buildPosts(postsDoc);
+        List<Post> posts = PostMapper.buildPosts(postsDoc);
         return posts;
     }
 
@@ -248,7 +248,7 @@ public class PostDaoImpl implements PostDao {
         OSQLSynchQuery q = new OSQLSynchQuery(postQstr);
 
         List<ODocument> postsDoc = db.command(q).execute(OrientIdentityUtil.decode(topicId), type);
-        List<Post> posts = PostConverter.buildPosts(postsDoc);
+        List<Post> posts = PostMapper.buildPosts(postsDoc);
         return posts;
     }
 
@@ -289,7 +289,7 @@ public class PostDaoImpl implements PostDao {
                            " limit " + size;
         OSQLSynchQuery q = new OSQLSynchQuery(postQstr);
         List<ODocument> postsDoc = db.command(q).execute(OrientIdentityUtil.decode(planId));
-        List<Post> posts = PostConverter.buildPosts(postsDoc);
+        List<Post> posts = PostMapper.buildPosts(postsDoc);
         return posts;
     }
 
@@ -310,7 +310,7 @@ public class PostDaoImpl implements PostDao {
         String postQstr = "select from Post where plan in ?";
         OSQLSynchQuery q = new OSQLSynchQuery(postQstr);
         List<ODocument> postsDoc = db.command(q).execute(OrientIdentityUtil.decode(planId));
-        List<Post> posts = PostConverter.buildPosts(postsDoc);
+        List<Post> posts = PostMapper.buildPosts(postsDoc);
         return posts;
     }
 
@@ -355,7 +355,7 @@ public class PostDaoImpl implements PostDao {
                            " limit " + size;
         OSQLSynchQuery q = new OSQLSynchQuery(postQstr);
         List<ODocument> postsDoc = db.command(q).execute(OrientIdentityUtil.decode(userId));
-        List<Post> posts = PostConverter.buildPosts(postsDoc);
+        List<Post> posts = PostMapper.buildPosts(postsDoc);
         return posts;
     }
 
@@ -376,7 +376,7 @@ public class PostDaoImpl implements PostDao {
         String postQstr = "select from Post where user in ?";
         OSQLSynchQuery q = new OSQLSynchQuery(postQstr);
         List<ODocument> postsDoc = db.command(q).execute(OrientIdentityUtil.decode(userId));
-        List<Post> posts = PostConverter.buildPosts(postsDoc);
+        List<Post> posts = PostMapper.buildPosts(postsDoc);
         return posts;
     }
 

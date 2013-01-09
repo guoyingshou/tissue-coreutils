@@ -2,7 +2,7 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.converter.PostMessageCommentConverter;
+import com.tissue.core.mapper.PostMessageCommentMapper;
 import com.tissue.core.profile.User;
 import com.tissue.core.plan.PostMessage;
 import com.tissue.core.plan.PostMessageComment;
@@ -33,7 +33,7 @@ public class PostMessageCommentDaoImpl implements PostMessageCommentDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument commentDoc = PostMessageCommentConverter.convertPostMessageComment(comment);
+            ODocument commentDoc = PostMessageCommentMapper.convertPostMessageComment(comment);
             commentDoc.save();
 
             String ridComment = commentDoc.getIdentity().toString();

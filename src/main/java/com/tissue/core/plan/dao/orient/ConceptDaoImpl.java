@@ -2,7 +2,7 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.converter.PostConverter;
+import com.tissue.core.mapper.PostMapper;
 import com.tissue.core.profile.User;
 import com.tissue.core.plan.Concept;
 import com.tissue.core.plan.dao.ConceptDao;
@@ -33,7 +33,7 @@ public class ConceptDaoImpl implements ConceptDao {
     public Concept create(Concept concept) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = PostConverter.convert(concept);
+            ODocument doc = PostMapper.convert(concept);
             doc.save();
 
             String ridConcept = doc.getIdentity().toString();

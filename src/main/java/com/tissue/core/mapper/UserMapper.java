@@ -1,4 +1,4 @@
-package com.tissue.core.converter;
+package com.tissue.core.mapper;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.profile.User;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class UserConverter {
+public class UserMapper {
 
     public static User buildUser(ODocument userDoc) {
         if(userDoc == null) {

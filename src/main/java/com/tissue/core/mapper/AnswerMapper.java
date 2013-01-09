@@ -1,4 +1,4 @@
-package com.tissue.core.converter;
+package com.tissue.core.mapper;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.profile.User;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class AnswerConverter {
+public class AnswerMapper {
 
     public static ODocument convertAnswer(Answer answer) {
         ODocument doc = new ODocument("Answer");
@@ -42,7 +42,7 @@ public class AnswerConverter {
 
         Set<ODocument> commentsDoc = answerDoc.field("comments");
         if(commentsDoc != null) {
-            List<AnswerComment> answerComments = AnswerCommentConverter.buildAnswerComments(commentsDoc);
+            List<AnswerComment> answerComments = AnswerCommentMapper.buildAnswerComments(commentsDoc);
             answer.setComments(answerComments); 
         }
 
@@ -63,14 +63,14 @@ public class AnswerConverter {
                 answer.setCreateTime(createTime);
 
                 ODocument userDoc = inEdge.field("out");
-                User user = UserConverter.buildUser(userDoc);
+                User user = UserMapper.buildUser(userDoc);
                 answer.setUser(user);
                 break;
             }
         }
 
         ODocument postDoc = answerDoc.field("question");
-        Post post = PostConverter.buildPostWithoutChild(postDoc);
+        Post post = PostMapper.buildPostWithoutChild(postDoc);
         answer.setQuestion(post);
 
         return answer;

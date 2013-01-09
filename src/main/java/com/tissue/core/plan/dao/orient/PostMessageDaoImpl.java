@@ -2,7 +2,7 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.converter.PostMessageConverter;
+import com.tissue.core.mapper.PostMessageMapper;
 import com.tissue.core.profile.User;
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.PostMessage;
@@ -35,7 +35,7 @@ public class PostMessageDaoImpl implements PostMessageDao {
     public PostMessage create(PostMessage message) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = PostMessageConverter.convertPostMessage(message);
+            ODocument doc = PostMessageMapper.convertPostMessage(message);
             doc.save();
 
             String ridMessage = doc.getIdentity().toString();

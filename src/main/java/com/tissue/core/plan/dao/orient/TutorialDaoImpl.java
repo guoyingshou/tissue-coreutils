@@ -2,7 +2,7 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.converter.PostConverter;
+import com.tissue.core.mapper.PostMapper;
 import com.tissue.core.profile.User;
 import com.tissue.core.plan.Tutorial;
 import com.tissue.core.plan.dao.TutorialDao;
@@ -33,7 +33,7 @@ public class TutorialDaoImpl implements TutorialDao {
     public Tutorial create(Tutorial tutorial) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = PostConverter.convert(tutorial);
+            ODocument doc = PostMapper.convert(tutorial);
             doc.save();
 
             String ridTutorial = doc.getIdentity().toString();

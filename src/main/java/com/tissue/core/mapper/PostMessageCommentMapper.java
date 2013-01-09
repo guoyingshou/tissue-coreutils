@@ -1,8 +1,6 @@
-package com.tissue.core.converter;
+package com.tissue.core.mapper;
 
 import com.tissue.core.util.OrientIdentityUtil;
-import com.tissue.core.converter.PostMessageCommentConverter;
-import com.tissue.core.converter.PostMessageConverter;
 import com.tissue.core.profile.User;
 import com.tissue.core.plan.PostMessageComment;
 import com.tissue.core.plan.PostMessage;
@@ -16,7 +14,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class PostMessageCommentConverter {
+public class PostMessageCommentMapper {
 
     public static ODocument convertPostMessageComment(PostMessageComment postMessageComment) {
         ODocument commentDoc = new ODocument("PostMessageComment");
@@ -40,7 +38,7 @@ public class PostMessageCommentConverter {
                 messageComment.setCreateTime(createTime);
 
                 ODocument userDoc = inEdge.field("out");
-                User user = UserConverter.buildUser(userDoc);
+                User user = UserMapper.buildUser(userDoc);
                 messageComment.setUser(user);
                 break;
             }
@@ -67,7 +65,7 @@ public class PostMessageCommentConverter {
         PostMessageComment messageComment = buildPostMessageComment(commentDoc);
 
         ODocument postMessageDoc = commentDoc.field("postMessage");
-        PostMessage postMessage = PostMessageConverter.buildPostMessageWithoutChild(postMessageDoc);
+        PostMessage postMessage = PostMessageMapper.buildPostMessageWithoutChild(postMessageDoc);
         messageComment.setPostMessage(postMessage);
  
         return messageComment;

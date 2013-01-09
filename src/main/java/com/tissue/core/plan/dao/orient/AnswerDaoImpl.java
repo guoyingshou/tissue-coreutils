@@ -2,7 +2,7 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.converter.AnswerConverter;
+import com.tissue.core.mapper.AnswerMapper;
 import com.tissue.core.profile.User;
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.Answer;
@@ -37,7 +37,7 @@ public class AnswerDaoImpl implements AnswerDao {
         OGraphDatabase db = dataSource.getDB();
         try {
 
-            ODocument doc = AnswerConverter.convertAnswer(answer);
+            ODocument doc = AnswerMapper.convertAnswer(answer);
             doc.save();
 
             String ridAnswer = doc.getIdentity().toString();

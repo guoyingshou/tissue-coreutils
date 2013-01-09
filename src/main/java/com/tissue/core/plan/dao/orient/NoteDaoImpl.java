@@ -2,7 +2,7 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.converter.PostConverter;
+import com.tissue.core.mapper.PostMapper;
 import com.tissue.core.profile.User;
 import com.tissue.core.plan.Note;
 import com.tissue.core.plan.dao.NoteDao;
@@ -33,7 +33,7 @@ public class NoteDaoImpl implements NoteDao {
     public Note create(Note note) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = PostConverter.convert(note);
+            ODocument doc = PostMapper.convert(note);
             doc.save();
 
             String ridNote = doc.getIdentity().toString();
