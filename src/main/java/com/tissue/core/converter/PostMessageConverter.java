@@ -2,11 +2,10 @@ package com.tissue.core.converter;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.converter.PostMessageCommentConverter;
-
-import com.tissue.domain.profile.User;
-import com.tissue.domain.plan.PostMessage;
-import com.tissue.domain.plan.PostMessageComment;
-import com.tissue.domain.plan.Post;
+import com.tissue.core.profile.User;
+import com.tissue.core.plan.PostMessage;
+import com.tissue.core.plan.PostMessageComment;
+import com.tissue.core.plan.Post;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
