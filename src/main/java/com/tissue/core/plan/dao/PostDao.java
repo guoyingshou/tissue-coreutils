@@ -44,6 +44,6 @@ public interface PostDao {
 
     List<Post> getPagedPostsByUserId(String userId, int page, int size);
 
-    List<Post> getPostsByUserId(String userId);
+    //List<Post> getPostsByUserId(String userId);
 
 }

@@ -39,9 +39,8 @@ public class ActivityDaoImpl implements ActivityDao {
     @Autowired
     private OrientDataSource dataSource;
 
-    public List<Activity> getTopicRelatedActivities(String userId, int num) {
+    public List<Activity> getFriendsActivities(String userId, int num) {
         List<Activity> stream = null;
-
         String ridUser = OrientIdentityUtil.decode(userId);
 
         //String sql = "select from edgetopic where out in (select union(in[label='friend'].out, out[label='friend'].in) from " + ridUser + ")";
@@ -65,19 +64,16 @@ public class ActivityDaoImpl implements ActivityDao {
         return stream;
     }
 
-    public List<Activity> getFriendsActivities(String userId, int num) {
+    public List<Activity> getUserActivities(String userId, int num) {
         List<Activity> stream = null;
 
-        /**
-        String ridUser = OrientIdentityUtil.decode(userId);
-        String sql = "select from event where type in ['accept', 'accepted'] and (actor in (select union(in[label='friend'].out, out[label='friend'].in) from " + ridUser + ") order by published desc limit " + num;
+        String rid = OrientIdentityUtil.decode(userId);
+        String sql = "select from edgetopic where out in " + rid + " order by createTime desc";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            OSQLSynchQuery<ODocument> q = new OSQLSynchQuery(sql);
-            List<ODocument> eventsDoc = db.query(q);
-
-            events = EventConverter.buildEvents(eventsDoc);
+            List<ODocument> streamDoc = db.query(new OSQLSynchQuery(sql));
+            stream = ActivityMapper.buildStream(streamDoc);
         }
         catch(Exception exc) {
             //to do
@@ -86,7 +82,7 @@ public class ActivityDaoImpl implements ActivityDao {
         finally {
             db.close();
         }
-        */
+ 
         return stream;
  
     }

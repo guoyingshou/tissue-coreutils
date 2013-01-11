@@ -317,13 +317,17 @@ public class PostDaoImpl implements PostDao {
     //-- by user
     
     public long getPostsCountByUserId(String userId) {
+
+        String rid = OrientIdentityUtil.decode(userId);
+
         long result = 0;
 
-        String sql = "select count(*) from Post where user in ?";
+        String sql = "select count(*) from Post where in.out in ?";
+
         OGraphDatabase db = dataSource.getDB();
         try {
-            OSQLSynchQuery q = new OSQLSynchQuery(sql);
-            List<ODocument> postsCountDoc = db.command(q).execute(OrientIdentityUtil.decode(userId));
+            OSQLSynchQuery cmd = new OSQLSynchQuery(sql);
+            List<ODocument> postsCountDoc = db.command(cmd).execute(rid);
             if(postsCountDoc.size() > 0) {
                  ODocument doc = postsCountDoc.get(0);
                  result = doc.field("count", long.class);
@@ -350,15 +354,16 @@ public class PostDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByUserId(OGraphDatabase db, String userId, int page, int size) {
-        String postQstr = "select from Post where user in ? order by createTime desc skip " +
-                           (page - 1) * size +
-                           " limit " + size;
-        OSQLSynchQuery q = new OSQLSynchQuery(postQstr);
-        List<ODocument> postsDoc = db.command(q).execute(OrientIdentityUtil.decode(userId));
+
+        String rid = OrientIdentityUtil.decode(userId);
+        String sql = "select from Post where in.out in " + rid + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
+
+        List<ODocument> postsDoc = db.query(new OSQLSynchQuery(sql));
         List<Post> posts = PostMapper.buildPosts(postsDoc);
         return posts;
     }
 
+    /**
     public List<Post> getPostsByUserId(String userId) {
         List<Post> posts = null;
 
@@ -379,5 +384,6 @@ public class PostDaoImpl implements PostDao {
         List<Post> posts = PostMapper.buildPosts(postsDoc);
         return posts;
     }
+    */
 
 }

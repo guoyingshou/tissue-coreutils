@@ -101,8 +101,6 @@ public class PlanDaoImpl implements PlanDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             plansByTopicId.append(OrientIdentityUtil.decode(topicId));
-            System.out.println(plansByTopicId);
-
             OSQLSynchQuery query = new OSQLSynchQuery(plansByTopicId.toString());
             List<ODocument> result = db.query(query);
 

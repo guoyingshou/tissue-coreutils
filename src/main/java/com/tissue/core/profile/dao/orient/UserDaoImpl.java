@@ -4,6 +4,7 @@ import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.profile.User;
+import com.tissue.core.profile.Impression;
 import com.tissue.core.profile.dao.UserDao;
 import com.tissue.core.profile.dao.DuplicateEmailException;
 
@@ -50,7 +51,6 @@ public class UserDaoImpl implements UserDao {
         finally {
             db.close();
         }
-
         return user;
     }
 
@@ -58,12 +58,85 @@ public class UserDaoImpl implements UserDao {
         return null;
     }
 
+    public void addResume(String userId, String content) {
+        String rid = OrientIdentityUtil.decode(userId);
+        String sql = "update " + rid + " set resume = '" + content + "'";
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+        }
+        catch(Exception exc) {
+            //to do: must process this exception
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+    }
+
+    public void addImpression(Impression impression) {
+
+        String ridFrom = OrientIdentityUtil.decode(impression.getFrom().getId());
+        String ridTo = OrientIdentityUtil.decode(impression.getTo().getId());
+
+        String sql = "create edge EdgeImpression from " + ridFrom + " to " + ridTo + " set published = sysdate(), content = '" + impression.getContent() + "'";
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+        }
+        catch(Exception exc) {
+            //to do: must process this exception
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+    }
+
+    public List<Impression> getImpressions(String userId) {
+
+        List<Impression> impressions = new ArrayList();
+
+        String rid = OrientIdentityUtil.decode(userId);
+        String sql = "select from EdgeImpression where in in " + rid;
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            OSQLSynchQuery<ODocument> query = new OSQLSynchQuery(sql);
+            List<ODocument> result = db.query(query);
+
+            impressions = UserMapper.buildImpressions(result);
+        }
+        catch(Exception exc) {
+            //to do: must process this exception
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return impressions;
+    }
+
     public User getUserById(String id) {
         User user = null;
+
+        String rid = OrientIdentityUtil.decode(id);
+        String sql = "select from " + rid;
 
         OGraphDatabase db = dataSource.getDB();
         try {
 
+            OSQLSynchQuery query = new OSQLSynchQuery(sql);
+            List<ODocument> result = db.query(query);
+            if(result.size() > 0) {
+                ODocument userDoc = result.get(0);
+                user = UserMapper.buildUser(userDoc);
+            }
+            /**
             ORecordId record = new ORecordId(OrientIdentityUtil.decode(id));
             ODocument doc = db.load(record);
             if(doc != null) {
@@ -77,6 +150,7 @@ public class UserDaoImpl implements UserDao {
                 user.setUsername(username);
                 user.setDisplayName(displayName);
             }
+            */
         }
         catch(Exception exc) {
             //to do: must process this exception
@@ -85,7 +159,7 @@ public class UserDaoImpl implements UserDao {
             db.close();
         }
         return user;
-   }
+    }
 
     public User getUserByEmail(String email) {
         User user = null;

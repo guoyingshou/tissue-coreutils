@@ -16,9 +16,16 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class ActivityMapper {
+
+    //what: 'plan'; where: topic
     private static List<String> planNames = Arrays.asList("EdgeHost", "EdgeJoin");
+
+    //what: post; where: topic  
     private static List<String> postNames = Arrays.asList("EdgeConcept", "EdgeNote", "EdgeTutorial", "EdgeQuestion");
-    private static List<String> commentNames = Arrays.asList("EdgePostMessage", "EdgePostMessageComment", "EdgeQuestionComment", "EdgeAnswer", "EdgeAnswerComment");
+
+    //what: message, questioncomment or answer; to: post; where: topic
+    private static List<String> answers = Arrays.asList("EdgeQuestionComment", "EdgeAnswer");
+
 
     public static List<Activity> buildStream(List<ODocument> streamDoc) {
         List<Activity> stream = new ArrayList();
@@ -66,20 +73,15 @@ public class ActivityMapper {
         ODocument whatDoc = doc.field("in");
         what.setId(OrientIdentityUtil.encode(whatDoc.getIdentity().toString()));
 
+        //the type of whatDoc is determined by the edge class
+
         if("EdgeCreate".equals(className)) {
+            //whatDoc is topicDoc
             String topicTitle = whatDoc.field("title");
             what.setDisplayName(topicTitle);
         }
-        if("EdgeHost".equals(className)) {
-            what.setDisplayName("plan");
-
-            ODocument whereDoc = whatDoc.field("topic");
-            where.setId(OrientIdentityUtil.encode(whereDoc.getIdentity().toString()));
-
-            String topicTitle = whereDoc.field("title");
-            where.setDisplayName(topicTitle);
-        }
-        if("EdgeJoin".equals(className)) {
+        if(planNames.contains(className)) {
+            //whatdoc is plandoc
             what.setDisplayName("plan");
 
             ODocument whereDoc = whatDoc.field("topic");
@@ -89,6 +91,7 @@ public class ActivityMapper {
             where.setDisplayName(topicTitle);
         }
         if(postNames.contains(className)) {
+            //whatDoc is postDoc('concept', 'note', 'tutorial' or 'question')
             String postTitle = whatDoc.field("title");
             what.setDisplayName(postTitle);
 
@@ -115,80 +118,54 @@ public class ActivityMapper {
             String topicTitle = whereDoc.field("title");
             where.setDisplayName(topicTitle);
         }
-        /**
         if("EdgePostMessageComment".equals(className)) {
-            activity.setType("PostMessageComment");
+            what.setDisplayName("post message comment");
 
-            object.setDisplayName("comment");
-            object.setObjectType("comment");
+            ODocument postMessageDoc = whatDoc.field("postMessage");
+            ODocument toDoc = postMessageDoc.field("post");
+            to.setId(OrientIdentityUtil.encode(toDoc.getIdentity().toString()));
+            String postTitle = toDoc.field("title", String.class);
+            to.setDisplayName(postTitle);
 
-            ODocument messageDoc = objectDoc.field("postMessage");
-            ODocument targetDoc = messageDoc.field("post");
-            target.setId(OrientIdentityUtil.encode(targetDoc.getIdentity().toString()));
-
-            String targetTitle = targetDoc.field("title", String.class);
-            target.setDisplayName(targetTitle);
-
-            String targetType = targetDoc.field("type", String.class);
-            target.setObjectType(targetType);
-
-
+            ODocument planDoc = toDoc.field("plan");
+            ODocument whereDoc = planDoc.field("topic");
+            where.setId(OrientIdentityUtil.encode(whereDoc.getIdentity().toString()));
+            
+            String topicTitle = whereDoc.field("title");
+            where.setDisplayName(topicTitle);
         }
-        if("EdgeQuestion".equals(className)) {
-            //object is a question, target is a topic
+        if(answers.contains(className)) {
+            what.setDisplayName("qustion comments or answers");
 
-            String title = objectDoc.field("title");
-            object.setDisplayName(title);
+            ODocument toDoc = whatDoc.field("question");
+            to.setId(OrientIdentityUtil.encode(toDoc.getIdentity().toString()));
 
-            String type = objectDoc.field("type");
-            object.setObjectType(type);
+            String postTitle = toDoc.field("title", String.class);
+            to.setDisplayName(postTitle);
 
-            activity.setType("Question");
-        }
-        if("EdgeQuestionComment".equals(className)) {
-            activity.setType("QuestionComment");
-
-            object.setDisplayName("comment");
-            object.setObjectType("comment");
-
-            ODocument targetDoc = objectDoc.field("question");
-            target.setId(OrientIdentityUtil.encode(targetDoc.getIdentity().toString()));
-
-            String targetTitle = targetDoc.field("title", String.class);
-            target.setDisplayName(targetTitle);
-            target.setObjectType("question");
-        }
-        if("EdgeAnswer".equals(className)) {
-            activity.setType("Answer");
-
-            object.setDisplayName("answer");
-
-            object.setObjectType("answer");
-
-            ODocument targetDoc = objectDoc.field("question");
-            target.setId(OrientIdentityUtil.encode(targetDoc.getIdentity().toString()));
-
-            String targetTitle = targetDoc.field("title", String.class);
-            target.setDisplayName(targetTitle);
-            target.setObjectType("question");
+            ODocument planDoc = toDoc.field("plan");
+            ODocument whereDoc = planDoc.field("topic");
+            where.setId(OrientIdentityUtil.encode(whereDoc.getIdentity().toString()));
+            
+            String topicTitle = whereDoc.field("title");
+            where.setDisplayName(topicTitle);
         }
         if("EdgeAnswerComment".equals(className)) {
-            activity.setType("AnswerComment");
+            what.setDisplayName("answer comment");
 
-            object.setDisplayName("comment");
-            object.setObjectType("comment");
+            ODocument answerCommentDoc = whatDoc.field("answer");
+            ODocument toDoc = answerCommentDoc.field("question");
+            to.setId(OrientIdentityUtil.encode(toDoc.getIdentity().toString()));
+            String postTitle = toDoc.field("title", String.class);
+            to.setDisplayName(postTitle);
 
-            ODocument answerDoc = objectDoc.field("answer");
-            ODocument targetDoc = answerDoc.field("question");
-            target.setId(OrientIdentityUtil.encode(targetDoc.getIdentity().toString()));
-
-            String targetTitle = targetDoc.field("title", String.class);
-            target.setDisplayName(targetTitle);
-
-            target.setObjectType("question");
+            ODocument planDoc = toDoc.field("plan");
+            ODocument whereDoc = planDoc.field("topic");
+            where.setId(OrientIdentityUtil.encode(whereDoc.getIdentity().toString()));
+            
+            String topicTitle = whereDoc.field("title");
+            where.setDisplayName(topicTitle);
         }
-*/
-
         return activity;
     }
 

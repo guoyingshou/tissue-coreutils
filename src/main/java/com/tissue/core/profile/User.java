@@ -15,6 +15,7 @@ public class User {
 
     private String displayName;
     private String email;
+    private String resume;
 
     //account
     private String username;
@@ -40,16 +41,6 @@ public class User {
         return id;
     }
 
-    /**
-    public void setPos(long pos) {
-        this.pos = pos;
-    }
-
-    public long getPos() {
-        return pos;
-    }
-    */
-
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
@@ -64,6 +55,14 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public void setResume(String resume) {
+        this.resume = resume;
+    }
+
+    public String getResume() {
+        return resume;
     }
 
     public void setUsername(String username) {
@@ -144,5 +143,9 @@ public class User {
 
     public Boolean isVerified() {
         return verified;
+    }
+
+    public Boolean isSame(String userId) {
+        return id.equals(userId);   
     }
 }
