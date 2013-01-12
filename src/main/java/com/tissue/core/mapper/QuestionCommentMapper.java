@@ -1,7 +1,7 @@
 package com.tissue.core.mapper;
 
 import com.tissue.core.util.OrientIdentityUtil;
-import com.tissue.core.profile.User;
+import com.tissue.core.social.User;
 import com.tissue.core.plan.QuestionComment;
 import com.tissue.core.plan.Post;
 

@@ -1,6 +1,6 @@
-package com.tissue.core.profile.dao;
+package com.tissue.core.social.dao;
 
-import com.tissue.core.profile.Invitation;
+import com.tissue.core.social.Invitation;
 import java.util.List;
 
 public interface InvitationDao {

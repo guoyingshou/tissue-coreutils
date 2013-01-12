@@ -3,7 +3,7 @@ package com.tissue.core.plan.dao.orient;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.mapper.TopicMapper;
-import com.tissue.core.profile.User;
+import com.tissue.core.social.User;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Post;

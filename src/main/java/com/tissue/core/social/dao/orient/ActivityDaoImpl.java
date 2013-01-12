@@ -5,7 +5,7 @@ import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.social.Activity;
 import com.tissue.core.social.ActivityObject;
-import com.tissue.core.profile.User;
+import com.tissue.core.social.User;
 import com.tissue.core.social.dao.ActivityDao;
 
 import org.springframework.stereotype.Component;

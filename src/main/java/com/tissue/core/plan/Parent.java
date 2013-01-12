@@ -1,6 +1,6 @@
 package com.tissue.core.plan;
 
-import com.tissue.core.profile.User;
+import com.tissue.core.social.User;
 
 import java.io.Serializable;
 import java.util.Date;

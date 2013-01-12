@@ -1,12 +1,12 @@
-package com.tissue.core.profile.dao.orient;
+package com.tissue.core.social.dao.orient;
 
 import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.profile.User;
-import com.tissue.core.profile.Impression;
-import com.tissue.core.profile.dao.UserDao;
-import com.tissue.core.profile.dao.DuplicateEmailException;
+import com.tissue.core.social.User;
+import com.tissue.core.social.Impression;
+import com.tissue.core.social.dao.UserDao;
+import com.tissue.core.social.dao.DuplicateEmailException;
 
 import java.util.Date;
 import java.util.List;

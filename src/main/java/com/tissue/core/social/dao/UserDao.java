@@ -1,7 +1,7 @@
-package com.tissue.core.profile.dao;
+package com.tissue.core.social.dao;
 
-import com.tissue.core.profile.User;
-import com.tissue.core.profile.Impression;
+import com.tissue.core.social.User;
+import com.tissue.core.social.Impression;
 import java.util.List;
 
 public interface UserDao {

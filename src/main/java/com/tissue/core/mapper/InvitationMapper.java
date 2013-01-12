@@ -1,8 +1,8 @@
 package com.tissue.core.mapper;
 
 import com.tissue.core.util.OrientIdentityUtil;
-import com.tissue.core.profile.User;
-import com.tissue.core.profile.Invitation;
+import com.tissue.core.social.User;
+import com.tissue.core.social.Invitation;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;

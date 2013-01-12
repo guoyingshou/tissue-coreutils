@@ -1,6 +1,6 @@
 package com.tissue.core.plan;
 
-import com.tissue.core.profile.User;
+import com.tissue.core.social.User;
 
 import org.joda.time.DateTime;
 import java.util.Date;

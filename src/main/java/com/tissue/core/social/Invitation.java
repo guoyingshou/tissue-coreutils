@@ -1,4 +1,4 @@
-package com.tissue.core.profile;
+package com.tissue.core.social;
 
 import java.util.Date;
 
