@@ -15,22 +15,25 @@ import java.util.Set;
 public class InvitationMapper {
 
     public static Invitation buildInvitation(ODocument invitationDoc) {
-        String content = invitationDoc.field("content", String.class);
-        Date createTime = invitationDoc.field("createTime", Date.class);
-        Date updateTime = invitationDoc.field("updateTime", Date.class);
-
-        ODocument userOutDoc = invitationDoc.field("out");
-        User invitor = UserMapper.buildUser(userOutDoc);
-
-        ODocument userInDoc = invitationDoc.field("in");
-        User invitee = UserMapper.buildUser(userInDoc);
 
         Invitation invitation = new Invitation();
         invitation.setId(OrientIdentityUtil.encode(invitationDoc.getIdentity().toString()));
+
+        String status = invitationDoc.field("status", String.class);
+        invitation.setStatus(status);
+
+        String content = invitationDoc.field("content", String.class);
         invitation.setContent(content);
+
+        Date createTime = invitationDoc.field("createTime", Date.class);
         invitation.setCreateTime(createTime);
-        invitation.setUpdateTime(updateTime);
+
+        ODocument userOutDoc = invitationDoc.field("out");
+        User invitor = UserMapper.buildUser(userOutDoc);
         invitation.setInvitor(invitor);
+
+        ODocument userInDoc = invitationDoc.field("in");
+        User invitee = UserMapper.buildUser(userInDoc);
         invitation.setInvitee(invitee);
 
         return invitation;

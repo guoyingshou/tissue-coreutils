@@ -5,6 +5,7 @@ import java.util.Date;
 public class Invitation {
 
     private String id;
+    private String status;
     private String content;
     private Date createTime;
     private Date updateTime;
@@ -18,6 +19,14 @@ public class Invitation {
 
     public String getId() {
         return id;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
     public void setContent(String content) {

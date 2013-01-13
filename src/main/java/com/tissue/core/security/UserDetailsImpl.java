@@ -1,20 +1,20 @@
 package com.tissue.core.security;
 
+import com.tissue.core.social.User;
+import com.tissue.core.social.Invitation;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
 
 public class UserDetailsImpl implements UserDetails {
 
-    public static enum Gender {
-        Male, Female
-    }
-
     private String id;
-    //private long pos;
 
     private String displayName;
     private String email;
@@ -22,14 +22,9 @@ public class UserDetailsImpl implements UserDetails {
     private String username;
     private String password;
 
-    private String aboutMe;
-    private String photo;
+    List<User> friends = new ArrayList();
+    List<Invitation> invitations = new ArrayList();
 
-    private String name;
-    private Gender gender;
-    private Date birthday;
-
-    //-- UserDetails
     private List<? extends GrantedAuthority> authorities;
 
     public void setAuthorities(List<? extends GrantedAuthority> authorities) {
@@ -47,16 +42,6 @@ public class UserDetailsImpl implements UserDetails {
     public String getId() {
         return id;
     }
-
-    /**
-    public void setPos(long pos) {
-        this.pos = pos;
-    }
-
-    public long getPos() {
-        return pos;
-    }
-    */
 
     public boolean isAccountNonExpired() {
         return true;
@@ -106,64 +91,44 @@ public class UserDetailsImpl implements UserDetails {
         return password;
     }
 
-    //-------------------
-    public void setAboutMe(String aboutMe) {
-        this.aboutMe = aboutMe;
+    public void addFriend(User friend) {
+        friends.add(friend);
     }
 
-    public String getAboutMe() {
-        return aboutMe;
+    public List<User> getFriends() {
+        return friends;
     }
 
-    public void setPhoto(String photo) {
-        this.photo = photo;
+    public boolean isFriend(String userId) {
+        Set<String> ids = new HashSet();
+        for(User user : friends) {
+            ids.add(user.getId());
+        }
+        return ids.contains(userId);
     }
 
-    public String getPhoto() {
-        return photo;
+    public void addInvitation(Invitation invitation) {
+        invitations.add(invitation);
     }
 
-    //-------------------------
-
-    public void setName(String name) {
-        this.name = name;
+    public List<Invitation> getInvitationsReceived() {
+        List<Invitation> result = new ArrayList();
+        for(Invitation inv : invitations) {
+            if(id.equals(inv.getInvitee().getId())) {
+                result.add(inv);
+            }
+        }
+        return result;
     }
 
-    public String getName() {
-        return name;
+    public List<Invitation> getInvitationsSent() {
+        List<Invitation> result = new ArrayList();
+        for(Invitation inv : invitations) {
+            if(id.equals(inv.getInvitor().getId())) {
+                result.add(inv);
+            }
+        }
+        return result;
     }
 
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
-    }
-
-    public Date getBirthday() {
-        return birthday;
-    }
-
-    /**
-    public void setPublished(Date published) {
-        this.published = published;
-    }
-
-    public Date getPublished() {
-        return published;
-    }
-
-    public void setUpdated(Date updated) {
-        this.updated = updated;
-    }
-
-    public Date getUpdated() {
-        return updated;
-    }
-    */
 }

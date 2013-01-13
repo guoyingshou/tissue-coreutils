@@ -121,39 +121,35 @@ public class UserDaoImpl implements UserDao {
         return impressions;
     }
 
-    public User getUserById(String id) {
+    public User getUserById(String id, boolean withFriends) {
         User user = null;
 
         String rid = OrientIdentityUtil.decode(id);
-        String sql = "select from " + rid;
 
         OGraphDatabase db = dataSource.getDB();
         try {
 
+            String sql = "select from " + rid;
             OSQLSynchQuery query = new OSQLSynchQuery(sql);
             List<ODocument> result = db.query(query);
             if(result.size() > 0) {
                 ODocument userDoc = result.get(0);
                 user = UserMapper.buildUser(userDoc);
+
+                if(withFriends) {
+                    String sqlFriends = "select from user where in[@class=EdgeFriend].out in " + rid + " or out[@class=EdgeFriend].in in " + rid;
+                    OSQLSynchQuery queryFriends = new OSQLSynchQuery(sqlFriends);
+                    List<ODocument> friendsDoc = db.query(queryFriends);
+                    for(ODocument friendDoc : friendsDoc) {
+                        User friend = UserMapper.buildUser(friendDoc);
+                        user.addFriend(friend);
+                    }
+                }
             }
-            /**
-            ORecordId record = new ORecordId(OrientIdentityUtil.decode(id));
-            ODocument doc = db.load(record);
-            if(doc != null) {
-
-                String username = doc.field("username", String.class);
-                String displayName = doc.field("displayName", String.class);
-
-                user = new User();
-                user.setId(id);
-
-                user.setUsername(username);
-                user.setDisplayName(displayName);
-            }
-            */
         }
         catch(Exception exc) {
             //to do: must process this exception
+            exc.printStackTrace();
         }
         finally {
             db.close();

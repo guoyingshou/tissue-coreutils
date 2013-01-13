@@ -33,41 +33,12 @@ public class InvitationDaoImpl implements InvitationDao {
     @Autowired
     private OrientDataSource dataSource;
 
-    public boolean canInvite(String fromId, String toId) {
-        boolean result = true;
+    public void inviteFriend(String fromId, String toId, String content) {
 
         String ridFrom = OrientIdentityUtil.decode(fromId);
         String ridTo = OrientIdentityUtil.decode(toId);
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OIdentifiable from = new ORecordId(ridFrom);
-            OIdentifiable to = new ORecordId(ridTo);
-
-            String[] labels = {"invitation", "friend"};
-            Set<OIdentifiable> edges = db.getEdgesBetweenVertexes(from, to, labels);
-            if(edges.size() > 0) {
-                result = false;
-            }
-        }
-        catch(Exception exc) {
-           //to do
-            exc.printStackTrace();
-        }
-        finally {
-            db.close();
-        }
-        return result;
-    }
-
-    public void inviteFriend(String fromId, String toId, String content) {
         
-        String sql = "create edge EdgeInvite from " + 
-                     OrientIdentityUtil.decode(fromId) + 
-                     " to " +
-                     OrientIdentityUtil.decode(toId) +
-                     " set label = 'invitation', status = 'unread', createTime = sysdate(), content = '" +
-                     content + "'";
+        String sql = "create edge EdgeFriend from " + ridFrom + " to " + ridTo + " set status = 'invite', createTime = sysdate(), content = '" + content + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -83,61 +54,10 @@ public class InvitationDaoImpl implements InvitationDao {
         }
     }
 
-    public Invitation getInvitation(String invitationId) {
-        Invitation invitation = null;
-
-        String sql = "select from " + OrientIdentityUtil.decode(invitationId);
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OSQLSynchQuery q = new OSQLSynchQuery(sql);
-            List<ODocument> result = db.query(q);
-            if(result.size() > 0) {
-                ODocument invitationDoc = result.get(0);
-                invitation = InvitationMapper.buildInvitation(invitationDoc);
-            }
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
-           //to do
-        }
-        finally {
-            db.close();
-        }
-
-        return invitation;
-    }
-
-    public List<Invitation> getInvitations(String viewerId) {
-        List<Invitation> invitations = new ArrayList();
-
-        String sql = "select from EdgeInvite where in in " + 
-                      OrientIdentityUtil.decode(viewerId) +
-                      " and status = 'unread'";
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OSQLSynchQuery q = new OSQLSynchQuery(sql);
-            List<ODocument> result = db.query(q);
-            for(ODocument invitationDoc : result) {
-                Invitation invitation = InvitationMapper.buildInvitation(invitationDoc);
-                invitations.add(invitation);
-            }
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
-           //to do
-        }
-        finally {
-            db.close();
-        }
-        return invitations;
-    }
-
-    public boolean declineInvitation(String invitationId) {
-        boolean flag = true;
+    public void declineInvitation(String invitationId) {
+        String rid = OrientIdentityUtil.decode(invitationId);
         
-        String sql = "update "+ 
-                     OrientIdentityUtil.decode(invitationId) + 
-                     " set status = 'declined', updateTime = sysdate()";
+        String sql = "update " + rid + " set status = 'declined', updateTime = sysdate()";
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -145,47 +65,23 @@ public class InvitationDaoImpl implements InvitationDao {
             db.command(cmd).execute();
         }
         catch(Exception exc) {
-            flag = false;
             //to do
             exc.printStackTrace();
         }
         finally {
             db.close();
         }
-        return flag;
     }
 
-    public Invitation acceptInvitation(String invitationId) {
-
-        Invitation invitation = null;
+    public void acceptInvitation(String invitationId) {
+        String rid = OrientIdentityUtil.decode(invitationId);
         
-        String sql = "select from " + OrientIdentityUtil.decode(invitationId);
+        String sql = "update " + rid + " set status = 'accepted', updateTime = sysdate()";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-
-            OSQLSynchQuery q = new OSQLSynchQuery(sql);
-            List<ODocument> result = db.query(q);
-            if(result.size() > 0) {
-                ODocument invitationDoc = result.get(0);
-                invitationDoc.field("updateTime", new Date());
-                invitationDoc.field("status", "accepted");
-                invitationDoc.save();
-
-                ODocument invitorDoc = invitationDoc.field("out");
-                ODocument inviteeDoc = invitationDoc.field("in");
-
-                 //add friend
-                String sqlAddFriend = "create Edge EdgeFriend from " + 
-                                      invitorDoc.getIdentity().toString() + 
-                                      " to " + 
-                                      inviteeDoc.getIdentity().toString() + 
-                                      " set label = 'friend', createTime = sysdate()";
-                OCommandSQL cmdAddFriend = new OCommandSQL(sqlAddFriend);
-                db.command(cmdAddFriend).execute();
-
-                invitation = InvitationMapper.buildInvitation(invitationDoc);
-           }
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
         }
         catch(Exception exc) {
             //to do
@@ -194,7 +90,6 @@ public class InvitationDaoImpl implements InvitationDao {
         finally {
             db.close();
         }
-        return invitation;
     }
- 
+
 }
