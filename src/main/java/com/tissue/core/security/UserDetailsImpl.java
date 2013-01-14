@@ -16,14 +16,11 @@ public class UserDetailsImpl implements UserDetails {
 
     private String id;
 
-    private String displayName;
-    private String email;
-
     private String username;
     private String password;
 
-    List<User> friends = new ArrayList();
-    List<Invitation> invitations = new ArrayList();
+    private String displayName;
+    private String email;
 
     private List<? extends GrantedAuthority> authorities;
 
@@ -90,45 +87,4 @@ public class UserDetailsImpl implements UserDetails {
     public String getPassword() {
         return password;
     }
-
-    public void addFriend(User friend) {
-        friends.add(friend);
-    }
-
-    public List<User> getFriends() {
-        return friends;
-    }
-
-    public boolean isFriend(String userId) {
-        Set<String> ids = new HashSet();
-        for(User user : friends) {
-            ids.add(user.getId());
-        }
-        return ids.contains(userId);
-    }
-
-    public void addInvitation(Invitation invitation) {
-        invitations.add(invitation);
-    }
-
-    public List<Invitation> getInvitationsReceived() {
-        List<Invitation> result = new ArrayList();
-        for(Invitation inv : invitations) {
-            if(id.equals(inv.getInvitee().getId())) {
-                result.add(inv);
-            }
-        }
-        return result;
-    }
-
-    public List<Invitation> getInvitationsSent() {
-        List<Invitation> result = new ArrayList();
-        for(Invitation inv : invitations) {
-            if(id.equals(inv.getInvitor().getId())) {
-                result.add(inv);
-            }
-        }
-        return result;
-    }
-
 }

@@ -1,6 +1,7 @@
 package com.tissue.core.social.dao.orient;
 
 import com.tissue.core.mapper.UserMapper;
+import com.tissue.core.mapper.ConnectionMapper;
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.social.User;
@@ -121,7 +122,7 @@ public class UserDaoImpl implements UserDao {
         return impressions;
     }
 
-    public User getUserById(String id, boolean withFriends) {
+    public User getUserById(String id, boolean withConnections) {
         User user = null;
 
         String rid = OrientIdentityUtil.decode(id);
@@ -136,7 +137,15 @@ public class UserDaoImpl implements UserDao {
                 ODocument userDoc = result.get(0);
                 user = UserMapper.buildUser(userDoc);
 
-                if(withFriends) {
+                if(withConnections) {
+                    String sqlconn = "select from EdgeFriend where in in " + rid + " or out in " + rid;
+                    List<ODocument> connectionsDoc = db.query(new OSQLSynchQuery(sqlconn));
+                    for(ODocument connDoc : connectionsDoc) {
+                        User.Connection conn = ConnectionMapper.buildConnection(connDoc);
+                        user.addConnection(conn);
+                    }
+ 
+                    /**
                     String sqlFriends = "select from user where in[@class=EdgeFriend].out in " + rid + " or out[@class=EdgeFriend].in in " + rid;
                     OSQLSynchQuery queryFriends = new OSQLSynchQuery(sqlFriends);
                     List<ODocument> friendsDoc = db.query(queryFriends);
@@ -144,6 +153,7 @@ public class UserDaoImpl implements UserDao {
                         User friend = UserMapper.buildUser(friendDoc);
                         user.addFriend(friend);
                     }
+                    */
                 }
             }
         }

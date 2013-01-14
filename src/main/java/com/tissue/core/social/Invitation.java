@@ -1,8 +1,9 @@
 package com.tissue.core.social;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Invitation {
+public class Invitation implements Serializable {
 
     private String id;
     private String status;

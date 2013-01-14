@@ -47,6 +47,7 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
                 ODocument doc = result.get(0);
                 userDetails = UserDetailsMapper.buildUser(doc);
 
+                /**
                 String rid = doc.getIdentity().toString();
                 String sql = "select from EdgeFriend where in in " + rid + " or out in " + rid;
                 List<ODocument> friendsDoc = db.query(new OSQLSynchQuery(sql));
@@ -70,15 +71,6 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
                         }
                     }
                 }
-
-
-                /**
-                user = new UserDetailsImpl();
-                user.setUsername(username);
-                user.setPassword(doc.field("password").toString());
-                user.setDisplayName(doc.field("displayName").toString());
-
-                user.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
                 */
             }
         }
