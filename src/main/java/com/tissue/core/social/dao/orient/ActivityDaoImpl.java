@@ -40,18 +40,38 @@ public class ActivityDaoImpl implements ActivityDao {
     private OrientDataSource dataSource;
 
     public List<Activity> getFriendsActivities(String userId, int num) {
-        List<Activity> stream = null;
         String ridUser = OrientIdentityUtil.decode(userId);
+        String sql = "select from edgeactivity where out in (select union(in[status='accepted'].out, out[status='accepted'].in) from " + ridUser + ") order by createTime desc limit " + num;
 
-        //String sql = "select from edgetopic where out in (select union(in[label='friend'].out, out[label='friend'].in) from " + ridUser + ")";
-        
-        String sql = "select from edgetopic order by createTime desc";
+        return query(sql);
+    }
+
+    public List<Activity> getUserActivities(String userId, int num) {
+
+        String rid = OrientIdentityUtil.decode(userId);
+        String sql = "select from edgeactivity where out in " + rid + " order by createTime desc";
+
+        return query(sql);
+    }
+
+    public List<Activity> getActivitiesForNewUser(int num) {
+        String sql = "select from edgetopic where label contains ['create', 'plan', 'members', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
+
+        return query(sql);
+    }
+
+    public List<Activity> getActivities(int num) {
+        String sql = "select from edgetopic order by createTime desc limit " + num;
+        return query(sql);
+    }
+
+    private List<Activity> query(String sql) {
+        List<Activity> stream = null;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             OSQLSynchQuery<ODocument> q = new OSQLSynchQuery(sql);
             List<ODocument> streamDoc = db.query(q);
-
             stream = ActivityMapper.buildStream(streamDoc);
         }
         catch(Exception exc) {
@@ -62,54 +82,6 @@ public class ActivityDaoImpl implements ActivityDao {
             db.close();
         }
         return stream;
-    }
-
-    public List<Activity> getUserActivities(String userId, int num) {
-        List<Activity> stream = null;
-
-        String rid = OrientIdentityUtil.decode(userId);
-        String sql = "select from edgetopic where out in " + rid + " order by createTime desc";
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> streamDoc = db.query(new OSQLSynchQuery(sql));
-            stream = ActivityMapper.buildStream(streamDoc);
-        }
-        catch(Exception exc) {
-            //to do
-            exc.printStackTrace();
-        }
-        finally {
-            db.close();
-        }
- 
-        return stream;
- 
-    }
-
-    public List<Activity> getLatestActivities(int num) {
-        List<Activity> stream = null;
-
-        /**
-        String sql = "select from event where type in ['topic', 'plan', 'members'] order by published desc limit " + num;
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OSQLSynchQuery<ODocument> q = new OSQLSynchQuery(sql);
-            List<ODocument> eventsDoc = db.query(q);
-
-            events = EventConverter.buildEvents(eventsDoc);
-        }
-        catch(Exception exc) {
-            //to do
-            exc.printStackTrace();
-        }
-        finally {
-            db.close();
-        }
-        */
-        return stream;
- 
     }
 
 }
