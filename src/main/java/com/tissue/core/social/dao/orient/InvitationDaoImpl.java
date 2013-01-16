@@ -1,13 +1,14 @@
 package com.tissue.core.social.dao.orient;
 
+import com.tissue.core.orient.dao.OrientDao;
+import com.tissue.core.orient.dao.DuplicateEmailException;
 import com.tissue.core.util.OrientIdentityUtil;
-import com.tissue.core.util.OrientDataSource;
+//import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.InvitationMapper;
 import com.tissue.core.social.Invitation;
 import com.tissue.core.social.User;
 import com.tissue.core.social.dao.InvitationDao;
 import com.tissue.core.social.dao.UserDao;
-import com.tissue.core.social.dao.DuplicateEmailException;
 
 import java.util.Date;
 import java.util.List;
@@ -21,17 +22,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+/**
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
+*/
 
 @Component
-public class InvitationDaoImpl implements InvitationDao {
+public class InvitationDaoImpl extends OrientDao implements InvitationDao {
 
+    /**
     @Autowired
     private OrientDataSource dataSource;
+    */
 
     public void inviteFriend(String fromId, String toId, String content) {
 
@@ -42,8 +47,11 @@ public class InvitationDaoImpl implements InvitationDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
+            executeCommand(db, sql);
+            /**
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
+            */
         }
         catch(Exception exc) {
             exc.printStackTrace();
@@ -61,8 +69,11 @@ public class InvitationDaoImpl implements InvitationDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
+            executeCommand(db, sql);
+            /**
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
+            */
         }
         catch(Exception exc) {
             //to do
@@ -80,8 +91,11 @@ public class InvitationDaoImpl implements InvitationDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
+            executeCommand(db, sql);
+            /**
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
+            */
         }
         catch(Exception exc) {
             //to do

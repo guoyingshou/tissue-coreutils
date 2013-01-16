@@ -6,7 +6,6 @@ import com.tissue.core.plan.PostMessage;
 import com.tissue.core.plan.PostMessageComment;
 import com.tissue.core.plan.Post;
 
-import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 import java.util.Date;
@@ -19,8 +18,6 @@ public class PostMessageMapper {
     public static ODocument convertPostMessage(PostMessage postMessage) {
         ODocument doc = new ODocument("PostMessage");
         doc.field("content", postMessage.getContent());
-        doc.field("post", new ORecordId(OrientIdentityUtil.decode(postMessage.getPost().getId())));
-
         return doc;
     }
 

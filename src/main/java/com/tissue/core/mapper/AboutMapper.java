@@ -19,6 +19,15 @@ public class AboutMapper {
         return doc;
     }
 
+    public static List<About> buildAbouts(List<ODocument> docs) {
+        List<About> abouts = new ArrayList();
+        for(ODocument doc : docs) {
+            abouts.add(buildAbout(doc));
+        }
+
+        return abouts;
+    }
+
     public static About buildAbout(ODocument doc) {
         About about = new About();
         about.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));

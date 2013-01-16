@@ -32,6 +32,6 @@ public interface TopicDao {
 
     List<Topic> getTopicsByTag(String tag);
 
-    void addPlan(Plan plan);
+    //void addPlan(Plan plan);
 
 }

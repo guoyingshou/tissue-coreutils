@@ -46,32 +46,6 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
             if(result != null) {
                 ODocument doc = result.get(0);
                 userDetails = UserDetailsMapper.buildUser(doc);
-
-                /**
-                String rid = doc.getIdentity().toString();
-                String sql = "select from EdgeFriend where in in " + rid + " or out in " + rid;
-                List<ODocument> friendsDoc = db.query(new OSQLSynchQuery(sql));
-                for(ODocument edgeDoc : friendsDoc) {
-                    String status = edgeDoc.field("status", String.class);
-                    List<String> ins = Arrays.asList("invite", "declined");
-                    if(ins.contains(status)) {
-                        Invitation invitation = InvitationMapper.buildInvitation(edgeDoc);
-                        userDetails.addInvitation(invitation);
-                    }
-                    if("accepted".equals(status)) {
-                        ODocument inDoc = edgeDoc.field("in");
-                        if(rid.equals(inDoc.getIdentity().toString())) {
-                            ODocument outDoc = edgeDoc.field("out");
-                            User friend = UserMapper.buildUser(outDoc);
-                            userDetails.addFriend(friend);
-                        }
-                        else {
-                            User friend = UserMapper.buildUser(inDoc);
-                            userDetails.addFriend(friend);
-                        }
-                    }
-                }
-                */
             }
         }
         catch(Exception exc) {

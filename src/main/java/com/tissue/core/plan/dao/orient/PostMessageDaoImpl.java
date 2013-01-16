@@ -1,61 +1,49 @@
 package com.tissue.core.plan.dao.orient;
 
+import com.tissue.core.orient.dao.OrientDao;
 import com.tissue.core.util.OrientIdentityUtil;
-import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.PostMessageMapper;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.PostMessage;
 import com.tissue.core.plan.dao.PostMessageDao;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.HashSet;
-
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 
 @Component
-public class PostMessageDaoImpl implements PostMessageDao {
+public class PostMessageDaoImpl extends OrientDao implements PostMessageDao {
 
-    @Autowired
-    private OrientDataSource dataSource;
-
-    /**
-     * It seems that sql command cann't be mixed with java api call.
-     */
     public PostMessage create(PostMessage message) {
+
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = PostMessageMapper.convertPostMessage(message);
-            doc.save();
+        ODocument doc = PostMessageMapper.convertPostMessage(message);
+        saveDoc(doc);
 
-            String ridMessage = doc.getIdentity().toString();
-            String ridUser = OrientIdentityUtil.decode(message.getUser().getId());
+        String ridMessage = doc.getIdentity().toString();
 
-            String sql = "create edge EdgePostMessage from " + ridUser + " to " + ridMessage + " set label = 'postMessage', createTime = sysdate()";
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
+        String ridPost = OrientIdentityUtil.decode(message.getPost().getId());
+        String ridUser = OrientIdentityUtil.decode(message.getUser().getId());
 
-            String ridPost = OrientIdentityUtil.decode(message.getPost().getId());
-            String sql2 = "update " + ridPost + " add messages = " + ridMessage;
-            cmd = new OCommandSQL(sql2);
-            db.command(cmd).execute();
+        String sql = "update " + ridMessage + " set post = " + ridPost;
 
-            message.setId(OrientIdentityUtil.encode(ridMessage));
+        String sql2 = "create edge EdgePostMessage from " + ridUser + " to " + ridMessage + " set label = 'postMessage', createTime = sysdate()";
+
+        String sql3 = "update " + ridPost + " add messages = " + ridMessage;
+
+        executeCommand(db, sql);
+        executeCommand(db, sql2);
+        executeCommand(db, sql3);
+ 
+        message.setId(OrientIdentityUtil.encode(ridMessage));
+        return message;
         }
         finally {
             db.close();
         }
-        return message;
     }
 
     public void update(PostMessage message) {
@@ -65,8 +53,7 @@ public class PostMessageDaoImpl implements PostMessageDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
+        executeCommand(db, sql);
         }
         finally {
             db.close();
@@ -74,19 +61,15 @@ public class PostMessageDaoImpl implements PostMessageDao {
     }
 
     public void delete(String messageId) {
-
         String ridMessage = OrientIdentityUtil.decode(messageId);
         String sql = "update " + ridMessage + " set status = 'deleted'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
+        executeCommand(db, sql);
         }
         finally {
             db.close();
         }
- 
     }
-
 }

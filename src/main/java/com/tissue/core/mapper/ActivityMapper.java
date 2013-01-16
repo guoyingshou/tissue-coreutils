@@ -27,15 +27,17 @@ public class ActivityMapper {
     private static List<String> answers = Arrays.asList("EdgeQuestionComment", "EdgeAnswer");
 
 
-    public static List<Activity> buildStream(List<ODocument> streamDoc) {
-        List<Activity> stream = new ArrayList();
-        if(streamDoc != null) {
-            for(ODocument doc : streamDoc) {
-                Activity activity = buildActivity(doc);
-                stream.add(activity);
+    public static List<Activity> buildActivities(List<ODocument> docs) {
+        List<Activity> activities = new ArrayList();
+        if(docs != null) {
+            for(ODocument doc : docs) {
+                if(doc != null) {
+                    Activity activity = buildActivity(doc);
+                    activities.add(activity);
+                }
             }
         }
-        return stream;
+        return activities;
     }
 
     public static Activity buildActivity(ODocument doc) {

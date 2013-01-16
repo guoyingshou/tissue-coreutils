@@ -5,7 +5,6 @@ import com.tissue.core.social.User;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Topic;
 
-import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 import java.util.Date;
@@ -16,44 +15,36 @@ import java.util.Set;
 public class PlanMapper {
 
     public static ODocument convertPlan(Plan plan) {
-
         ODocument doc = new ODocument("Plan");
         doc.field("duration", plan.getDuration());
         doc.field("createTime", plan.getCreateTime());
-
-        ORecordId topicRecord = new ORecordId(OrientIdentityUtil.decode(plan.getTopic().getId()));
-        doc.field("topic", topicRecord);
-
+        doc.field("count", 0);
         return doc;
     }
 
-    public static List<Plan> buildPlans(Set<ODocument> plansDoc) {
+    public static List<Plan> buildPlans(List<ODocument> docs) {
         List<Plan> plans = new ArrayList();
-
-        for(ODocument planDoc : plansDoc) {
-            if(planDoc != null) {
-                Plan plan = buildPlan(planDoc);
-                plans.add(plan);
-            }
+        for(ODocument doc : docs) {
+            Plan plan = buildPlan(doc);
+            plans.add(plan);
         }
         return plans;
     }
 
-    public static Plan buildPlan(ODocument planDoc) {
+    public static Plan buildPlan(ODocument doc) {
 
         Plan plan = new Plan();
-        plan.setId(OrientIdentityUtil.encode(planDoc.getIdentity().toString()));
+        plan.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
 
-        Integer duration = planDoc.field("duration", Integer.class);
+        Integer duration = doc.field("duration", Integer.class);
         plan.setDuration(duration);
 
-        ODocument topicDoc = planDoc.field("topic");
-        Topic topic = TopicMapper.buildTopicWithoutChild(topicDoc);
+        ODocument topicDoc = doc.field("topic");
+        Topic topic = TopicMapper.buildTopic(topicDoc);
         plan.setTopic(topic);
 
-        Set<ODocument> inEdges = planDoc.field("in");
+        Set<ODocument> inEdges = doc.field("in");
         for(ODocument inEdge : inEdges) {
-            //if(inEdge.field("target").equals("plan")) {
             if("EdgeHost".equals(inEdge.getClassName())) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 plan.setCreateTime(createTime);
@@ -65,9 +56,9 @@ public class PlanMapper {
             }
         }
 
-        List<User> members = new ArrayList();
-        Set<ODocument> inDocs = planDoc.field("in");
+        Set<ODocument> inDocs = doc.field("in");
         if(inDocs != null) {
+            List<User> members = new ArrayList();
             for(ODocument inDoc : inDocs) {
                 ODocument memberDoc = inDoc.field("out");
                 if(memberDoc != null) {
@@ -75,8 +66,8 @@ public class PlanMapper {
                     members.add(member);
                 }
             }
+            plan.setMembers(members);
         }
-        plan.setMembers(members);
 
         return plan;
     }

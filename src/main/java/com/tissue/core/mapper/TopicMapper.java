@@ -24,21 +24,15 @@ public class TopicMapper {
         return doc;
     }
 
-    public static Topic buildTopic(ODocument doc) {
-        Topic topic = buildTopicWithoutChild(doc);
-
-        Set<String> tags = doc.field("tags", Set.class);
-        topic.setTags(tags);
-
-        Set<ODocument> plansDoc = doc.field("plans", Set.class);
-        if(plansDoc != null) {
-            List<Plan> plans = PlanMapper.buildPlans(plansDoc);
-            topic.setPlans(plans);
+    public static List<Topic> buildTopics(List<ODocument> docs) {
+        List<Topic> topics = new ArrayList();
+        for(ODocument doc : docs) {
+            topics.add(buildTopic(doc));
         }
-        return topic;
+        return topics;
     }
 
-    public static Topic buildTopicWithoutChild(ODocument doc) {
+    public static Topic buildTopic(ODocument doc) {
         Topic topic = new Topic();
         topic.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
  
@@ -48,8 +42,12 @@ public class TopicMapper {
         String content = doc.field("content", String.class);
         topic.setContent(content);
 
+        Set<String> tags = doc.field("tags", Set.class);
+        topic.setTags(tags);
+
         Set<ODocument> inEdges = doc.field("in");
-        for(ODocument inEdge : inEdges) {
+        if(inEdges != null) {
+          for(ODocument inEdge : inEdges) {
             if("EdgeCreate".equals(inEdge.getClassName())) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 topic.setCreateTime(createTime);
@@ -59,7 +57,21 @@ public class TopicMapper {
                 topic.setUser(user);
                 break;
             }
+          }
         }
         return topic;
     }
+
+    public static Topic buildTopicWithPlans(ODocument doc) {
+        Topic topic = buildTopic(doc);
+
+        List<ODocument> plansDoc = doc.field("plans", List.class);
+        if(plansDoc != null && plansDoc.size() > 0) {
+            List<Plan> plans = PlanMapper.buildPlans(plansDoc);
+            topic.setPlans(plans);
+        }
+ 
+        return topic;
+    }
+
 }

@@ -18,11 +18,12 @@ public interface UserDao {
 
     User getUserByEmail(String email);
 
-    User getUserById(String id, boolean withFriends);
+    User getUserById(String id, boolean withConnections);
 
-
+    /**
     boolean isFriend(String userId1, String userId2);
 
     List<User> getFriends(String viewerId);
+    */
 
 }

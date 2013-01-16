@@ -6,7 +6,7 @@ import com.tissue.core.plan.Answer;
 import com.tissue.core.plan.AnswerComment;
 import com.tissue.core.plan.Post;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+//import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 import java.util.Date;
@@ -19,7 +19,6 @@ public class AnswerMapper {
     public static ODocument convertAnswer(Answer answer) {
         ODocument doc = new ODocument("Answer");
         doc.field("content", answer.getContent());
-        doc.field("question", new ORecordId(OrientIdentityUtil.decode(answer.getQuestion().getId())));
         return doc;
     }
 
