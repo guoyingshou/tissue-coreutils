@@ -56,17 +56,15 @@ public class QuestionCommentMapper {
                 break;
             }
         }
-
         return questionComment;
- 
     }
 
-    public static QuestionComment buildQuestionCommentWithParent(ODocument commentDoc) {
+    public static QuestionComment buildQuestionCommentDetails(ODocument commentDoc) {
 
         QuestionComment questionComment = buildQuestionComment(commentDoc);
 
         ODocument questionDoc = commentDoc.field("question");
-        Post question = PostMapper.buildPostWithoutChild(questionDoc);
+        Post question = PostMapper.buildPost(questionDoc);
         questionComment.setQuestion(question);
 
         return questionComment;

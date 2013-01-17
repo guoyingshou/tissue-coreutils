@@ -18,18 +18,21 @@ public class TutorialDaoImpl extends OrientDao implements TutorialDao {
     public Tutorial create(Tutorial tutorial) {
         OGraphDatabase db = dataSource.getDB();
         try {
-        ODocument doc = PostMapper.convert(tutorial);
-        saveDoc(doc);
+            ODocument doc = PostMapper.convert(tutorial);
+            saveDoc(doc);
 
-        String ridTutorial = doc.getIdentity().toString();
-        String ridUser = OrientIdentityUtil.decode(tutorial.getUser().getId());
+            String ridTutorial = doc.getIdentity().toString();
+            String ridUser = OrientIdentityUtil.decode(tutorial.getUser().getId());
+            String ridPlan = OrientIdentityUtil.decode(tutorial.getPlan().getId());
 
-        String sql = "create edge EdgeTutorial from " + ridUser + " to " + ridTutorial + " set label = 'tutorial', createTime = sysdate()";
+            String sql = "update " + ridTutorial + " set plan = " + ridPlan;
+            executeCommand(db, sql);
 
-        executeCommand(db, sql);
+            sql = "create edge EdgeTutorial from " + ridUser + " to " + ridTutorial + " set label = 'tutorial', createTime = sysdate()";
+            executeCommand(db, sql);
 
-        tutorial.setId(OrientIdentityUtil.encode(ridTutorial));
-        return tutorial;
+            tutorial.setId(OrientIdentityUtil.encode(ridTutorial));
+            return tutorial;
         }
         finally {
             db.close();

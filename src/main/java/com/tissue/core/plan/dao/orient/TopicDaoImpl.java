@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 
 @Component
@@ -50,13 +51,19 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
      * Update a topic.
      */
     public void update(Topic topic) {
-
         String ridTopic = OrientIdentityUtil.decode(topic.getId());
-        String sql = "update " + ridTopic + " set content = '" + topic.getContent() + "', tags = " + topic.getTags().toString();
+        /**
+        String sql = "update " + ridTopic + " set content = '" + topic.getContent() + "', tags = '" + topic.getTags().toString() + "'";
+        */
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            executeCommand(db, sql);
+            ODocument doc = db.load(new ORecordId(ridTopic));
+            doc.field("content", topic.getContent());
+            doc.field("tags", topic.getTags());
+            db.save(doc);
+
+            //executeCommand(db, sql);
         }
         finally {
             db.close();
@@ -73,7 +80,7 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = querySingle(db, sql);
-            return TopicMapper.buildTopicWithPlans(doc);
+            return TopicMapper.buildTopicDetails(doc);
         }
         finally {
            db.close();
@@ -84,28 +91,30 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
      * Get a topic by plan id with all fields available.
      */
     public Topic getTopicByPlanId(String planId) {
+        Topic topic = null;
 
         String sql = "select topic from " + OrientIdentityUtil.decode(planId);
-
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = querySingle(db, sql);
-            return TopicMapper.buildTopic(doc);
+            ODocument topicDoc = doc.field("topic");
+            topic = TopicMapper.buildTopicDetails(topicDoc);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return topic;
     }
-
 
     /**
      * Get topics with the largest members.
      */
     public List<Topic> getTrendingTopics(int num) {
         List<ODocument> topicsDoc = new ArrayList();
-
-        String sql = "select topic, count from Plan order by count desc limit " + num;
-
+        String sql = "select topic from Plan order by count desc limit " + num;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
@@ -126,17 +135,14 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
      * Get featured topics.
      */
     public List<Topic> getFeaturedTopics(int num) {
-
         String sql = "select from Topic where type = 'featured' order by createTime desc limit " + num;
-
         OGraphDatabase db = dataSource.getDB();
         try {
-        List<ODocument> docs = query(db, sql);
-        return TopicMapper.buildTopics(docs);
+            List<ODocument> docs = query(db, sql);
+            return TopicMapper.buildTopics(docs);
         }
         finally {
             db.close();
-
         }
     }
 
@@ -151,10 +157,7 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
      * Get paged topics reverse ordered by createTime.
      */
     public List<Topic> getPagedTopics(int page, int size) {
-
-        //String sql = "select @rid, title, content, in[label='create'].createTime, in.out[@class='User'].@rid as ridUser, in.out[@class='User'].displayName as displayName from Topic order by createTime desc skip " + ((page -1) * size) + " limit " + size;
         String sql = "select from Topic order by createTime desc skip " + ((page -1) * size) + " limit " + size;
-
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
@@ -170,12 +173,10 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
      */
     public List<Topic> getTopics() {
         String sql = "select from Topic order by createTime desc";
-
-
         OGraphDatabase db = dataSource.getDB();
         try {
-        List<ODocument> docs = query(db, sql);
-        return TopicMapper.buildTopics(docs);
+            List<ODocument> docs = query(db, sql);
+            return TopicMapper.buildTopics(docs);
         }
         finally {
             db.close();
@@ -191,12 +192,11 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-
-        List<ODocument> docs = query(db, sql);
-        if((docs != null) && (docs.size() > 0)) {
-            tags = docs.get(0).field("set");
-        }
-        return tags;
+            List<ODocument> docs = query(db, sql);
+            if((docs != null) && (docs.size() > 0)) {
+                tags = docs.get(0).field("set");
+            }
+            return tags;
         }
         finally {
             db.close();
@@ -209,14 +209,12 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
         String sql = "select count(*) from Topic where tags in " + tag;
         OGraphDatabase db = dataSource.getDB();
         try {
-
-
-        List<ODocument> docs = query(db, sql);
-        if(docs.size() > 0) {
-            ODocument countDoc = docs.get(0);
-            result = countDoc.field("count", long.class);
-        }
-        return result;
+            List<ODocument> docs = query(db, sql);
+            if(docs.size() > 0) {
+                ODocument countDoc = docs.get(0);
+                result = countDoc.field("count", long.class);
+            }
+            return result;
         }
         finally {
             db.close();
@@ -228,10 +226,8 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-
-
-        List<ODocument> docs = query(db, sql);
-        return TopicMapper.buildTopics(docs);
+            List<ODocument> docs = query(db, sql);
+            return TopicMapper.buildTopics(docs);
         }
         finally {
            db.close();
@@ -243,42 +239,12 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-
-
-        List<ODocument> docs = query(db, sql);
-        return TopicMapper.buildTopics(docs);
+            List<ODocument> docs = query(db, sql);
+            return TopicMapper.buildTopics(docs);
         }
         finally {
             db.close();
         }
     }
 
-    /**
-    public void addPlan(Plan plan) {
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-
-        ODocument planDoc = PlanMapper.convertPlan(plan);
-        saveDoc(planDoc);
-        System.out.println("in topic dao: " + planDoc);
-
-        String ridPlan = planDoc.getIdentity().toString();
-
-        String ridTopic = OrientIdentityUtil.decode(plan.getTopic().getId());
-        String ridUser = OrientIdentityUtil.decode(plan.getUser().getId());
-
-        String sql= "create edge EdgeHost from " + ridUser + " to " + ridPlan + " set label = 'host', createTime = sysdate()";
-        String sql2 = "update " + ridPlan + " set topic = " + ridTopic;
-        String sql3 = "update " + ridTopic + " add plans = " + ridPlan;
-
-        executeCommand(db, sql);
-        executeCommand(db, sql2);
-        executeCommand(db, sql3);
-        }
-        finally {
-            db.close();
-        }
-    }
-    */
 }

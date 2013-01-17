@@ -16,25 +16,31 @@ import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 public class ConceptDaoImpl extends OrientDao implements ConceptDao {
 
     public Concept create(Concept concept) {
-
         OGraphDatabase db = dataSource.getDB();
-
         try {
-        ODocument doc = PostMapper.convert(concept);
-        saveDoc(doc);
+            ODocument doc = PostMapper.convert(concept);
+            saveDoc(doc);
 
-        String ridConcept = doc.getIdentity().toString();
-        String ridUser = OrientIdentityUtil.decode(concept.getUser().getId());
+            String ridConcept = doc.getIdentity().toString();
+            String ridUser = OrientIdentityUtil.decode(concept.getUser().getId());
+            String ridPlan = OrientIdentityUtil.decode(concept.getPlan().getId());
 
-        String sql = "create edge EdgeConcept from " + ridUser + " to " + ridConcept + " set label = 'concept', createTime = sysdate()";
+            String sql = "update " + ridConcept + " set plan = " + ridPlan;
+            executeCommand(db, sql);
 
-        executeCommand(db, sql);
-        concept.setId(OrientIdentityUtil.encode(ridConcept));
-        return concept;
+            sql = "create edge EdgeConcept from " + ridUser + " to " + ridConcept + " set label = 'concept', createTime = sysdate()";
+            executeCommand(db, sql);
+
+            concept.setId(OrientIdentityUtil.encode(ridConcept));
+        }
+        catch(Exception exc) {
+            //to do
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return concept;
     }
 
 }

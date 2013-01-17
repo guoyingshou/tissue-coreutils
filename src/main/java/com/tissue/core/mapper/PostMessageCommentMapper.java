@@ -66,7 +66,7 @@ public class PostMessageCommentMapper {
         PostMessageComment messageComment = buildPostMessageComment(commentDoc);
 
         ODocument postMessageDoc = commentDoc.field("postMessage");
-        PostMessage postMessage = PostMessageMapper.buildPostMessageWithoutChild(postMessageDoc);
+        PostMessage postMessage = PostMessageMapper.buildPostMessage(postMessageDoc);
         messageComment.setPostMessage(postMessage);
  
         return messageComment;

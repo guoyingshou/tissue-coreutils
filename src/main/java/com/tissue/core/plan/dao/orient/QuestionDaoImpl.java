@@ -16,25 +16,31 @@ import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 public class QuestionDaoImpl extends OrientDao implements QuestionDao {
 
     public Question create(Question question) {
-
         OGraphDatabase db = dataSource.getDB();
         try {
-        ODocument doc = PostMapper.convert(question);
-        saveDoc(doc);
+            ODocument doc = PostMapper.convert(question);
+            saveDoc(doc);
 
-        String ridQuestion = doc.getIdentity().toString();
-        String ridUser = OrientIdentityUtil.decode(question.getUser().getId());
+            String ridQuestion = doc.getIdentity().toString();
+            String ridUser = OrientIdentityUtil.decode(question.getUser().getId());
+            String ridPlan = OrientIdentityUtil.decode(question.getPlan().getId());
 
-        String sql = "create edge EdgeQuestion from " + ridUser + " to " + ridQuestion + " set label = 'question', createTime = sysdate()";
+            String sql = "update " + ridQuestion + " set plan = " + ridPlan;
+            executeCommand(db, sql);
 
-        executeCommand(db, sql);
+            sql = "create edge EdgeQuestion from " + ridUser + " to " + ridQuestion + " set label = 'question', createTime = sysdate()";
+            executeCommand(db, sql);
 
-        question.setId(OrientIdentityUtil.encode(ridQuestion));
-        return question;
+            question.setId(OrientIdentityUtil.encode(ridQuestion));
+        }
+        catch(Exception exc) {
+            //to do
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return question;
     }
 
 }

@@ -10,7 +10,6 @@ import com.tissue.core.plan.QuestionComment;
 import com.tissue.core.plan.Answer;
 import com.tissue.core.plan.Plan;
 
-//import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 import java.util.Date;
@@ -22,49 +21,14 @@ import java.util.Set;
 public class PostMapper {
 
     public static ODocument convert(Post post) {
-
-        ODocument doc = new ODocument("Post");
+        ODocument doc = new ODocument(post.getType());
         doc.field("title", post.getTitle());
         doc.field("content", post.getContent());
         doc.field("type", post.getType());
-
-        //doc.field("plan", new ORecordId(OrientIdentityUtil.decode(post.getPlan().getId())));
-
         return doc;
     }
 
     public static Post buildPost(ODocument postDoc) {
-        Post post = buildPostWithoutChild(postDoc);
-
-        if("question".equals(post.getType())) {
-            Question q = new Question(post);
-            Set<ODocument> questionCommentsDoc = postDoc.field("comments");
-            if(questionCommentsDoc != null) {
-                List<QuestionComment> questionComments = QuestionCommentMapper.buildQuestionComments(questionCommentsDoc);
-                q.setComments(questionComments);
-            }
-
-            Set<ODocument> answersDoc = postDoc.field("answers");
-            if(answersDoc != null) {
-                List<Answer> answers = AnswerMapper.buildAnswers(answersDoc);
-                q.setAnswers(answers);
-            }
-
-            return q;
-        }
-        else {
-            Cnt cnt = new Cnt(post);
-            Set<ODocument> messagesDoc = postDoc.field("messages");
-            if(messagesDoc != null) {
-                List<PostMessage> messages = PostMessageMapper.buildPostMessages(messagesDoc);
-                cnt.setMessages(messages);
-            }
-            return cnt;
-        }
-
-    }
-
-    public static Post buildPostWithoutChild(ODocument postDoc) {
         Post post = new Post();
         post.setId(OrientIdentityUtil.encode(postDoc.getIdentity().toString()));
 
@@ -101,10 +65,41 @@ public class PostMapper {
         return post;
     }
 
+    public static Post buildPostDetails(ODocument postDoc) {
+        Post post = buildPost(postDoc);
+
+        if("question".equals(post.getType())) {
+            Question q = new Question(post);
+            Set<ODocument> questionCommentsDoc = postDoc.field("comments");
+            if(questionCommentsDoc != null) {
+                List<QuestionComment> questionComments = QuestionCommentMapper.buildQuestionComments(questionCommentsDoc);
+                q.setComments(questionComments);
+            }
+
+            Set<ODocument> answersDoc = postDoc.field("answers");
+            if(answersDoc != null) {
+                List<Answer> answers = AnswerMapper.buildAnswers(answersDoc);
+                q.setAnswers(answers);
+            }
+
+            return q;
+        }
+        else {
+            Cnt cnt = new Cnt(post);
+            Set<ODocument> messagesDoc = postDoc.field("messages");
+            if(messagesDoc != null) {
+                List<PostMessage> messages = PostMessageMapper.buildPostMessages(messagesDoc);
+                cnt.setMessages(messages);
+            }
+            return cnt;
+        }
+
+    }
+
     public static List<Post> buildPosts(List<ODocument> postsDoc) {
         List<Post> posts = new ArrayList();
         for(ODocument postDoc : postsDoc) {
-            Post post = buildPostWithoutChild(postDoc);
+            Post post = buildPost(postDoc);
             posts.add(post);
         }
         return posts;

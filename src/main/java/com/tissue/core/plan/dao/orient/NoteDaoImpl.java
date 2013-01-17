@@ -19,14 +19,18 @@ public class NoteDaoImpl extends OrientDao implements NoteDao {
         OGraphDatabase db = dataSource.getDB();
 
         try {
-        ODocument doc = PostMapper.convert(note);
-        saveDoc(doc);
+            ODocument doc = PostMapper.convert(note);
+            saveDoc(doc);
 
-        String ridNote = doc.getIdentity().toString();
-        String ridUser = OrientIdentityUtil.decode(note.getUser().getId());
+            String ridNote = doc.getIdentity().toString();
+            String ridUser = OrientIdentityUtil.decode(note.getUser().getId());
+            String ridPlan = OrientIdentityUtil.decode(note.getPlan().getId());
 
-        String sql = "create edge EdgeNote from " + ridUser + " to " + ridNote+" set label = 'note', createTime = sysdate()";
-        executeCommand(db, sql);
+            String sql = "update " + ridNote + " set plan = " + ridPlan;
+            executeCommand(db, sql);
+
+            sql = "create edge EdgeNote from " + ridUser + " to " + ridNote+" set label = 'note', createTime = sysdate()";
+            executeCommand(db, sql);
 
         note.setId(OrientIdentityUtil.encode(ridNote));
         return note;

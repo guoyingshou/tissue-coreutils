@@ -8,7 +8,7 @@ public interface PostDao {
     /**
      * Add a post.
      */
-    Post create(Post post);
+    //Post create(Post post);
 
     Post update(Post post);
 

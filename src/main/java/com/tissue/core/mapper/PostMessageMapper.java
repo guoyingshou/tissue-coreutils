@@ -23,19 +23,6 @@ public class PostMessageMapper {
 
     public static PostMessage buildPostMessage(ODocument messageDoc) {
 
-        PostMessage message = buildPostMessageWithoutChild(messageDoc);
-
-        Set<ODocument> commentsDoc = messageDoc.field("comments");
-        if(commentsDoc != null) {
-            List<PostMessageComment> messageComments = PostMessageCommentMapper.buildPostMessageComments(commentsDoc);
-            message.setComments(messageComments); 
-        }
- 
-        return message;
-    }
-
-    public static PostMessage buildPostMessageWithoutChild(ODocument messageDoc) {
-
         PostMessage message = new PostMessage();
         message.setId(OrientIdentityUtil.encode(messageDoc.getIdentity().toString()));
 
@@ -58,12 +45,24 @@ public class PostMessageMapper {
         }
 
         ODocument postDoc = messageDoc.field("post");
-        Post post = PostMapper.buildPostWithoutChild(postDoc);
+        Post post = PostMapper.buildPost(postDoc);
         message.setPost(post);
 
         return message;
     }
 
+    public static PostMessage buildPostMessageDetails(ODocument messageDoc) {
+
+        PostMessage message = buildPostMessage(messageDoc);
+
+        Set<ODocument> commentsDoc = messageDoc.field("comments");
+        if(commentsDoc != null) {
+            List<PostMessageComment> messageComments = PostMessageCommentMapper.buildPostMessageComments(commentsDoc);
+            message.setComments(messageComments); 
+        }
+ 
+        return message;
+    }
 
     public static List<PostMessage> buildPostMessages(Set<ODocument> messagesDoc) {
         List<PostMessage> messages = new ArrayList();
@@ -71,7 +70,7 @@ public class PostMessageMapper {
             String status = messageDoc.field("status", String.class);
             //deleted if status's value is set
             if(status == null) {
-                PostMessage message = buildPostMessage(messageDoc);
+                PostMessage message = buildPostMessageDetails(messageDoc);
                 messages.add(message);
             }
         }

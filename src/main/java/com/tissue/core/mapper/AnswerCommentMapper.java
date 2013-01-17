@@ -65,7 +65,7 @@ public class AnswerCommentMapper {
         AnswerComment answerComment = buildAnswerComment(commentDoc);
 
         ODocument answerDoc = commentDoc.field("answer");
-        Answer answer = AnswerMapper.buildAnswerWithoutChild(answerDoc);
+        Answer answer = AnswerMapper.buildAnswer(answerDoc);
         answerComment.setAnswer(answer);
 
         return answerComment;

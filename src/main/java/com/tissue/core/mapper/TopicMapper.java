@@ -62,7 +62,7 @@ public class TopicMapper {
         return topic;
     }
 
-    public static Topic buildTopicWithPlans(ODocument doc) {
+    public static Topic buildTopicDetails(ODocument doc) {
         Topic topic = buildTopic(doc);
 
         List<ODocument> plansDoc = doc.field("plans", List.class);
