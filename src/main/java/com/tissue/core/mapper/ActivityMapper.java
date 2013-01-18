@@ -17,16 +17,6 @@ import java.util.Map;
 
 public class ActivityMapper {
 
-    //what: 'plan'; where: topic
-    private static List<String> planNames = Arrays.asList("EdgeHost", "EdgeJoin");
-
-    //what: post; where: topic  
-    private static List<String> postNames = Arrays.asList("EdgeConcept", "EdgeNote", "EdgeTutorial", "EdgeQuestion");
-
-    //what: message, questioncomment or answer; to: post; where: topic
-    private static List<String> answers = Arrays.asList("EdgeQuestionComment", "EdgeAnswer");
-
-
     public static List<Activity> buildActivities(List<ODocument> docs) {
         List<Activity> activities = new ArrayList();
         if(docs != null) {
@@ -40,17 +30,18 @@ public class ActivityMapper {
         return activities;
     }
 
+    /**
+     * @params doc out edge from user node
+     */
     public static Activity buildActivity(ODocument doc) {
-
-        String className = doc.getClassName();
 
         Activity activity = new Activity();
 
         Date published = doc.field("createTime", Date.class);
         activity.setPublished(published);
 
-        String type = doc.field("label", String.class);
-        activity.setType(type);
+        String label = doc.field("label", String.class);
+        activity.setLabel(label);
 
         ActivityObject who = new ActivityObject();
         activity.setWho(who);
@@ -64,25 +55,24 @@ public class ActivityMapper {
         ActivityObject where = new ActivityObject();
         activity.setWhere(where);
 
-        //set up who
+        //set up who. out property node is a user
         ODocument userDoc = doc.field("out");
         who.setId(OrientIdentityUtil.encode(userDoc.getIdentity().toString()));
         String displayName = userDoc.field("displayName", String.class);
         who.setDisplayName(displayName);
         who.setObjectType("person");
 
-        //pre set up what
+        //pre set up what. in property's node type depends on the label value
+        //the type of whatDoc is determined by the label's value
         ODocument whatDoc = doc.field("in");
         what.setId(OrientIdentityUtil.encode(whatDoc.getIdentity().toString()));
 
-        //the type of whatDoc is determined by the edge class
-
-        if("EdgeCreate".equals(className)) {
+        if("topic".equals(label)) {
             //whatDoc is topicDoc
             String topicTitle = whatDoc.field("title");
             what.setDisplayName(topicTitle);
         }
-        if(planNames.contains(className)) {
+        if("plan".equals(label) || "members".equals(label)) {
             //whatdoc is plandoc
             what.setDisplayName("plan");
 
@@ -92,7 +82,7 @@ public class ActivityMapper {
             String topicTitle = whereDoc.field("title");
             where.setDisplayName(topicTitle);
         }
-        if(postNames.contains(className)) {
+        if("concept".equals(label) || "note".equals(label) || "tutorial".equals(label) || "question".equals(label)) {
             //whatDoc is postDoc('concept', 'note', 'tutorial' or 'question')
             String postTitle = whatDoc.field("title");
             what.setDisplayName(postTitle);
@@ -104,7 +94,7 @@ public class ActivityMapper {
             String topicTitle = whereDoc.field("title");
             where.setDisplayName(topicTitle);
         }
-        if("EdgePostMessage".equals(className)) {
+        if("postMessage".equals(label)) {
             what.setDisplayName("post message");
 
             ODocument toDoc = whatDoc.field("post");
@@ -120,7 +110,7 @@ public class ActivityMapper {
             String topicTitle = whereDoc.field("title");
             where.setDisplayName(topicTitle);
         }
-        if("EdgePostMessageComment".equals(className)) {
+        if("postMessageComment".equals(label)) {
             what.setDisplayName("post message comment");
 
             ODocument postMessageDoc = whatDoc.field("postMessage");
@@ -136,7 +126,7 @@ public class ActivityMapper {
             String topicTitle = whereDoc.field("title");
             where.setDisplayName(topicTitle);
         }
-        if(answers.contains(className)) {
+        if("answer".equals(label) || "questionComment".equals(label)) {
             what.setDisplayName("qustion comments or answers");
 
             ODocument toDoc = whatDoc.field("question");
@@ -152,7 +142,7 @@ public class ActivityMapper {
             String topicTitle = whereDoc.field("title");
             where.setDisplayName(topicTitle);
         }
-        if("EdgeAnswerComment".equals(className)) {
+        if("answerComment".equals(label)) {
             what.setDisplayName("answer comment");
 
             ODocument answerCommentDoc = whatDoc.field("answer");

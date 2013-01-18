@@ -14,17 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-/**
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
-*/
-
-//import com.orientechnologies.orient.core.command.traverse.OTraverse;
-//import com.orientechnologies.orient.core.command.OCommandPredicate;
-//import com.orientechnologies.orient.core.command.OCommandContext;
-//import com.orientechnologies.orient.core.record.ORecord;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -40,84 +29,81 @@ import com.google.common.collect.TreeMultimap;
 public class ActivityDaoImpl extends OrientDao implements ActivityDao {
 
     public List<Activity> getFriendsActivities(String userId, int num) {
+        List<Activity> activities = new ArrayList();
+
         String ridUser = OrientIdentityUtil.decode(userId);
-        String sql = "select from edgeactivity where out in (select union(in[status='accepted'].out, out[status='accepted'].in) from " + ridUser + ") order by createTime desc limit " + num;
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-        List<ODocument> docs = query(db, sql);
-        return ActivityMapper.buildActivities(docs);
-        }
-        finally {
-            db.close();
-        }
-    }
-
-    public List<Activity> getUserActivities(String userId, int num) {
-
-        String rid = OrientIdentityUtil.decode(userId);
-        String sql = "select from edgeactivity where out in " + rid + " order by createTime desc";
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-        List<ODocument> docs = query(db, sql);
-        return ActivityMapper.buildActivities(docs);
-        }
-        finally {
-            db.close();
-        }
- 
-        //return query(sql);
-    }
-
-    public List<Activity> getActivitiesForNewUser(int num) {
-        String sql = "select from edgetopic where label contains ['create', 'plan', 'members', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
+        String sql = "select from ographedge where out in (select union(in[status='accepted'].out, out[status='accepted'].in) from " + ridUser + ") and (label contains ['concept', 'topic']) order by createTime desc limit " + num;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            return ActivityMapper.buildActivities(docs);
-        }
-        finally {
-            db.close();
-        }
- 
-    }
-
-    public List<Activity> getActivities(int num) {
-        String sql = "select from edgetopic order by createTime desc limit " + num;
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-        List<ODocument> docs = query(db, sql);
-        return ActivityMapper.buildActivities(docs);
-        }
-        finally {
-            db.close();
-        }
- 
-        //return query(sql);
-    }
-
-    /**
-    private List<Activity> query(String sql) {
-        List<Activity> stream = null;
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OSQLSynchQuery<ODocument> q = new OSQLSynchQuery(sql);
-            List<ODocument> streamDoc = db.query(q);
-            stream = ActivityMapper.buildStream(streamDoc);
+            activities = ActivityMapper.buildActivities(docs);
         }
         catch(Exception exc) {
-            //to do
             exc.printStackTrace();
         }
         finally {
             db.close();
         }
-        return stream;
+        return activities;
     }
-    */
+
+    public List<Activity> getUserActivities(String userId, int num) {
+        List<Activity> activities = new ArrayList();
+
+        String rid = OrientIdentityUtil.decode(userId);
+        String sql = "select from ographedge where out in " + rid + " order by createTime desc";
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = query(db, sql);
+            activities = ActivityMapper.buildActivities(docs);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+         finally {
+            db.close();
+        }
+        return activities;
+    }
+
+    public List<Activity> getActivitiesForNewUser(int num) {
+        List<Activity> activities = new ArrayList();
+
+        String sql = "select from ographedge where label contains ['topic', 'plan', 'members', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = query(db, sql);
+            activities = ActivityMapper.buildActivities(docs);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return activities;
+    }
+
+    public List<Activity> getActivities(int num) {
+        List<Activity> activities = new ArrayList();
+
+        String sql = "select from ographedge order by createTime desc limit " + num;
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = query(db, sql);
+            activities = ActivityMapper.buildActivities(docs);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return activities;
+    }
 
 }

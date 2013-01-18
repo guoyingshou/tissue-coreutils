@@ -7,48 +7,15 @@ import com.tissue.core.social.User;
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.dao.PostDao;
 
-import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
+import java.util.List;
+import java.util.ArrayList;
 
 @Component
 public class PostDaoImpl extends OrientDao implements PostDao {
-
-    /**
-    public Post create(Post post) {
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = PostMapper.convert(post);
-            saveDoc(doc);
-
-            String ridPost = doc.getIdentity().toString();
-            String ridPlan = OrientIdentityUtil.decode(post.getPlan().getId());
-            String ridUser = OrientIdentityUtil.decode(post.getUser().getId());
-
-            String sql = "update " + ridPost + " set plan = " + ridPlan;
-            executeCommand(db, sql);
-
-            String sqlpost = "create edge EdgePost from " + ridUser + " to " + ridPost + " set label = 'post', createTime = sysdate()";
-
-            String sqlquestion = "create edge EdgeQuestion from " + ridUser + " to " + ridPost + " set label = 'question', createTime = sysdate()";
-
-            if("question".equals(post.getType())) {
-                executeCommand(db, sqlquestion);
-            }
-            else {
-                executeCommand(db, sqlpost);
-            }
-
-            post.setId(OrientIdentityUtil.encode(ridPost));
-            return post;
-        }
-        finally {
-            db.close();
-        }
-    }
-    */
 
     public Post update(Post post) {
         String ridPost = OrientIdentityUtil.decode(post.getId());
@@ -57,36 +24,50 @@ public class PostDaoImpl extends OrientDao implements PostDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             executeCommand(db, sql);
-            return post;
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return post;
     }
 
     public Post getPost(String id) {
+        Post post = null;
         String sql = "select from " + OrientIdentityUtil.decode(id);
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = querySingle(db, sql);
-            return PostMapper.buildPostDetails(doc);
+            post = PostMapper.buildPostDetails(doc);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return post;
     }
 
     public List<Post> getPagedPostsByTopicId(String topicId, int page, int size) {
+        List<Post> posts = new ArrayList();
+
         String sql = "select from Post where plan.topic in " + OrientIdentityUtil.decode(topicId) + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            return PostMapper.buildPosts(docs);
+            posts = PostMapper.buildPosts(docs);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return posts;
     }
 
     public long getPostsCountByTopicId(String topicId) {
@@ -96,11 +77,11 @@ public class PostDaoImpl extends OrientDao implements PostDao {
         try {
             ODocument doc = querySingle(db, sql);
             result = doc.field("count", long.class);
-            return result;
         }
         finally {
             db.close();
         }
+        return result;
     }
 
     public long getPostsCountByTopicIdAndType(String topicId, String type) {
@@ -120,22 +101,27 @@ public class PostDaoImpl extends OrientDao implements PostDao {
         finally {
             db.close();
         }
-        System.out.println("count: " + count);
         return count;
     }
 
     public List<Post> getPagedPostsByTopicIdAndType(String topicId, String type, int page, int size) {
+        List<Post> posts = new ArrayList();
+
         String ridTopic = OrientIdentityUtil.decode(topicId);
         String sql = "select from Post where plan.topic in " + ridTopic + " and type = '" + type + "' order by createTime desc skip " + (page - 1) * size + " limit " + size;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            return PostMapper.buildPosts(docs);
+            posts = PostMapper.buildPosts(docs);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return posts;
     }
 
     public long getPostsCountByPlanId(String planId) {
@@ -148,38 +134,32 @@ public class PostDaoImpl extends OrientDao implements PostDao {
         try {
             ODocument doc = querySingle(db, sql);
             result = doc.field("count", long.class);
-            return result;
         }
         finally {
             db.close();
         }
+        return result;
     }
 
     public List<Post> getPagedPostsByPlanId(String planId, int page, int size) {
+        List<Post> posts = new ArrayList();
+
         String ridPlan = OrientIdentityUtil.decode(planId);
         String sql = "select from Post where plan in " + ridPlan + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            return PostMapper.buildPosts(docs);
+            posts = PostMapper.buildPosts(docs);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return posts;
     }
-
-    /**
-    public List<Post> getPostsByPlanId(String planId) {
-        String ridPlan = OrientIdentityUtil.decode(planId);
-        String sql = "select from Post where plan in " + ridPlan;
-
-        List<ODocument> docs = query(sql);
-        return PostMapper.buildPosts(docs);
-    }
-    */
-
-    //-- by user
     
     public long getPostsCountByUserId(String userId) {
         long result = 0;
@@ -189,27 +169,33 @@ public class PostDaoImpl extends OrientDao implements PostDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        ODocument doc = querySingle(db, sql);
-        result = doc.field("count", long.class);
-        return result;
+            ODocument doc = querySingle(db, sql);
+            result = doc.field("count", long.class);
         }
         finally {
             db.close();
         }
+        return result;
     }
 
     public List<Post> getPagedPostsByUserId(String userId, int page, int size) {
+        List<Post> posts = new ArrayList();
+
         String rid = OrientIdentityUtil.decode(userId);
         String sql = "select from Post where in.out in " + rid + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        List<ODocument> docs = query(db, sql);
-        return PostMapper.buildPosts(docs);
+            List<ODocument> docs = query(db, sql);
+            posts = PostMapper.buildPosts(docs);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return posts;
     }
 
 }

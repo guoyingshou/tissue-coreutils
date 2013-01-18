@@ -45,7 +45,8 @@ public class PlanMapper {
 
         Set<ODocument> inEdges = doc.field("in");
         for(ODocument inEdge : inEdges) {
-            if("EdgeHost".equals(inEdge.getClassName())) {
+            String label = inEdge.field("label", String.class);
+            if("plan".equals(label)) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 plan.setCreateTime(createTime);
 
@@ -55,26 +56,10 @@ public class PlanMapper {
                 break;
             }
         }
-
-        /**
-        Set<ODocument> inDocs = doc.field("in");
-        if(inDocs != null) {
-            List<User> members = new ArrayList();
-            for(ODocument inDoc : inDocs) {
-                ODocument memberDoc = inDoc.field("out");
-                if(memberDoc != null) {
-                    User member = UserMapper.buildUser(memberDoc);
-                    members.add(member);
-                }
-            }
-            plan.setMembers(members);
-        }
-        */
-
         return plan;
     }
 
-    public static Plan buildPlanDetail(ODocument doc) {
+    public static Plan buildPlanDetails(ODocument doc) {
         Plan plan = buildPlan(doc);
         Set<ODocument> inDocs = doc.field("in");
         if(inDocs != null) {

@@ -30,17 +30,16 @@ public class PostMessageMapper {
         message.setContent(messageContent);
 
         Set<ODocument> inEdges = messageDoc.field("in");
-        if(inEdges != null) {
-            for(ODocument inEdge : inEdges) {
-                if("EdgePostMessage".equals(inEdge.getClassName())) {
-                    Date createTime = inEdge.field("createTime", Date.class);
-                    message.setCreateTime(createTime);
+        for(ODocument inEdge : inEdges) {
+            String label = inEdge.field("label", String.class);
+            if("postMessage".equals(label)) {
+                Date createTime = inEdge.field("createTime", Date.class);
+                message.setCreateTime(createTime);
 
-                    ODocument userDoc = inEdge.field("out");
-                    User user = UserMapper.buildUser(userDoc);
-                    message.setUser(user);
-                    break;
-                }
+                ODocument userDoc = inEdge.field("out");
+                User user = UserMapper.buildUser(userDoc);
+                message.setUser(user);
+                break;
             }
         }
 

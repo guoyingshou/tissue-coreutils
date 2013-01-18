@@ -41,11 +41,12 @@ public class PostMapper {
         String postType = postDoc.field("type", String.class);
         post.setType(postType);
 
-        List<String> classNames = Arrays.asList("EdgeConcept", "EdgeNote", "EdgeTutorial", "EdgeQuestion");
+        List<String> labels = Arrays.asList("concept", "note", "tutorial", "question");
 
         Set<ODocument> inEdges = postDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            if(classNames.contains(inEdge.getClassName())) {
+            String label = inEdge.field("label", String.class);
+            if(labels.contains(label)) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 post.setCreateTime(createTime);
 

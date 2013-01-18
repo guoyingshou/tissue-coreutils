@@ -8,11 +8,12 @@ import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.dao.PlanDao;
 
-import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
+import java.util.List;
+import java.util.ArrayList;
 
 @Component
 public class PlanDaoImpl extends OrientDao implements PlanDao {
@@ -28,15 +29,14 @@ public class PlanDaoImpl extends OrientDao implements PlanDao {
             String ridUser = OrientIdentityUtil.decode(plan.getUser().getId());
             String ridTopic = OrientIdentityUtil.decode(plan.getTopic().getId());
 
-            String sql = "create edge EdgeHost from " + ridUser + " to " + ridPlan + " set label = 'host', createTime = sysdate()";
+            String sql = "create edge from " + ridUser + " to " + ridPlan + " set label = 'plan', createTime = sysdate()";
             executeCommand(db, sql);
 
-            String sql2 = "update " + ridPlan + " set topic = " + ridTopic;
-            executeCommand(db, sql2);
+            sql = "update " + ridPlan + " set topic = " + ridTopic;
+            executeCommand(db, sql);
 
-            String sql3 = "update " + ridTopic + " add plans = " + ridPlan;
-            executeCommand(db, sql3);
-
+            sql = "update " + ridTopic + " add plans = " + ridPlan;
+            executeCommand(db, sql);
 
             plan.setId(OrientIdentityUtil.encode(ridPlan));
         }
@@ -50,32 +50,43 @@ public class PlanDaoImpl extends OrientDao implements PlanDao {
     }
 
     public Plan getPlan(String planId) {
+        Plan plan = null;
+
         String rid = OrientIdentityUtil.decode(planId);
         String sql = "select from " + rid;
         
         OGraphDatabase db = dataSource.getDB();
         try {
-        ODocument doc = querySingle(db, sql);
-        return PlanMapper.buildPlan(doc);
+            ODocument doc = querySingle(db, sql);
+            plan = PlanMapper.buildPlanDetails(doc);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return plan;
     }
 
     public List<Plan> getPlans(String topicId) {
+        List<Plan> plans = new ArrayList();
+
+        String rid = OrientIdentityUtil.decode(topicId);
+        String sql = "select from plan where topic = " + rid;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        String rid = OrientIdentityUtil.decode(topicId);
-        String sql = "select from plan where topic = " + rid;
-        List<ODocument> docs = query(db, sql);
-
-        return PlanMapper.buildPlans(docs);
+            List<ODocument> docs = query(db, sql);
+            plans = PlanMapper.buildPlans(docs);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return plans;
     }
 
     public void addMember(String planId, String userId) {
@@ -83,13 +94,13 @@ public class PlanDaoImpl extends OrientDao implements PlanDao {
         String ridUser = OrientIdentityUtil.decode(userId);
         String ridPlan = OrientIdentityUtil.decode(planId);
 
-        String sql = "create edge EdgeJoin from " + ridUser + " to " + ridPlan + " set label='member', createTime=sysdate()";
-        String sql2 = "update " + ridPlan + " increment count = 1";
-
         OGraphDatabase db = dataSource.getDB();
         try {
+            String sql = "create edge from " + ridUser + " to " + ridPlan + " set label='members', createTime=sysdate()";
             executeCommand(db, sql);
-            executeCommand(db, sql2);
+
+            sql = "update " + ridPlan + " increment count = 1";
+            executeCommand(db, sql);
         }
         finally {
             db.close();

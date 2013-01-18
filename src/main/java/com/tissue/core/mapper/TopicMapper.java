@@ -46,9 +46,9 @@ public class TopicMapper {
         topic.setTags(tags);
 
         Set<ODocument> inEdges = doc.field("in");
-        if(inEdges != null) {
-          for(ODocument inEdge : inEdges) {
-            if("EdgeCreate".equals(inEdge.getClassName())) {
+        for(ODocument inEdge : inEdges) {
+            String label = inEdge.field("label", String.class);
+            if("topic".equals(label)) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 topic.setCreateTime(createTime);
 
@@ -57,7 +57,6 @@ public class TopicMapper {
                 topic.setUser(user);
                 break;
             }
-          }
         }
         return topic;
     }

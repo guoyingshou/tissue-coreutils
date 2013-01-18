@@ -43,7 +43,8 @@ public class AnswerMapper {
 
         Set<ODocument> inEdges = answerDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            if("EdgeAnswer".equals(inEdge.getClassName())) {
+            String label = inEdge.field("label", String.class);
+            if("answer".equals(label)) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 answer.setCreateTime(createTime);
 

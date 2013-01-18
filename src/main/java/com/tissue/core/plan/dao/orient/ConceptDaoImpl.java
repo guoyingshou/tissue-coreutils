@@ -28,7 +28,7 @@ public class ConceptDaoImpl extends OrientDao implements ConceptDao {
             String sql = "update " + ridConcept + " set plan = " + ridPlan;
             executeCommand(db, sql);
 
-            sql = "create edge EdgeConcept from " + ridUser + " to " + ridConcept + " set label = 'concept', createTime = sysdate()";
+            sql = "create edge from " + ridUser + " to " + ridConcept + " set label = 'concept', createTime = sysdate()";
             executeCommand(db, sql);
 
             concept.setId(OrientIdentityUtil.encode(ridConcept));

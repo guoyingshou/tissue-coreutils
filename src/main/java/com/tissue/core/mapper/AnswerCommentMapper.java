@@ -45,8 +45,8 @@ public class AnswerCommentMapper {
 
         Set<ODocument> inEdges = commentDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            //if(inEdge.field("target").equals("answerComment")) {
-            if("EdgeAnswerComment".equals(inEdge.getClassName())) {
+            String label = inEdge.field("label", String.class);
+            if("answerComment".equals(label)) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 answerComment.setCreateTime(createTime);
 

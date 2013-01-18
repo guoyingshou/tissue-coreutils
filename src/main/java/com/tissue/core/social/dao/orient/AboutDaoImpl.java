@@ -31,72 +31,45 @@ public class AboutDaoImpl extends OrientDao implements AboutDao {
     public About create(About about) {
         OGraphDatabase db = dataSource.getDB();
         try {
-        ODocument doc = AboutMapper.convertAbout(about);
-        saveDoc(doc);
-
-        String ridAbout = doc.getIdentity().toString();
-        String ridUser = OrientIdentityUtil.decode(about.getUser().getId());
-
-        String sql = "create edge from " + ridUser + " to " + ridAbout + " set createTime = sysdate()";
-
-        executeCommand(db, sql);
-        about.setId(OrientIdentityUtil.encode(ridAbout));
-        return about;
-
-        /**
-        OGraphDatabase db = dataSource.getDB();
-        try {
             ODocument doc = AboutMapper.convertAbout(about);
-            doc.save();
+            saveDoc(doc);
 
             String ridAbout = doc.getIdentity().toString();
             String ridUser = OrientIdentityUtil.decode(about.getUser().getId());
 
-            String sql = "create edge from " + ridUser + " to " + ridAbout + " set createTime = sysdate()";
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
+            String sql = "create edge from " + ridUser + " to " + ridAbout + " set label = 'praise', createTime = sysdate()";
 
-            String aboutId = OrientIdentityUtil.encode(ridAbout);
-            about.setId(aboutId);
+            executeCommand(db, sql);
+            about.setId(OrientIdentityUtil.encode(ridAbout));
         }
         catch(Exception exc) {
             //todo
             exc.printStackTrace();
-        */
         }
         finally {
             db.close();
         }
+        return about;
     }
 
     public List<About> getAbouts() {
-        //List<About> abouts = new ArrayList();
+        List<About> abouts = new ArrayList();
 
         String sql = "select in.out as user, content, createTime from about";
         OGraphDatabase db = dataSource.getDB();
         try {
 
-        List<ODocument> docs = query(db, sql);
-        return AboutMapper.buildAbouts(docs);
-
-        /**
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OSQLSynchQuery<ODocument> query = new OSQLSynchQuery(sql);
-            List<ODocument> result = db.query(query);
-            for(ODocument doc : result) {
-                About about = AboutMapper.buildAbout(doc);
-                abouts.add(about);
-            }
+            List<ODocument> docs = query(db, sql);
+            abouts = AboutMapper.buildAbouts(docs);
         }
         catch(Exception exc) {
             //todo
             exc.printStackTrace();
-        */
         }
         finally {
             db.close();
         }
+        return abouts;
     }
 
 }

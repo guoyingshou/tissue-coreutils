@@ -24,14 +24,14 @@ public class UserDaoImpl extends OrientDao implements UserDao {
     public User create(User user) {
         OGraphDatabase db = dataSource.getDB();
         try {
-        ODocument doc = UserMapper.convertUser(user);
-        String id = saveDoc(doc);
-        user.setId(id);
-        return user;
+            ODocument doc = UserMapper.convertUser(user);
+            String id = saveDoc(doc);
+            user.setId(id);
         }
         finally {
            db.close();
         }
+        return user;
     }
 
     public User update(User user) {
@@ -43,7 +43,7 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         String sql = "update " + rid + " set resume = '" + content + "'";
         OGraphDatabase db = dataSource.getDB();
         try {
-        executeCommand(db, sql);
+            executeCommand(db, sql);
         }
         finally {
             db.close();
@@ -55,11 +55,11 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         String ridFrom = OrientIdentityUtil.decode(impression.getFrom().getId());
         String ridTo = OrientIdentityUtil.decode(impression.getTo().getId());
 
-        String sql = "create edge EdgeImpression from " + ridFrom + " to " + ridTo + " set published = sysdate(), content = '" + impression.getContent() + "'";
+        String sql = "create edge from " + ridFrom + " to " + ridTo + " set label = 'impression', published = sysdate(), content = '" + impression.getContent() + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        executeCommand(db, sql);
+            executeCommand(db, sql);
         }
         finally {
             db.close();
@@ -67,17 +67,20 @@ public class UserDaoImpl extends OrientDao implements UserDao {
     }
 
     public List<Impression> getImpressions(String userId) {
+        List<Impression> impressions = new ArrayList();
+
         String rid = OrientIdentityUtil.decode(userId);
         String sql = "select from EdgeImpression where in in " + rid;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        List<ODocument> docs = query(db, sql);
-        return UserMapper.buildImpressions(docs);
+            List<ODocument> docs = query(db, sql);
+            impressions = UserMapper.buildImpressions(docs);
         }
         finally {
             db.close();
         }
+        return impressions;
     }
 
     public User getUserById(String id, boolean withConnections) {
@@ -90,31 +93,34 @@ public class UserDaoImpl extends OrientDao implements UserDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        List<ODocument> docs = query(db, sql);
-
-        if(docs != null && docs.size() > 0) {
-            ODocument userDoc = docs.get(0);
-            user = UserMapper.buildUser(userDoc, true);
+            ODocument doc = querySingle(db, sql);
+            user = UserMapper.buildUser(doc, true);
         }
-        return user;
+        catch(Exception exc) {
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return user;
     }
 
     public User getUserByEmail(String email) {
+        User user = null;
         String sql = "select from User where email = ?";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        List<ODocument> docs = query(db, sql);
-        ODocument doc = docs.get(0);
-        return UserMapper.buildUser(doc);
+            ODocument doc = querySingle(db, sql);
+            user = UserMapper.buildUser(doc);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return user;
     }
 
 }

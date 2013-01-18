@@ -5,8 +5,10 @@ import java.util.Date;
 
 public class Activity implements Serializable {
 
-    private String type;
-    //private String title;
+    //friends
+    //topic, plan, members, concept, note, tutorial, question, 
+    //postMessage, messageComment, questionComment, answer, answerComment
+    private String label;
     private Date published;
 
     private ActivityObject who;
@@ -14,23 +16,13 @@ public class Activity implements Serializable {
     private ActivityObject to;
     private ActivityObject where;
 
-    public void setType(String type) {
-        this.type = type;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
-    public String getType() {
-        return type;
+    public String getLabel() {
+        return label;
     }
-
-    /**
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-    */
 
     public void setPublished(Date published) {
         this.published = published;

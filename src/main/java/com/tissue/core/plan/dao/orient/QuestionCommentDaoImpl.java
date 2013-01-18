@@ -20,26 +20,25 @@ public class QuestionCommentDaoImpl extends OrientDao implements QuestionComment
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        ODocument commentDoc = QuestionCommentMapper.convertQuestionComment(comment);
-        saveDoc(commentDoc);
+            ODocument commentDoc = QuestionCommentMapper.convertQuestionComment(comment);
+            saveDoc(commentDoc);
         
-        String ridComment = commentDoc.getIdentity().toString();
-        String ridUser = OrientIdentityUtil.decode(comment.getUser().getId());
+            String ridComment = commentDoc.getIdentity().toString();
+            String ridUser = OrientIdentityUtil.decode(comment.getUser().getId());
+            String ridQuestion = OrientIdentityUtil.decode(comment.getQuestion().getId());
 
-        String sql = "create edge EdgeQuestionComment from " + ridUser + " to " + ridComment + " set label = 'questionComment', createTime = sysdate()";
+            String sql = "create edge from " + ridUser + " to " + ridComment + " set label = 'questionComment', createTime = sysdate()";
+            executeCommand(db, sql);
 
-        String ridQuestion = OrientIdentityUtil.decode(comment.getQuestion().getId());
-        String sql2 = "update " + ridQuestion + " add comments = " + ridComment;
+            sql = "update " + ridQuestion + " add comments = " + ridComment;
+            executeCommand(db, sql);
 
-        executeCommand(db, sql);
-        executeCommand(db, sql2);
-
-        comment.setId(OrientIdentityUtil.encode(ridComment));
-        return comment;
+            comment.setId(OrientIdentityUtil.encode(ridComment));
         }
         finally {
             db.close();
         }
+        return comment;
     }
 
     public void update(QuestionComment comment) {
@@ -48,7 +47,7 @@ public class QuestionCommentDaoImpl extends OrientDao implements QuestionComment
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        executeCommand(db, sql);
+            executeCommand(db, sql);
         }
         finally {
             db.close();
@@ -61,7 +60,7 @@ public class QuestionCommentDaoImpl extends OrientDao implements QuestionComment
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        executeCommand(db, sql);
+            executeCommand(db, sql);
         }
         finally {
             db.close();

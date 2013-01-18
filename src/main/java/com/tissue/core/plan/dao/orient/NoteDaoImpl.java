@@ -29,15 +29,18 @@ public class NoteDaoImpl extends OrientDao implements NoteDao {
             String sql = "update " + ridNote + " set plan = " + ridPlan;
             executeCommand(db, sql);
 
-            sql = "create edge EdgeNote from " + ridUser + " to " + ridNote+" set label = 'note', createTime = sysdate()";
+            sql = "create edge from " + ridUser + " to " + ridNote+" set label = 'note', createTime = sysdate()";
             executeCommand(db, sql);
 
-        note.setId(OrientIdentityUtil.encode(ridNote));
-        return note;
+            note.setId(OrientIdentityUtil.encode(ridNote));
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
         }
         finally {
             db.close();
         }
+        return note;
     }
 
 }

@@ -20,30 +20,28 @@ public class PostMessageDaoImpl extends OrientDao implements PostMessageDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        ODocument doc = PostMessageMapper.convertPostMessage(message);
-        saveDoc(doc);
+            ODocument doc = PostMessageMapper.convertPostMessage(message);
+            saveDoc(doc);
 
-        String ridMessage = doc.getIdentity().toString();
+            String ridMessage = doc.getIdentity().toString();
+            String ridPost = OrientIdentityUtil.decode(message.getPost().getId());
+            String ridUser = OrientIdentityUtil.decode(message.getUser().getId());
 
-        String ridPost = OrientIdentityUtil.decode(message.getPost().getId());
-        String ridUser = OrientIdentityUtil.decode(message.getUser().getId());
+            String sql = "update " + ridMessage + " set post = " + ridPost;
+            executeCommand(db, sql);
 
-        String sql = "update " + ridMessage + " set post = " + ridPost;
+            sql = "create edge from " + ridUser + " to " + ridMessage + " set label = 'postMessage', createTime = sysdate()";
+            executeCommand(db, sql);
 
-        String sql2 = "create edge EdgePostMessage from " + ridUser + " to " + ridMessage + " set label = 'postMessage', createTime = sysdate()";
-
-        String sql3 = "update " + ridPost + " add messages = " + ridMessage;
-
-        executeCommand(db, sql);
-        executeCommand(db, sql2);
-        executeCommand(db, sql3);
+            sql = "update " + ridPost + " add messages = " + ridMessage;
+            executeCommand(db, sql);
  
-        message.setId(OrientIdentityUtil.encode(ridMessage));
-        return message;
+            message.setId(OrientIdentityUtil.encode(ridMessage));
         }
         finally {
             db.close();
         }
+        return message;
     }
 
     public void update(PostMessage message) {
@@ -53,7 +51,7 @@ public class PostMessageDaoImpl extends OrientDao implements PostMessageDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        executeCommand(db, sql);
+            executeCommand(db, sql);
         }
         finally {
             db.close();
@@ -66,7 +64,7 @@ public class PostMessageDaoImpl extends OrientDao implements PostMessageDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        executeCommand(db, sql);
+            executeCommand(db, sql);
         }
         finally {
             db.close();

@@ -34,7 +34,8 @@ public class PostMessageCommentMapper {
 
         Set<ODocument> inEdges = commentDoc.field("in");
         for(ODocument inEdge : inEdges) {
-            if("EdgePostMessageComment".equals(inEdge.getClassName())) {
+            String label = inEdge.field("label", String.class);
+            if("postMessageComment".equals(label)) {
                 Date createTime = inEdge.field("createTime", Date.class);
                 messageComment.setCreateTime(createTime);
 

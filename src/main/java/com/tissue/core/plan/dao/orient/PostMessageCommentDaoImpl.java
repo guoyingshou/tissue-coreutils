@@ -19,46 +19,42 @@ public class PostMessageCommentDaoImpl extends OrientDao implements PostMessageC
     public PostMessageComment create(PostMessageComment comment) {
         OGraphDatabase db = dataSource.getDB();
         try {
+            ODocument commentDoc = PostMessageCommentMapper.convertPostMessageComment(comment);
+            saveDoc(commentDoc);
 
-        ODocument commentDoc = PostMessageCommentMapper.convertPostMessageComment(comment);
-        saveDoc(commentDoc);
+            String ridComment = commentDoc.getIdentity().toString();
+            String ridPostMessage = OrientIdentityUtil.decode(comment.getPostMessage().getId());
+            String ridUser = OrientIdentityUtil.decode(comment.getUser().getId());
 
-        String ridComment = commentDoc.getIdentity().toString();
+            String sql = "update " + ridComment + " set postMessage = " + ridPostMessage;
+            executeCommand(db, sql);
 
-        String ridPostMessage = OrientIdentityUtil.decode(comment.getPostMessage().getId());
-        String ridUser = OrientIdentityUtil.decode(comment.getUser().getId());
-
-        String sql = "update " + ridComment + " set postMessage = " + ridPostMessage;
-
-        String sql2 = "create edge EdgePostMessageComment from " + ridUser + " to " + ridComment + " set label = 'postMessageComment', createTime = sysdate()";
+            sql = "create edge from " + ridUser + " to " + ridComment + " set label = 'postMessageComment', createTime = sysdate()";
+            executeCommand(db, sql);
         
-        String sql3 = "update " + ridPostMessage + " add comments = " + ridComment;
+            sql = "update " + ridPostMessage + " add comments = " + ridComment;
+            executeCommand(db, sql);
 
-        executeCommand(db, sql);
-        executeCommand(db, sql2);
-        executeCommand(db, sql3);
- 
-        comment.setId(OrientIdentityUtil.encode(ridComment));
-        return comment;
+            comment.setId(OrientIdentityUtil.encode(ridComment));
         }
         finally {
             db.close();
         }
+        return comment;
     }
 
     public PostMessageComment update(PostMessageComment comment) {
-
         String ridComment = OrientIdentityUtil.decode(comment.getId());
         String sql = "update " + ridComment + " set content = '" + comment.getContent() + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        executeCommand(db, sql);
-        return comment;
+            executeCommand(db, sql);
         }
         finally {
            db.close();
         }
+        return comment;
     }
 
     public void delete(String commentId) {
@@ -67,7 +63,7 @@ public class PostMessageCommentDaoImpl extends OrientDao implements PostMessageC
 
         OGraphDatabase db = dataSource.getDB();
         try {
-        executeCommand(db, sql);
+            executeCommand(db, sql);
         }
         finally {
             db.close();
