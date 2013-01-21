@@ -21,19 +21,6 @@ public class AnswerMapper {
         return doc;
     }
 
-    public static List<Answer> buildAnswers(Set<ODocument> answersDoc) {
-        List<Answer> answers = new ArrayList();
-        for(ODocument answerDoc : answersDoc) {
-            String status = answerDoc.field("status", String.class);
-            if(status == null) {
-                Answer answer = buildAnswerDetails(answerDoc);
-                if(answer != null) 
-                    answers.add(answer);
-            }
-        }
-        return answers;
-    }
-
     public static Answer buildAnswer(ODocument answerDoc) {
         Answer answer = new Answer();
         answer.setId(OrientIdentityUtil.encode(answerDoc.getIdentity().toString()));
@@ -49,7 +36,7 @@ public class AnswerMapper {
                 answer.setCreateTime(createTime);
 
                 ODocument userDoc = inEdge.field("out");
-                User user = UserMapper.buildUser(userDoc);
+                User user = UserMapper.buildUserSelf(userDoc);
                 answer.setUser(user);
                 break;
             }
@@ -64,10 +51,34 @@ public class AnswerMapper {
         Answer answer = buildAnswer(answerDoc);
         Set<ODocument> commentsDoc = answerDoc.field("comments");
         if(commentsDoc != null) {
+            for(ODocument commentDoc : commentsDoc) {
+                String status = commentDoc.field("status", String.class);
+                if(status == null) {
+                    AnswerComment comment = AnswerCommentMapper.buildAnswerComment(commentDoc);
+                    answer.addComment(comment);
+                }
+            }
+            /**
             List<AnswerComment> answerComments = AnswerCommentMapper.buildAnswerComments(commentsDoc);
             answer.setComments(answerComments); 
+            */
         }
         return answer;
     }
+
+    /**
+    public static List<Answer> buildAnswers(Set<ODocument> answersDoc) {
+        List<Answer> answers = new ArrayList();
+        for(ODocument answerDoc : answersDoc) {
+            String status = answerDoc.field("status", String.class);
+            if(status == null) {
+                Answer answer = buildAnswerDetails(answerDoc);
+                if(answer != null) 
+                    answers.add(answer);
+            }
+        }
+        return answers;
+    }
+    */
 
 }

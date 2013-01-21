@@ -5,6 +5,7 @@ import com.tissue.core.social.User;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 
 public class PostMessage extends ContentParent {
 
@@ -17,6 +18,13 @@ public class PostMessage extends ContentParent {
 
     public Post getPost() {
         return post;
+    }
+
+    public void addComment(PostMessageComment comment) {
+        if(comments == null) {
+            comments = new ArrayList();
+        }
+        comments.add(comment);
     }
 
     public void setComments(List<PostMessageComment> comments) {

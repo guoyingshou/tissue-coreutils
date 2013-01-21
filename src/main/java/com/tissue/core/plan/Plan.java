@@ -22,6 +22,13 @@ public class Plan extends Parent {
         return duration;
     }
 
+    public void addMember(User member) {
+        if(members == null) {
+            members = new ArrayList();
+        }
+        members.add(member);
+    }
+
     public void setMembers(List<User> members) {
         this.members = members;
     }

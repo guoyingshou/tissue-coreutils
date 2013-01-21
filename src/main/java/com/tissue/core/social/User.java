@@ -22,12 +22,10 @@ public class User implements Serializable {
     private Date updateTime;
     private Boolean verified = false;
 
-    List<Connection> connections = new ArrayList();
-
-    /**
-    List<User> friends = new ArrayList();
-    List<Invitation> invitations = new ArrayList();
-    */
+    private List<User> friends = new ArrayList();
+    private List<User> declinedUsers = new ArrayList();
+    private List<Invitation> invitationsReceived = new ArrayList();
+    private List<Invitation> invitationsSent = new ArrayList();
 
     public void setId(String id) {
         this.id = id;
@@ -105,139 +103,68 @@ public class User implements Serializable {
         return id.equals(userId);
     }
 
+    public void addFriend(User user) {
+        friends.add(user);
+    }
+
     public List<User> getFriends() {
-        List<User> friends = new ArrayList();
-        for(Connection conn : connections) {
-            if("accepted".equals(conn.getStatus())) {
-                User from = conn.getFrom();
-                if(!from.isSelf(id)) {
-                    friends.add(from);
-                }
-                else {
-                   User to = conn.getTo();
-                   friends.add(to);
-                }
-            }
-        }
         return friends;
     }
 
+    public void addDeclinedUser(User user) {
+        declinedUsers.add(user);
+    }
+
+    public void addInvitationReceived(Invitation invitation) {
+        invitationsReceived.add(invitation);
+    }
+
+    public List<Invitation> getInvitationsReceived() {
+        return invitationsReceived;
+    }
+
+    public void addInvitationSent(Invitation invitation) {
+        invitationsSent.add(invitation);
+    }
+
+    public List<Invitation> getInvitationsSent() {
+        return invitationsSent;
+    }
+
     public boolean isFriend(String userId) {
-        for(Connection conn : connections) {
-            if("accepted".equals(conn.getStatus())) {
-                User from = conn.getFrom();
-                if(!from.isSelf(id)) {
-                    if(userId.equals(from.getId())) {
-                        return true;
-                    }
-                }
-                else {
-                   User to = conn.getTo();
-                   if(userId.equals(to.getId())) {
-                       return true;
-                   }
-                }
+        for(User user : friends) {
+            if(userId.equals(user.getId())) {
+                return true;
             }
         }
         return false;
     }
 
-    public List<Invitation> getInvitationsReceived() {
-        List<Invitation> result = new ArrayList();
-        for(Connection conn : connections) {
-            if(("invite".equals(conn.getStatus())) && (id.equals(conn.getTo().getId()))) {
-                Invitation inv = new Invitation();
-                inv.setId(conn.getId());
-                inv.setInvitor(conn.getFrom());
-                inv.setContent(conn.getContent());
-                inv.setCreateTime(conn.getCreateTime());
-                result.add(inv);
+    public boolean hasInvited(String userId) {
+        List<String> ids = new ArrayList();
+        for(Invitation inv : invitationsSent) {
+            if(userId.equals(inv.getInvitee().getId())) {
+                return true;   
+            } 
+        }
+        for(Invitation inv : invitationsReceived) {
+            if(userId.equals(inv.getInvitor().getId())) {
+                return true;   
+            } 
+        }
+        for(User user : declinedUsers) {
+            if(userId.equals(user.getId())) {
+                return true;
             }
         }
-        return result;
+        return false;
     }
 
     public boolean canInvite(String userId) {
-        if(isSelf(userId)) {
+        if(isSelf(userId) || isFriend(userId) || hasInvited(userId)) {
             return false;
-        }
-        for(Connection conn : connections) {
-            User from = conn.getFrom();
-            if(!from.isSelf(id)) {
-                if(userId.equals(from.getId())) {
-                    return false;
-                }
-            }
-            else {
-               User to = conn.getTo();
-               if(userId.equals(to.getId())) {
-                   return false;
-               }
-            }
         }
         return true;
     }
 
-    public void addConnection(Connection conn) {
-        connections.add(conn);
-    }
-
-    public static class Connection {
-        private String id;
-
-        private User from;
-        private User to;
-
-        private String status;
-        private String content;
-        private Date createTime;
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setFrom(User from) {
-            this.from = from;
-        }
-
-        public User getFrom() {
-            return from;
-        }
-
-        public void setTo(User to) {
-            this.to = to;
-        }
-
-        public User getTo() {
-            return to;
-        }
-
-        public void setStatus(String status) {
-            this.status = status;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-
-        public String getContent() {
-            return content;
-        }
-
-        public void setCreateTime(Date createTime) {
-            this.createTime = createTime;
-        }
-
-        public Date getCreateTime() {
-            return createTime;
-        }
-    }
 }

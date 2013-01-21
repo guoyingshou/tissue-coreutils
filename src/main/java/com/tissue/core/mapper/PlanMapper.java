@@ -22,16 +22,7 @@ public class PlanMapper {
         return doc;
     }
 
-    public static List<Plan> buildPlans(List<ODocument> docs) {
-        List<Plan> plans = new ArrayList();
-        for(ODocument doc : docs) {
-            Plan plan = buildPlan(doc);
-            plans.add(plan);
-        }
-        return plans;
-    }
-
-    public static Plan buildPlan(ODocument doc) {
+    public static Plan buildPlanSelf(ODocument doc) {
 
         Plan plan = new Plan();
         plan.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
@@ -39,19 +30,23 @@ public class PlanMapper {
         Integer duration = doc.field("duration", Integer.class);
         plan.setDuration(duration);
 
-        ODocument topicDoc = doc.field("topic");
-        Topic topic = TopicMapper.buildTopic(topicDoc);
-        plan.setTopic(topic);
+        Date createTime = doc.field("createTime", Date.class);
+        plan.setCreateTime(createTime);
+ 
+        return plan;
+    }
 
-        Set<ODocument> inEdges = doc.field("in");
-        for(ODocument inEdge : inEdges) {
-            String label = inEdge.field("label", String.class);
+    /**
+     */
+    public static Plan buildPlan(ODocument doc) {
+        Plan plan = buildPlanSelf(doc);
+
+        Set<ODocument> inEdgesDoc = doc.field("in");
+        for(ODocument inEdgeDoc : inEdgesDoc) {
+            String label = inEdgeDoc.field("label");
             if("plan".equals(label)) {
-                Date createTime = inEdge.field("createTime", Date.class);
-                plan.setCreateTime(createTime);
-
-                ODocument userDoc = inEdge.field("out");
-                User user = UserMapper.buildUser(userDoc);
+                ODocument userDoc = inEdgeDoc.field("out");
+                User user = UserMapper.buildUserSelf(userDoc);
                 plan.setUser(user);
                 break;
             }
@@ -61,17 +56,16 @@ public class PlanMapper {
 
     public static Plan buildPlanDetails(ODocument doc) {
         Plan plan = buildPlan(doc);
-        Set<ODocument> inDocs = doc.field("in");
-        if(inDocs != null) {
-            List<User> members = new ArrayList();
-            for(ODocument inDoc : inDocs) {
-                ODocument memberDoc = inDoc.field("out");
-                if(memberDoc != null) {
-                    User member = UserMapper.buildUser(memberDoc);
-                    members.add(member);
+        Set<ODocument> inEdgesDoc = doc.field("in");
+        if(inEdgesDoc != null) {
+            for(ODocument inEdgeDoc : inEdgesDoc) {
+                String label = inEdgeDoc.field("label");
+                if("members".equals(label)) {
+                    ODocument memberDoc = inEdgeDoc.field("out");
+                    User member = UserMapper.buildUserSelf(memberDoc);
+                    plan.addMember(member);
                 }
             }
-            plan.setMembers(members);
         }
         return plan;
      }

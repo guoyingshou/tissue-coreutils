@@ -29,11 +29,11 @@ public class InvitationMapper {
         invitation.setCreateTime(createTime);
 
         ODocument userOutDoc = invitationDoc.field("out");
-        User invitor = UserMapper.buildUser(userOutDoc);
+        User invitor = UserMapper.buildUserSelf(userOutDoc);
         invitation.setInvitor(invitor);
 
         ODocument userInDoc = invitationDoc.field("in");
-        User invitee = UserMapper.buildUser(userInDoc);
+        User invitee = UserMapper.buildUserSelf(userInDoc);
         invitation.setInvitee(invitee);
 
         return invitation;

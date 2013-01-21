@@ -22,20 +22,6 @@ public class AnswerCommentMapper {
         return commentDoc;
     }
 
-    public static List<AnswerComment> buildAnswerComments(Set<ODocument> commentsDoc) {
-        List<AnswerComment> answerComments = new ArrayList();
-
-        for(ODocument commentDoc : commentsDoc) {
-            String status = commentDoc.field("status", String.class);
-            if(status == null) {
-                AnswerComment answerComment = buildAnswerComment(commentDoc);
-                answerComments.add(answerComment);
-            }
-        }
-
-        return answerComments;
-    }
-
     public static AnswerComment buildAnswerComment(ODocument commentDoc) {
         AnswerComment answerComment = new AnswerComment();
         answerComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
@@ -51,7 +37,7 @@ public class AnswerCommentMapper {
                 answerComment.setCreateTime(createTime);
 
                 ODocument userDoc = inEdge.field("out");
-                User user = UserMapper.buildUser(userDoc);
+                User user = UserMapper.buildUserSelf(userDoc);
                 answerComment.setUser(user);
                 break;
             }
@@ -60,7 +46,7 @@ public class AnswerCommentMapper {
         return answerComment;
     }
 
-    public static AnswerComment buildAnswerCommentWithParent(ODocument commentDoc) {
+    public static AnswerComment buildAnswerCommentDetails(ODocument commentDoc) {
 
         AnswerComment answerComment = buildAnswerComment(commentDoc);
 
@@ -70,4 +56,21 @@ public class AnswerCommentMapper {
 
         return answerComment;
     }
+
+    /**
+    public static List<AnswerComment> buildAnswerComments(Set<ODocument> commentsDoc) {
+        List<AnswerComment> answerComments = new ArrayList();
+
+        for(ODocument commentDoc : commentsDoc) {
+            String status = commentDoc.field("status", String.class);
+            if(status == null) {
+                AnswerComment answerComment = buildAnswerComment(commentDoc);
+                answerComments.add(answerComment);
+            }
+        }
+
+        return answerComments;
+    }
+    */
+
 }

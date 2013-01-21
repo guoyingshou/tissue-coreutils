@@ -14,6 +14,8 @@ public interface TopicDao {
 
     Topic getTopicByPlanId(String planId);
 
+    Topic getTopicByPostId(String postId);
+
     List<Topic> getTrendingTopics(int num);
 
     List<Topic> getFeaturedTopics(int num);
@@ -22,7 +24,7 @@ public interface TopicDao {
 
     List<Topic> getPagedTopics(int page, int size);
 
-    List<Topic> getTopics();
+    //List<Topic> getTopics();
 
     long getTopicsCountByTag(String tag);
 
@@ -30,7 +32,7 @@ public interface TopicDao {
 
     List<Topic> getPagedTopicsByTag(String tag, int page, int size);
 
-    List<Topic> getTopicsByTag(String tag);
+    //List<Topic> getTopicsByTag(String tag);
 
     //void addPlan(Plan plan);
 

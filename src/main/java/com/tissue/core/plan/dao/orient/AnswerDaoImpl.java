@@ -30,6 +30,9 @@ public class AnswerDaoImpl extends OrientDao implements AnswerDao {
             String sql = "create edge from " + ridUser + " to " + ridAnswer + " set label = 'answer', createTime = sysdate()";
             executeCommand(db, sql);
 
+            sql = "update " + ridAnswer + " set question = " + ridQuestion;
+            executeCommand(db, sql);
+
             sql = "update " + ridQuestion + " add answers = " + ridAnswer;
             executeCommand(db, sql);
  

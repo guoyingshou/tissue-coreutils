@@ -20,22 +20,15 @@ public class TopicMapper {
         doc.field("title", topic.getTitle());
         doc.field("content", topic.getContent());
         doc.field("tags", topic.getTags());
+        doc.field("createTime", topic.getCreateTime());
 
         return doc;
     }
 
-    public static List<Topic> buildTopics(List<ODocument> docs) {
-        List<Topic> topics = new ArrayList();
-        for(ODocument doc : docs) {
-            topics.add(buildTopic(doc));
-        }
-        return topics;
-    }
-
-    public static Topic buildTopic(ODocument doc) {
+    public static Topic buildTopicSelf(ODocument doc) {
         Topic topic = new Topic();
         topic.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
- 
+
         String title = doc.field("title", String.class);
         topic.setTitle(title);
 
@@ -45,31 +38,36 @@ public class TopicMapper {
         Set<String> tags = doc.field("tags", Set.class);
         topic.setTags(tags);
 
-        Set<ODocument> inEdges = doc.field("in");
-        for(ODocument inEdge : inEdges) {
-            String label = inEdge.field("label", String.class);
-            if("topic".equals(label)) {
-                Date createTime = inEdge.field("createTime", Date.class);
-                topic.setCreateTime(createTime);
+        Date createTime = doc.field("createTime", Date.class);
+        topic.setCreateTime(createTime);
 
-                ODocument userDoc = inEdge.field("out");
-                User user = UserMapper.buildUser(userDoc);
-                topic.setUser(user);
-                break;
-            }
+        return topic;
+    }
+
+    public static Topic buildTopic(ODocument doc) {
+        Topic topic = buildTopicSelf(doc);
+
+        Set<ODocument> inEdgesDoc = doc.field("in");
+        for(ODocument inEdgeDoc : inEdgesDoc) {
+            ODocument userDoc = inEdgeDoc.field("out");
+            User user = UserMapper.buildUserSelf(userDoc);
+            topic.setUser(user);
         }
         return topic;
     }
 
     public static Topic buildTopicDetails(ODocument doc) {
+
         Topic topic = buildTopic(doc);
 
         List<ODocument> plansDoc = doc.field("plans", List.class);
-        if(plansDoc != null && plansDoc.size() > 0) {
-            List<Plan> plans = PlanMapper.buildPlans(plansDoc);
-            topic.setPlans(plans);
+        if(plansDoc != null) {
+            for(ODocument planDoc : plansDoc) {
+                Plan plan = PlanMapper.buildPlan(planDoc);
+                plan.setTopic(topic);
+                topic.addPlan(plan);
+            }
         }
- 
         return topic;
     }
 

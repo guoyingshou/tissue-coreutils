@@ -28,7 +28,7 @@ public class QuestionDaoImpl extends OrientDao implements QuestionDao {
             String sql = "update " + ridQuestion + " set plan = " + ridPlan;
             executeCommand(db, sql);
 
-            sql = "create edge EdgeQuestion from " + ridUser + " to " + ridQuestion + " set label = 'question', createTime = sysdate()";
+            sql = "create edge from " + ridUser + " to " + ridQuestion + " set label = 'question', createTime = sysdate()";
             executeCommand(db, sql);
 
             question.setId(OrientIdentityUtil.encode(ridQuestion));

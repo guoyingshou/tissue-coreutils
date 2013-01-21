@@ -37,7 +37,7 @@ public class AboutMapper {
 
         List<ODocument> docs = doc.field("user");
         ODocument userDoc = docs.get(0);
-        User user = UserMapper.buildUser(userDoc);
+        User user = UserMapper.buildUserSelf(userDoc);
         about.setUser(user);
 
         return about;

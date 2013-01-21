@@ -1,6 +1,7 @@
 package com.tissue.core.plan;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class Answer extends ContentParent {
 
@@ -14,6 +15,13 @@ public class Answer extends ContentParent {
 
     public Post getQuestion() {
         return question;
+    }
+
+    public void addComment(AnswerComment comment) {
+        if(comments == null) {
+            comments = new ArrayList();
+        }
+        comments.add(comment);
     }
 
     public void setComments(List<AnswerComment> comments) {

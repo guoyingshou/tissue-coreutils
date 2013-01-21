@@ -1,6 +1,7 @@
 package com.tissue.core.plan.dao;
 
 import com.tissue.core.plan.Post;
+import com.tissue.core.plan.Topic;
 import java.util.List;
 
 public interface PostDao {
@@ -16,6 +17,7 @@ public interface PostDao {
      * Get the specific post.
      */
     Post getPost(String id);
+
 
     //-- by topic
     long getPostsCountByTopicId(String topicId);

@@ -37,7 +37,7 @@ public class PostMessageMapper {
                 message.setCreateTime(createTime);
 
                 ODocument userDoc = inEdge.field("out");
-                User user = UserMapper.buildUser(userDoc);
+                User user = UserMapper.buildUserSelf(userDoc);
                 message.setUser(user);
                 break;
             }
@@ -56,13 +56,21 @@ public class PostMessageMapper {
 
         Set<ODocument> commentsDoc = messageDoc.field("comments");
         if(commentsDoc != null) {
-            List<PostMessageComment> messageComments = PostMessageCommentMapper.buildPostMessageComments(commentsDoc);
-            message.setComments(messageComments); 
+            for(ODocument commentDoc : commentsDoc) {
+                String status = commentDoc.field("status", String.class);
+                if(status == null) {
+                    PostMessageComment comment = PostMessageCommentMapper.buildPostMessageComment(commentDoc);
+                    message.addComment(comment);
+                }
+            }
+            //List<PostMessageComment> messageComments = PostMessageCommentMapper.buildPostMessageComments(commentsDoc);
+            //message.setComments(messageComments); 
         }
  
         return message;
     }
 
+    /**
     public static List<PostMessage> buildPostMessages(Set<ODocument> messagesDoc) {
         List<PostMessage> messages = new ArrayList();
         for(ODocument messageDoc : messagesDoc) {
@@ -75,5 +83,6 @@ public class PostMessageMapper {
         }
         return messages;
     }
+    */
 
 }

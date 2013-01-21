@@ -18,6 +18,13 @@ public class Topic extends ContentParent {
         return tags;
     }
 
+    public void addPlan(Plan plan) {
+        if(plans == null) {
+            plans = new ArrayList();
+        }
+        plans.add(plan);
+    }
+
     public void setPlans(List<Plan> plans) {
         this.plans = plans;
     }

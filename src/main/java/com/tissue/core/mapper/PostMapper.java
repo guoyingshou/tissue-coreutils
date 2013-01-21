@@ -11,6 +11,7 @@ import com.tissue.core.plan.Answer;
 import com.tissue.core.plan.Plan;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.OTrackedList;
 
 import java.util.Date;
 import java.util.List;
@@ -25,10 +26,11 @@ public class PostMapper {
         doc.field("title", post.getTitle());
         doc.field("content", post.getContent());
         doc.field("type", post.getType());
+        doc.field("createTime", post.getCreateTime());
         return doc;
     }
 
-    public static Post buildPost(ODocument postDoc) {
+    public static Post buildPostSelf(ODocument postDoc) {
         Post post = new Post();
         post.setId(OrientIdentityUtil.encode(postDoc.getIdentity().toString()));
 
@@ -41,46 +43,62 @@ public class PostMapper {
         String postType = postDoc.field("type", String.class);
         post.setType(postType);
 
-        List<String> labels = Arrays.asList("concept", "note", "tutorial", "question");
+        Date createTime = postDoc.field("createTime", Date.class);
+        post.setCreateTime(createTime);
+ 
+        return post;
+    }
 
-        Set<ODocument> inEdges = postDoc.field("in");
-        for(ODocument inEdge : inEdges) {
-            String label = inEdge.field("label", String.class);
-            if(labels.contains(label)) {
-                Date createTime = inEdge.field("createTime", Date.class);
-                post.setCreateTime(createTime);
+    public static Post buildPost(ODocument postDoc) {
+        Post post = buildPostSelf(postDoc);
 
-                ODocument userDoc = inEdge.field("out");
-                User user = UserMapper.buildUser(userDoc);
+        Set<ODocument> inEdgesDoc = postDoc.field("in");
+        for(ODocument inEdgeDoc : inEdgesDoc) {
+            String label = inEdgeDoc.field("label", String.class);
+            if("concept".equals(label) || "note".equals(label) || "tutorial".equals(label) || "question".equals(label)) {
+                ODocument userDoc = inEdgeDoc.field("out");
+                User user = UserMapper.buildUserSelf(userDoc);
                 post.setUser(user);
                 break;
             }
         }
-
-        ODocument planDoc = postDoc.field("plan");
-        if(planDoc != null) {
-            Plan plan = PlanMapper.buildPlan(planDoc);
-            post.setPlan(plan);
-        }
-
         return post;
     }
 
     public static Post buildPostDetails(ODocument postDoc) {
-        Post post = buildPost(postDoc);
+        Post post = buildPostSelf(postDoc);
+
+        ODocument planDoc = postDoc.field("plan");
+        Plan plan = PlanMapper.buildPlan(planDoc);
+        post.setPlan(plan);
 
         if("question".equals(post.getType())) {
             Question q = new Question(post);
             Set<ODocument> questionCommentsDoc = postDoc.field("comments");
             if(questionCommentsDoc != null) {
-                List<QuestionComment> questionComments = QuestionCommentMapper.buildQuestionComments(questionCommentsDoc);
-                q.setComments(questionComments);
+                for(ODocument commentDoc : questionCommentsDoc) {
+                    String status = commentDoc.field("status", String.class);
+                    if(status == null) {
+                        QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
+                        q.addComment(comment);
+                    }
+                }
+                //List<QuestionComment> questionComments = QuestionCommentMapper.buildQuestionComments(questionCommentsDoc);
+                //q.setComments(questionComments);
             }
 
             Set<ODocument> answersDoc = postDoc.field("answers");
             if(answersDoc != null) {
-                List<Answer> answers = AnswerMapper.buildAnswers(answersDoc);
-                q.setAnswers(answers);
+                for(ODocument answerDoc : answersDoc) {
+                    String status = answerDoc.field("status", String.class);
+                    if(status == null) {
+                        Answer answer = AnswerMapper.buildAnswer(answerDoc);
+                        q.addAnswer(answer);
+                    }
+                }
+
+                //List<Answer> answers = AnswerMapper.buildAnswers(answersDoc);
+                //q.setAnswers(answers);
             }
 
             return q;
@@ -89,20 +107,18 @@ public class PostMapper {
             Cnt cnt = new Cnt(post);
             Set<ODocument> messagesDoc = postDoc.field("messages");
             if(messagesDoc != null) {
-                List<PostMessage> messages = PostMessageMapper.buildPostMessages(messagesDoc);
-                cnt.setMessages(messages);
+                for(ODocument messageDoc : messagesDoc) {
+                    String status = messageDoc.field("status", String.class);
+                    if(status == null) {
+                        PostMessage postMessage = PostMessageMapper.buildPostMessage(messageDoc);
+                        cnt.addPostMessage(postMessage);
+                    }
+                //List<PostMessage> messages = PostMessageMapper.buildPostMessages(messagesDoc);
+                //cnt.setMessages(messages);
+                }
             }
             return cnt;
         }
-
     }
 
-    public static List<Post> buildPosts(List<ODocument> postsDoc) {
-        List<Post> posts = new ArrayList();
-        for(ODocument postDoc : postsDoc) {
-            Post post = buildPost(postDoc);
-            posts.add(post);
-        }
-        return posts;
-    }
 }

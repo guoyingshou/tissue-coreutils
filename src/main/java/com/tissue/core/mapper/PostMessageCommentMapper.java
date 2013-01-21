@@ -6,7 +6,6 @@ import com.tissue.core.plan.PostMessageComment;
 import com.tissue.core.plan.PostMessage;
 import com.tissue.core.plan.Post;
 
-//import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 import java.util.Date;
@@ -18,9 +17,7 @@ public class PostMessageCommentMapper {
 
     public static ODocument convertPostMessageComment(PostMessageComment postMessageComment) {
         ODocument commentDoc = new ODocument("PostMessageComment");
-        //ODocument commentDoc = new ODocument();
         commentDoc.field("content", postMessageComment.getContent());
-        //commentDoc.field("postMessage", new ORecordId(OrientIdentityUtil.decode(postMessageComment.getPostMessage().getId())));
         return commentDoc;
     }
 
@@ -40,7 +37,7 @@ public class PostMessageCommentMapper {
                 messageComment.setCreateTime(createTime);
 
                 ODocument userDoc = inEdge.field("out");
-                User user = UserMapper.buildUser(userDoc);
+                User user = UserMapper.buildUserSelf(userDoc);
                 messageComment.setUser(user);
                 break;
             }
@@ -49,6 +46,7 @@ public class PostMessageCommentMapper {
         return messageComment;
     }
 
+    /**
     public static List<PostMessageComment> buildPostMessageComments(Set<ODocument> commentsDoc) {
         List<PostMessageComment> messageComments = new ArrayList();
 
@@ -72,6 +70,7 @@ public class PostMessageCommentMapper {
  
         return messageComment;
     }
+    */
 
 
 }

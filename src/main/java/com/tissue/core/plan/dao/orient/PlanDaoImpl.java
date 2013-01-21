@@ -2,10 +2,11 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.orient.dao.OrientDao;
 import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.mapper.PlanMapper;
 import com.tissue.core.social.User;
-import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
+import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.dao.PlanDao;
 
 import org.springframework.stereotype.Component;
@@ -69,16 +70,26 @@ public class PlanDaoImpl extends OrientDao implements PlanDao {
         return plan;
     }
 
-    public List<Plan> getPlans(String topicId) {
+    /**
+    public List<Plan> getPlansByTopicId(String topicId) {
         List<Plan> plans = new ArrayList();
 
         String rid = OrientIdentityUtil.decode(topicId);
-        String sql = "select from plan where topic = " + rid;
+        String sql = "select @this as plan, in[label='plan'].out as user from plan where topic in " + rid;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            plans = PlanMapper.buildPlans(docs);
+            for(ODocument doc : docs) {
+                ODocument planDoc = doc.field("plan");
+                Plan plan = PlanMapper.buildPlanSelf(planDoc);
+
+                ODocument userDoc = doc.field("user");
+                User user = UserMapper.buildUserSelf(userDoc);
+                plan.setUser(user);
+
+                plans.add(plan);
+            }
         }
         catch(Exception exc) {
             exc.printStackTrace();
@@ -88,6 +99,7 @@ public class PlanDaoImpl extends OrientDao implements PlanDao {
         }
         return plans;
     }
+    */
 
     public void addMember(String planId, String userId) {
 

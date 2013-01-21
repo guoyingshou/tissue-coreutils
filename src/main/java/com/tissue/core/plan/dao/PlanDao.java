@@ -9,7 +9,7 @@ public interface PlanDao {
 
     Plan getPlan(String planId);
 
-    List<Plan> getPlans(String topicId);
+    //List<Plan> getPlansByTopicId(String topicId);
 
     void addMember(String planId, String userId);
 

@@ -12,18 +12,20 @@ public interface UserDao {
 
     void addResume(String userId, String content);
 
+    void inviteFriend(String fromId, String toId, String content);
+
+    void acceptInvitation(String id);
+
+    void declineInvitation(String id);
+
     void addImpression(Impression impression);
 
     List<Impression> getImpressions(String userId);
 
     User getUserByEmail(String email);
 
-    User getUserById(String id, boolean withConnections);
-
-    /**
-    boolean isFriend(String userId1, String userId2);
-
-    List<User> getFriends(String viewerId);
-    */
+    User getUserById(String id);
+    
+    User getUserDetailsById(String id);
 
 }

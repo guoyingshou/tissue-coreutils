@@ -3,8 +3,14 @@ package com.tissue.core.plan.dao.orient;
 import com.tissue.core.orient.dao.OrientDao;
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.mapper.PostMapper;
+import com.tissue.core.mapper.TopicMapper;
+import com.tissue.core.mapper.PlanMapper;
+import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.Post;
+import com.tissue.core.plan.PostWrapper;
+import com.tissue.core.plan.Plan;
+import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.dao.PostDao;
 
 import org.springframework.stereotype.Component;
@@ -13,6 +19,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 
 @Component
 public class PostDaoImpl extends OrientDao implements PostDao {
@@ -36,11 +43,29 @@ public class PostDaoImpl extends OrientDao implements PostDao {
 
     public Post getPost(String id) {
         Post post = null;
-        String sql = "select from " + OrientIdentityUtil.decode(id);
+
+        String ridPost = OrientIdentityUtil.decode(id);
+        String sql = "select @this as post, in.out as user, plan.in[label='plan'].out as planUser from " + ridPost;
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = querySingle(db, sql);
-            post = PostMapper.buildPostDetails(doc);
+            ODocument postDoc = doc.field("post");
+            post = PostMapper.buildPostSelf(postDoc);
+
+            List<ODocument> docs = doc.field("user");
+            ODocument userDoc = docs.get(0);
+            User user = UserMapper.buildUserSelf(userDoc);
+            post.setUser(user);
+
+            ODocument planDoc = postDoc.field("plan");
+            Plan plan = PlanMapper.buildPlanSelf(planDoc);
+
+            ODocument planUserDoc = doc.field("planUser");
+            User planUser = UserMapper.buildUserSelf(planUserDoc);
+            plan.setUser(planUser);
+            post.setPlan(plan);
+
+            post = new PostWrapper(post);
         }
         catch(Exception exc) {
             exc.printStackTrace();
@@ -54,12 +79,16 @@ public class PostDaoImpl extends OrientDao implements PostDao {
     public List<Post> getPagedPostsByTopicId(String topicId, int page, int size) {
         List<Post> posts = new ArrayList();
 
-        String sql = "select from Post where plan.topic in " + OrientIdentityUtil.decode(topicId) + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+        String ridTopic = OrientIdentityUtil.decode(topicId);
+        String sql = "select from post where plan.topic in " + ridTopic + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            posts = PostMapper.buildPosts(docs);
+            for(ODocument doc : docs) {
+                Post post = PostMapper.buildPost(doc);
+                posts.add(post);
+            }
         }
         catch(Exception exc) {
             exc.printStackTrace();
@@ -108,12 +137,18 @@ public class PostDaoImpl extends OrientDao implements PostDao {
         List<Post> posts = new ArrayList();
 
         String ridTopic = OrientIdentityUtil.decode(topicId);
-        String sql = "select from Post where plan.topic in " + ridTopic + " and type = '" + type + "' order by createTime desc skip " + (page - 1) * size + " limit " + size;
+
+        String sql = "select from post where type = '" + type + "' and plan.topic in " + ridTopic + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            posts = PostMapper.buildPosts(docs);
+            for(ODocument doc : docs) {
+                Post post = PostMapper.buildPost(doc);
+                posts.add(post);
+
+            }
         }
         catch(Exception exc) {
             exc.printStackTrace();
@@ -150,7 +185,11 @@ public class PostDaoImpl extends OrientDao implements PostDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            posts = PostMapper.buildPosts(docs);
+            for(ODocument doc : docs) {
+                Post post = PostMapper.buildPost(doc);
+                posts.add(post);
+            }
+            //posts = PostMapper.buildPosts(docs);
         }
         catch(Exception exc) {
             exc.printStackTrace();
@@ -187,7 +226,11 @@ public class PostDaoImpl extends OrientDao implements PostDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            posts = PostMapper.buildPosts(docs);
+            for(ODocument doc : docs) {
+                Post post = PostMapper.buildPost(doc);
+                posts.add(post);
+            }
+            //posts = PostMapper.buildPosts(docs);
         }
         catch(Exception exc) {
             exc.printStackTrace();

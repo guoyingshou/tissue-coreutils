@@ -2,6 +2,7 @@ package com.tissue.core.mapper;
 
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.social.User;
+import com.tissue.core.social.Invitation;
 import com.tissue.core.social.Impression;
 
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -24,20 +25,9 @@ public class UserMapper {
         return doc;
     }
 
-    public static User buildUser(ODocument userDoc) {
-        return buildUser(userDoc, false);
-    }
-
-    public static User buildUser(ODocument userDoc, boolean hasRid) {
+    public static User buildUserSelf(ODocument userDoc) {
         User user = new User();
-
-        String rid = null;
-        if(hasRid) {
-            rid = userDoc.field("rid", String.class);
-        }
-        else {
-            rid = userDoc.getIdentity().toString();
-        }
+        String rid = userDoc.getIdentity().toString();
         user.setId(OrientIdentityUtil.encode(rid));
 
         String displayName = userDoc.field("displayName", String.class);
@@ -46,32 +36,77 @@ public class UserMapper {
         String resume = userDoc.field("resume", String.class);
         user.setResume(resume);
 
-        List<ODocument> connectionsDoc = userDoc.field("connections");
-        if(connectionsDoc != null) {
-            for(ODocument connDoc : connectionsDoc) {
-                User.Connection conn = new User.Connection();
-                conn.setId(OrientIdentityUtil.encode(connDoc.getIdentity().toString()));
+        return user;
+    }
 
-                ODocument fromDoc = connDoc.field("out");
-                User from = buildUser(fromDoc);
-                conn.setFrom(from);
+    public static User buildUserDetails(ODocument doc) {
 
-                ODocument toDoc = connDoc.field("in");
-                User to = buildUser(toDoc);
-                conn.setTo(to);
+        User user = null;
+        ODocument selfDoc = doc.field("user");
+        if(selfDoc != null) {
+            user = buildUserSelf(selfDoc);
 
-                String status = connDoc.field("status");
-                conn.setStatus(status);
-
-                String content = connDoc.field("content");
-                conn.setContent(content);
-
-                Date createTime = connDoc.field("createTime", Date.class);
-                conn.setCreateTime(createTime);
-
-                user.addConnection(conn);
+            List<ODocument> friendsDoc = doc.field("friends", List.class);
+            if(friendsDoc != null) {
+                for(ODocument friendDoc : friendsDoc) {
+                    User friend = buildUserSelf(friendDoc);
+                    user.addFriend(friend);
+                }
             }
-        }
+
+            List<ODocument> declinedsDoc = doc.field("mutualDeclined", List.class);
+            if(declinedsDoc != null) {
+                for(ODocument declinedDoc : declinedsDoc) {
+                    User declined = buildUserSelf(declinedDoc);
+                    user.addDeclinedUser(declined);
+                }
+            }
+
+            List<ODocument> invitationsSentDoc = doc.field("invitationsSent", List.class);
+            if(invitationsSentDoc != null) {
+                for(ODocument invitationSentDoc : invitationsSentDoc) {
+                    Invitation invitation = new Invitation();
+                    invitation.setId(OrientIdentityUtil.encode(invitationSentDoc.getIdentity().toString()));
+
+                    /**
+                    Date createTime = invitationSentDoc.field("createTime", Date.class);
+                    invitation.setCreateTime(createTime);
+                    */
+
+                    invitation.setInvitor(user);
+
+                    ODocument inviteeDoc = invitationSentDoc.field("in");
+                    User invitee = buildUserSelf(inviteeDoc);
+                    invitation.setInvitee(invitee);
+
+                    user.addInvitationSent(invitation);
+                }
+            }
+
+            List<ODocument> invitationsReceivedDoc = doc.field("invitationsReceived", List.class);
+            if(invitationsReceivedDoc != null) {
+                for(ODocument invitationReceivedDoc : invitationsReceivedDoc) {
+                    Invitation invitation = new Invitation();
+                    invitation.setId(OrientIdentityUtil.encode(invitationReceivedDoc.getIdentity().toString()));
+
+                    String content = invitationReceivedDoc.field("content", String.class);
+                    invitation.setContent(content);
+
+                    Date createTime = invitationReceivedDoc.field("createTime", Date.class);
+                    invitation.setCreateTime(createTime);
+
+                    ODocument invitorDoc = invitationReceivedDoc.field("out");
+                    User invitor = buildUserSelf(invitorDoc);
+                    invitation.setInvitor(invitor);
+
+                    invitation.setInvitee(user);
+
+                    user.addInvitationReceived(invitation);
+                }
+            }
+
+         }
+
         return user;
     }
 
@@ -79,7 +114,7 @@ public class UserMapper {
         List<User> members = new ArrayList();
 
         for(ODocument memberDoc : membersDoc) {
-            User user = buildUser(memberDoc);
+            User user = buildUserSelf(memberDoc);
             members.add(user);
         }
         return members;

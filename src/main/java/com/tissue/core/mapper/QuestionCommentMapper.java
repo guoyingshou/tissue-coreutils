@@ -22,20 +22,6 @@ public class QuestionCommentMapper {
         return commentDoc;
     }
 
-    public static List<QuestionComment> buildQuestionComments(Set<ODocument> commentsDoc) {
-        List<QuestionComment> questionComments = new ArrayList();
-
-        for(ODocument commentDoc : commentsDoc) {
-            String status = commentDoc.field("status", String.class);
-            if(status == null) {
-                QuestionComment questionComment = buildQuestionComment(commentDoc);
-                questionComments.add(questionComment);
-            }
-        }
-
-        return questionComments;
-    }
-
     public static QuestionComment buildQuestionComment(ODocument commentDoc) {
 
         QuestionComment questionComment = new QuestionComment();
@@ -52,7 +38,7 @@ public class QuestionCommentMapper {
                 questionComment.setCreateTime(createTime);
 
                 ODocument userDoc = inEdge.field("out");
-                User user = UserMapper.buildUser(userDoc);
+                User user = UserMapper.buildUserSelf(userDoc);
                 questionComment.setUser(user);
                 break;
             }
@@ -70,5 +56,22 @@ public class QuestionCommentMapper {
 
         return questionComment;
     }
+
+    /**
+    public static List<QuestionComment> buildQuestionComments(Set<ODocument> commentsDoc) {
+        List<QuestionComment> questionComments = new ArrayList();
+
+        for(ODocument commentDoc : commentsDoc) {
+            String status = commentDoc.field("status", String.class);
+            if(status == null) {
+                QuestionComment questionComment = buildQuestionComment(commentDoc);
+                questionComments.add(questionComment);
+            }
+        }
+
+        return questionComments;
+    }
+    */
+
 
 }
