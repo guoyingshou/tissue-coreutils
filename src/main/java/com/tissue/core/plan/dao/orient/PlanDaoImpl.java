@@ -70,24 +70,17 @@ public class PlanDaoImpl extends OrientDao implements PlanDao {
         return plan;
     }
 
-    /**
-    public List<Plan> getPlansByTopicId(String topicId) {
+    public List<Plan> getPlansByUserId(String userId) {
         List<Plan> plans = new ArrayList();
 
-        String rid = OrientIdentityUtil.decode(topicId);
-        String sql = "select @this as plan, in[label='plan'].out as user from plan where topic in " + rid;
+        String rid = OrientIdentityUtil.decode(userId);
+        String sql = "select from plan where in.out in " + rid;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
             for(ODocument doc : docs) {
-                ODocument planDoc = doc.field("plan");
-                Plan plan = PlanMapper.buildPlanSelf(planDoc);
-
-                ODocument userDoc = doc.field("user");
-                User user = UserMapper.buildUserSelf(userDoc);
-                plan.setUser(user);
-
+                Plan plan = PlanMapper.buildPlan(doc);
                 plans.add(plan);
             }
         }
@@ -99,7 +92,6 @@ public class PlanDaoImpl extends OrientDao implements PlanDao {
         }
         return plans;
     }
-    */
 
     public void addMember(String planId, String userId) {
 

@@ -33,6 +33,10 @@ public class PlanMapper {
         Date createTime = doc.field("createTime", Date.class);
         plan.setCreateTime(createTime);
  
+        ODocument topicDoc = doc.field("topic");
+        Topic topic = TopicMapper.buildTopic(topicDoc);
+        plan.setTopic(topic);
+
         return plan;
     }
 
@@ -51,6 +55,7 @@ public class PlanMapper {
                 break;
             }
         }
+
         return plan;
     }
 

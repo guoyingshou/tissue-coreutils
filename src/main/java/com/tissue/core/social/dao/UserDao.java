@@ -2,6 +2,7 @@ package com.tissue.core.social.dao;
 
 import com.tissue.core.social.User;
 import com.tissue.core.social.Impression;
+import com.tissue.core.social.Invitation;
 import java.util.List;
 
 public interface UserDao {
@@ -14,18 +15,19 @@ public interface UserDao {
 
     void inviteFriend(String fromId, String toId, String content);
 
-    void acceptInvitation(String id);
+    List<Invitation> getInvitationsReceived(String userId);
 
-    void declineInvitation(String id);
+    List<Invitation> getInvitationsSent(String userId);
+
+    void acceptInvitation(String invitationId);
+
+    void declineInvitation(String invitationId);
 
     void addImpression(Impression impression);
 
     List<Impression> getImpressions(String userId);
 
-    User getUserByEmail(String email);
+    User getUserById(String userId);
 
-    User getUserById(String id);
-    
-    User getUserDetailsById(String id);
-
+    List<User> getFriends(String userId);
 }

@@ -6,6 +6,7 @@ import com.tissue.core.orient.dao.DuplicateEmailException;
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.social.User;
 import com.tissue.core.social.Impression;
+import com.tissue.core.social.Invitation;
 import com.tissue.core.social.dao.UserDao;
 
 import java.util.Date;
@@ -38,6 +39,55 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         return null;
     }
 
+    /**
+     * @param id user id
+     * @return a user with basic info plus plans he created or joined
+     */
+    public User getUserById(String id) {
+        User user = null;
+        String rid = OrientIdentityUtil.decode(id);
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            String sql = "select from " + rid;
+            ODocument doc = querySingle(db, sql);
+            user = UserMapper.buildUser(doc);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return user;
+    }
+
+    public List<User> getFriends(String userId) {
+        List<User> friends = new ArrayList();
+
+        String rid = OrientIdentityUtil.decode(userId);
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            String sql = "select union(in[label='friends'].out, out[label='friends'].in) as friends from " + rid;
+            ODocument doc = querySingle(db, sql);
+
+            List<ODocument> friendsDoc = doc.field("friends");
+            for(ODocument friendDoc : friendsDoc) {
+                System.out.println(friendDoc);
+                User friend = UserMapper.buildUserSelf(friendDoc);
+                friends.add(friend);
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return friends;
+    }
+ 
     public void addResume(String userId, String content) {
         String rid = OrientIdentityUtil.decode(userId);
         String sql = "update " + rid + " set resume = '" + content + "'";
@@ -68,6 +118,46 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         finally {
             db.close();
         }
+    }
+
+    public List<Invitation> getInvitationsReceived(String userId) {
+        List<Invitation> invitations = new ArrayList();
+
+        String rid = OrientIdentityUtil.decode(userId);
+        String sql = "select from ographedge where label = 'invite' and in in " + rid;
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = query(db, sql);
+            for(ODocument doc : docs) {
+                Invitation invitation = UserMapper.buildInvitation(doc);
+                invitations.add(invitation);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return invitations;
+    }
+
+    public List<Invitation> getInvitationsSent(String userId) {
+        List<Invitation> invitations = new ArrayList();
+
+        String rid = OrientIdentityUtil.decode(userId);
+        String sql = "select from ographedge where label = 'invite' and out in " + rid;
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = query(db, sql);
+            for(ODocument doc : docs) {
+                Invitation invitation = UserMapper.buildInvitation(doc);
+                invitations.add(invitation);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return invitations;
     }
 
     /**
@@ -114,7 +204,7 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         String ridFrom = OrientIdentityUtil.decode(impression.getFrom().getId());
         String ridTo = OrientIdentityUtil.decode(impression.getTo().getId());
 
-        String sql = "create edge from " + ridFrom + " to " + ridTo + " set label = 'impression', published = sysdate(), content = '" + impression.getContent() + "'";
+        String sql = "create edge from " + ridFrom + " to " + ridTo + " set label = 'impression', createTime = sysdate(), content = '" + impression.getContent() + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -134,69 +224,15 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            impressions = UserMapper.buildImpressions(docs);
+            for(ODocument doc : docs) {
+                Impression impression = UserMapper.buildImpression(doc);
+                impressions.add(impression);
+            }
         }
         finally {
             db.close();
         }
         return impressions;
-    }
-
-    public User getUserById(String id) {
-        User user = null;
-        String rid = OrientIdentityUtil.decode(id);
-        String sql = "select from " + rid;
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = querySingle(db, sql);
-            user = UserMapper.buildUserSelf(doc);
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
-        }
-        finally {
-            db.close();
-        }
-        return user;
-    }
-
-    public User getUserDetailsById(String id) {
-        User user = null;
-
-        String rid = OrientIdentityUtil.decode(id);
-        String sql = "select @this as user, union(out[label='friends'].in, in[label='friends'].out) as friends, union(out[label='invite']) as invitationsSent, union(in[label='invite']) as invitationsReceived, union(out[label='declined'].in, in[label='declined'].out) as mutualDeclined from " + rid;
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = querySingle(db, sql);
-            user = UserMapper.buildUserDetails(doc);
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
-        }
-        finally {
-            db.close();
-        }
-        return user;
-    }
-
-    public User getUserByEmail(String email) {
-        User user = null;
-        String sql = "select from User where email = ?";
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = querySingle(db, sql);
-            user = UserMapper.buildUserSelf(doc);
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
-        }
-        finally {
-            db.close();
-        }
-        return user;
     }
 
 }

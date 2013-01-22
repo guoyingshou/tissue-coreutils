@@ -100,25 +100,12 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
         Topic topic = null;
 
         String ridPlan = OrientIdentityUtil.decode(planId);
-        String sql = "select topic, topic.in[label='topic'].out as user from " + ridPlan;
+        String sql = "select topic from " + ridPlan;
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = querySingle(db, sql);
             ODocument topicDoc = doc.field("topic");
-            topic = TopicMapper.buildTopicSelf(topicDoc);
-
-            List<ODocument> plansDoc = doc.field("plans");
-            if(plansDoc != null) {
-                for(ODocument planDoc : plansDoc) {
-                    Plan plan = PlanMapper.buildPlanSelf(planDoc);
-                    topic.addPlan(plan);
-                }
-            }
-
-            ODocument userDoc = doc.field("user");
-            User user = UserMapper.buildUserSelf(userDoc);
-            topic.setUser(user);
-            //topic = TopicMapper.buildTopicDetails(topicDoc);
+            topic = TopicMapper.buildTopicDetails(topicDoc);
         }
         catch(Exception exc) {
             exc.printStackTrace();

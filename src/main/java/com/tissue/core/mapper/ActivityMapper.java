@@ -17,6 +17,7 @@ import java.util.Map;
 
 public class ActivityMapper {
 
+    /**
     public static List<Activity> buildActivities(List<ODocument> docs) {
         List<Activity> activities = new ArrayList();
         if(docs != null) {
@@ -29,6 +30,7 @@ public class ActivityMapper {
         }
         return activities;
     }
+    */
 
     /**
      * @params doc out edge from user node
@@ -37,8 +39,8 @@ public class ActivityMapper {
 
         Activity activity = new Activity();
 
-        Date published = doc.field("createTime", Date.class);
-        activity.setPublished(published);
+        Date createTime = doc.field("createTime", Date.class);
+        activity.setCreateTime(createTime);
 
         String label = doc.field("label", String.class);
         activity.setLabel(label);

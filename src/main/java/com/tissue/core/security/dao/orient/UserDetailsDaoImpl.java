@@ -1,11 +1,7 @@
 package com.tissue.core.security.dao.orient;
 
 import com.tissue.core.social.User;
-import com.tissue.core.social.Invitation;
 import com.tissue.core.mapper.UserDetailsMapper;
-import com.tissue.core.mapper.UserMapper;
-import com.tissue.core.mapper.InvitationMapper;
-import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.security.UserDetailsImpl;
 import com.tissue.core.security.dao.UserDetailsDao;

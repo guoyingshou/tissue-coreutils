@@ -32,12 +32,16 @@ public class ActivityDaoImpl extends OrientDao implements ActivityDao {
         List<Activity> activities = new ArrayList();
 
         String ridUser = OrientIdentityUtil.decode(userId);
-        String sql = "select from ographedge where out in (select union(in[status='accepted'].out, out[status='accepted'].in) from " + ridUser + ") and (label contains ['concept', 'topic']) order by createTime desc limit " + num;
+        String sql = "select from ographedge where out in (select union(in[label='friends'].out, out[label='friends'].in) from " + ridUser + ") and (label contains ['concept', 'topic']) order by createTime desc limit " + num;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            activities = ActivityMapper.buildActivities(docs);
+            for(ODocument doc : docs) {
+                Activity activity = ActivityMapper.buildActivity(doc);
+                activities.add(activity);
+            }
+            //activities = ActivityMapper.buildActivities(docs);
         }
         catch(Exception exc) {
             exc.printStackTrace();
@@ -57,7 +61,11 @@ public class ActivityDaoImpl extends OrientDao implements ActivityDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            activities = ActivityMapper.buildActivities(docs);
+            for(ODocument doc : docs) {
+                Activity act = ActivityMapper.buildActivity(doc);
+                activities.add(act);
+            }
+            //activities = ActivityMapper.buildActivities(docs);
         }
         catch(Exception exc) {
             exc.printStackTrace();
@@ -76,7 +84,11 @@ public class ActivityDaoImpl extends OrientDao implements ActivityDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            activities = ActivityMapper.buildActivities(docs);
+            for(ODocument doc : docs) {
+                Activity act = ActivityMapper.buildActivity(doc);
+                activities.add(act);
+            }
+            //activities = ActivityMapper.buildActivities(docs);
         }
         catch(Exception exc) {
             exc.printStackTrace();
@@ -95,7 +107,11 @@ public class ActivityDaoImpl extends OrientDao implements ActivityDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
-            activities = ActivityMapper.buildActivities(docs);
+            for(ODocument doc : docs) {
+                Activity act = ActivityMapper.buildActivity(doc);
+                activities.add(act);
+            }
+            //activities = ActivityMapper.buildActivities(docs);
         }
         catch(Exception exc) {
             exc.printStackTrace();

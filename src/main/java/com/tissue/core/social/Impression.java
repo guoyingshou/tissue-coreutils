@@ -7,7 +7,7 @@ public class Impression implements Serializable {
 
     private String id;
     private String content;
-    private Date published;
+    private Date createTime;
 
     private User from;
     private User to;
@@ -28,12 +28,12 @@ public class Impression implements Serializable {
         return content;
     }
 
-    public void setPublished(Date published) {
-        this.published = published;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
-    public Date getPublished() {
-        return published;
+    public Date getCreateTime() {
+        return createTime;
     }
 
     public void setFrom(User from) {

@@ -1,5 +1,7 @@
 package com.tissue.core.social;
 
+import com.tissue.core.plan.Plan;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -18,14 +20,19 @@ public class User implements Serializable {
     private String email;
     private String resume;
 
+    private List<Impression> impressions;
+
     private Date createTime;
     private Date updateTime;
-    private Boolean verified = false;
+    private boolean verified = false;
+    private boolean invitable = false;
 
-    private List<User> friends = new ArrayList();
-    private List<User> declinedUsers = new ArrayList();
-    private List<Invitation> invitationsReceived = new ArrayList();
-    private List<Invitation> invitationsSent = new ArrayList();
+    private List<User> friends;
+    private List<User> declinedUsers;
+    private List<Invitation> invitationsReceived;
+    private List<Invitation> invitationsSent;
+
+    private List<Plan> plans;
 
     public void setId(String id) {
         this.id = id;
@@ -75,6 +82,14 @@ public class User implements Serializable {
         return resume;
     }
 
+    public void setImpressions(List<Impression> impressions) {
+        this.impressions = impressions;
+    }
+
+    public List<Impression> getImpressions() {
+        return impressions;
+    }
+
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
@@ -104,7 +119,14 @@ public class User implements Serializable {
     }
 
     public void addFriend(User user) {
+        if(friends == null) {
+            friends = new ArrayList();
+        }
         friends.add(user);
+    }
+
+    public void setFriends(List<User> friends) {
+        this.friends = friends;
     }
 
     public List<User> getFriends() {
@@ -112,11 +134,22 @@ public class User implements Serializable {
     }
 
     public void addDeclinedUser(User user) {
+        if(declinedUsers == null) {
+            declinedUsers = new ArrayList();
+        }
         declinedUsers.add(user);
+    }
+
+    public void setDeclinedUsers(List<User> declinedUsers) {
+        this.declinedUsers = declinedUsers;
     }
 
     public void addInvitationReceived(Invitation invitation) {
         invitationsReceived.add(invitation);
+    }
+
+    public void setInvitationsReceived(List<Invitation> invitationsReceived) {
+        this.invitationsReceived = invitationsReceived;
     }
 
     public List<Invitation> getInvitationsReceived() {
@@ -125,6 +158,10 @@ public class User implements Serializable {
 
     public void addInvitationSent(Invitation invitation) {
         invitationsSent.add(invitation);
+    }
+
+    public void setInvitationsSent(List<Invitation> invitatonsSent) {
+        this.invitationsSent = invitationsSent;
     }
 
     public List<Invitation> getInvitationsSent() {
@@ -140,15 +177,16 @@ public class User implements Serializable {
         return false;
     }
 
+    /**
     public boolean hasInvited(String userId) {
         List<String> ids = new ArrayList();
-        for(Invitation inv : invitationsSent) {
-            if(userId.equals(inv.getInvitee().getId())) {
+        for(Invitation inv : invitationsReceived) {
+            if(userId.equals(inv.getInvitor().getId())) {
                 return true;   
             } 
         }
-        for(Invitation inv : invitationsReceived) {
-            if(userId.equals(inv.getInvitor().getId())) {
+        for(Invitation inv : invitationsSent) {
+            if(userId.equals(inv.getInvitee().getId())) {
                 return true;   
             } 
         }
@@ -166,5 +204,24 @@ public class User implements Serializable {
         }
         return true;
     }
+    */
 
+    public void setInvitable(boolean invitable) {
+        this.invitable = invitable;
+    }
+
+    public boolean isInvitable() {
+        return invitable;
+    }
+
+    public void addPlan(Plan plan) {
+        if(plans == null) {
+            plans = new ArrayList();
+        }
+        plans.add(plan);
+    }
+
+    public List<Plan> getPlans() {
+        return plans;
+    }
 }

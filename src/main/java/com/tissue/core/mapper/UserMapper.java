@@ -4,6 +4,7 @@ import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.social.User;
 import com.tissue.core.social.Invitation;
 import com.tissue.core.social.Impression;
+import com.tissue.core.plan.Plan;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -39,93 +40,21 @@ public class UserMapper {
         return user;
     }
 
-    public static User buildUserDetails(ODocument doc) {
-
-        User user = null;
-        ODocument selfDoc = doc.field("user");
-        if(selfDoc != null) {
-            user = buildUserSelf(selfDoc);
-
-            List<ODocument> friendsDoc = doc.field("friends", List.class);
-            if(friendsDoc != null) {
-                for(ODocument friendDoc : friendsDoc) {
-                    User friend = buildUserSelf(friendDoc);
-                    user.addFriend(friend);
+    public static User buildUser(ODocument doc) {
+        User user = buildUserSelf(doc);
+ 
+        Set<ODocument> outEdgesDoc = doc.field("out");
+        if(outEdgesDoc != null) {
+            for(ODocument outEdgeDoc : outEdgesDoc) {
+                String label = outEdgeDoc.field("label", String.class);
+                if("plan".equals(label) || "members".equals(label)) {
+                    ODocument planDoc = outEdgeDoc.field("in");
+                    Plan plan = PlanMapper.buildPlanSelf(planDoc);
+                    user.addPlan(plan);
                 }
-            }
-
-            List<ODocument> declinedsDoc = doc.field("mutualDeclined", List.class);
-            if(declinedsDoc != null) {
-                for(ODocument declinedDoc : declinedsDoc) {
-                    User declined = buildUserSelf(declinedDoc);
-                    user.addDeclinedUser(declined);
-                }
-            }
-
-            List<ODocument> invitationsSentDoc = doc.field("invitationsSent", List.class);
-            if(invitationsSentDoc != null) {
-                for(ODocument invitationSentDoc : invitationsSentDoc) {
-                    Invitation invitation = new Invitation();
-                    invitation.setId(OrientIdentityUtil.encode(invitationSentDoc.getIdentity().toString()));
-
-                    /**
-                    Date createTime = invitationSentDoc.field("createTime", Date.class);
-                    invitation.setCreateTime(createTime);
-                    */
-
-                    invitation.setInvitor(user);
-
-                    ODocument inviteeDoc = invitationSentDoc.field("in");
-                    User invitee = buildUserSelf(inviteeDoc);
-                    invitation.setInvitee(invitee);
-
-                    user.addInvitationSent(invitation);
-                }
-            }
-
-            List<ODocument> invitationsReceivedDoc = doc.field("invitationsReceived", List.class);
-            if(invitationsReceivedDoc != null) {
-                for(ODocument invitationReceivedDoc : invitationsReceivedDoc) {
-                    Invitation invitation = new Invitation();
-                    invitation.setId(OrientIdentityUtil.encode(invitationReceivedDoc.getIdentity().toString()));
-
-                    String content = invitationReceivedDoc.field("content", String.class);
-                    invitation.setContent(content);
-
-                    Date createTime = invitationReceivedDoc.field("createTime", Date.class);
-                    invitation.setCreateTime(createTime);
-
-                    ODocument invitorDoc = invitationReceivedDoc.field("out");
-                    User invitor = buildUserSelf(invitorDoc);
-                    invitation.setInvitor(invitor);
-
-                    invitation.setInvitee(user);
-
-                    user.addInvitationReceived(invitation);
-                }
-            }
-
-         }
-
+             }
+        }
         return user;
-    }
-
-    public static List<User> buildMembers(Set<ODocument> membersDoc) {
-        List<User> members = new ArrayList();
-
-        for(ODocument memberDoc : membersDoc) {
-            User user = buildUserSelf(memberDoc);
-            members.add(user);
-        }
-        return members;
-    }
-
-    public static List<Impression> buildImpressions(List<ODocument> impressionsDoc) {
-        List<Impression> impressions = new ArrayList();
-        for(ODocument doc : impressionsDoc) {
-            impressions.add(buildImpression(doc));
-        }
-        return impressions;
     }
 
     public static Impression buildImpression(ODocument impressionDoc) {
@@ -136,8 +65,8 @@ public class UserMapper {
         String content = impressionDoc.field("content", String.class);
         impression.setContent(content);
 
-        Date published = impressionDoc.field("published", Date.class);
-        impression.setPublished(published);
+        Date createTime = impressionDoc.field("createTime", Date.class);
+        impression.setCreateTime(createTime);
 
         User from = new User();
         ODocument fromDoc = impressionDoc.field("out");
@@ -158,5 +87,37 @@ public class UserMapper {
         impression.setTo(to);
 
         return impression;
+    }
+
+    public static Invitation buildInvitation(ODocument invitationDoc) {
+
+        Invitation invitation = new Invitation();
+        invitation.setId(OrientIdentityUtil.encode(invitationDoc.getIdentity().toString()));
+
+        String content = invitationDoc.field("content", String.class);
+        invitation.setContent(content);
+
+        Date createTime = invitationDoc.field("createTime", Date.class);
+        invitation.setCreateTime(createTime);
+
+        User from = new User();
+        ODocument fromDoc = invitationDoc.field("out");
+        from.setId(OrientIdentityUtil.encode(fromDoc.getIdentity().toString()));
+
+        String fromDisplayName = fromDoc.field("displayName", String.class);
+        from.setDisplayName(fromDisplayName);
+
+        invitation.setInvitor(from);
+
+        User to = new User();
+        ODocument toDoc = invitationDoc.field("in");
+        to.setId(OrientIdentityUtil.encode(toDoc.getIdentity().toString()));
+
+        String toDisplayName = toDoc.field("displayName", String.class);
+        to.setDisplayName(toDisplayName);
+
+        invitation.setInvitee(to);
+
+        return invitation;
     }
 }

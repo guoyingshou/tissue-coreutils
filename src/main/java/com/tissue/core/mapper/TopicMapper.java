@@ -63,7 +63,7 @@ public class TopicMapper {
         List<ODocument> plansDoc = doc.field("plans", List.class);
         if(plansDoc != null) {
             for(ODocument planDoc : plansDoc) {
-                Plan plan = PlanMapper.buildPlan(planDoc);
+                Plan plan = PlanMapper.buildPlanDetails(planDoc);
                 plan.setTopic(topic);
                 topic.addPlan(plan);
             }

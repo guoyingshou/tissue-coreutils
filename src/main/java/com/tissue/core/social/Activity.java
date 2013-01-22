@@ -9,7 +9,7 @@ public class Activity implements Serializable {
     //topic, plan, members, concept, note, tutorial, question, 
     //postMessage, messageComment, questionComment, answer, answerComment
     private String label;
-    private Date published;
+    private Date createTime;
 
     private ActivityObject who;
     private ActivityObject what;
@@ -24,12 +24,12 @@ public class Activity implements Serializable {
         return label;
     }
 
-    public void setPublished(Date published) {
-        this.published = published;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
-    public Date getPublished() {
-        return published;
+    public Date getCreateTime() {
+        return createTime;
     }
 
     public void setWho(ActivityObject who) {
