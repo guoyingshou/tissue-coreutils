@@ -280,4 +280,30 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
         return topics;
     }
 
+    public List<Topic> getNewTopics(String excludingUserId, int limit) {
+        List<Topic> topics = new ArrayList();
+
+        String rid = OrientIdentityUtil.decode(excludingUserId);
+        String sql = "select from topic order by createTime desc limit " + limit;
+        if(excludingUserId != null) {
+            sql = "select from topic where in.out not in " + rid + " and plans.in.out not in " + rid + " order by createTime desc limit " + limit;
+        }
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = query(db, sql);
+            for(ODocument doc : docs) {
+                Topic topic = TopicMapper.buildTopic(doc);
+                topics.add(topic);
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return topics;
+    }
+
+
 }

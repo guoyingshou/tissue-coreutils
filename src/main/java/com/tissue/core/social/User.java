@@ -115,6 +115,8 @@ public class User implements Serializable {
     }
 
     public boolean isSelf(String userId) {
+        System.out.println("<<<id>>> " + id);
+        System.out.println("<<<userId>>> " + userId);
         return id.equals(userId);
     }
 

@@ -30,4 +30,7 @@ public interface UserDao {
     User getUserById(String userId);
 
     List<User> getFriends(String userId);
+
+    List<User> getNewUsers(String ... excludingUserIds);
+
 }

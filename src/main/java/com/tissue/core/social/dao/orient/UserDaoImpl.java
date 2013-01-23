@@ -61,32 +61,6 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         }
         return user;
     }
-
-    public List<User> getFriends(String userId) {
-        List<User> friends = new ArrayList();
-
-        String rid = OrientIdentityUtil.decode(userId);
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            String sql = "select union(in[label='friends'].out, out[label='friends'].in) as friends from " + rid;
-            ODocument doc = querySingle(db, sql);
-
-            List<ODocument> friendsDoc = doc.field("friends");
-            for(ODocument friendDoc : friendsDoc) {
-                System.out.println(friendDoc);
-                User friend = UserMapper.buildUserSelf(friendDoc);
-                friends.add(friend);
-            }
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
-        }
-        finally {
-            db.close();
-        }
-        return friends;
-    }
  
     public void addResume(String userId, String content) {
         String rid = OrientIdentityUtil.decode(userId);
@@ -233,6 +207,62 @@ public class UserDaoImpl extends OrientDao implements UserDao {
             db.close();
         }
         return impressions;
+    }
+
+    public List<User> getFriends(String userId) {
+        List<User> friends = new ArrayList();
+
+        String rid = OrientIdentityUtil.decode(userId);
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            String sql = "select union(in[label='friends'].out, out[label='friends'].in) as friends from " + rid;
+            ODocument doc = querySingle(db, sql);
+
+            List<ODocument> friendsDoc = doc.field("friends");
+            for(ODocument friendDoc : friendsDoc) {
+                System.out.println(friendDoc);
+                User friend = UserMapper.buildUserSelf(friendDoc);
+                friends.add(friend);
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return friends;
+    }
+
+    public List<User> getNewUsers(String ... excludingUserIds) {
+        List<User> users = new ArrayList();
+
+        String sql = "select from user order by createTime desc limit 20";
+        if(excludingUserIds.length > 0) {
+            List<String> rids = new ArrayList();
+            for(String id : excludingUserIds) {
+                rids.add(OrientIdentityUtil.decode(id));
+            }
+            sql = "select from user where @this not in " + rids.toString() + " order by createTime desc limit 20";
+        }
+        System.out.println("+++ " + sql);
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = query(db, sql);
+            for(ODocument doc : docs) {
+                User user = UserMapper.buildUserSelf(doc);
+                users.add(user);
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return users;
     }
 
 }

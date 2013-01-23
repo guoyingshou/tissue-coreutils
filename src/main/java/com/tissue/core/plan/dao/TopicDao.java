@@ -24,16 +24,15 @@ public interface TopicDao {
 
     List<Topic> getPagedTopics(int page, int size);
 
-    //List<Topic> getTopics();
-
     long getTopicsCountByTag(String tag);
 
     List<String> getTopicTags();
 
     List<Topic> getPagedTopicsByTag(String tag, int page, int size);
 
-    //List<Topic> getTopicsByTag(String tag);
-
-    //void addPlan(Plan plan);
+    /**
+     * Get topics that the user has not learned.
+     */
+    List<Topic> getNewTopics(String excludingUserId, int limit);
 
 }
