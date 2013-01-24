@@ -41,7 +41,6 @@ public class ActivityDaoImpl extends OrientDao implements ActivityDao {
                 Activity activity = ActivityMapper.buildActivity(doc);
                 activities.add(activity);
             }
-            //activities = ActivityMapper.buildActivities(docs);
         }
         catch(Exception exc) {
             exc.printStackTrace();
@@ -88,7 +87,6 @@ public class ActivityDaoImpl extends OrientDao implements ActivityDao {
                 Activity act = ActivityMapper.buildActivity(doc);
                 activities.add(act);
             }
-            //activities = ActivityMapper.buildActivities(docs);
         }
         catch(Exception exc) {
             exc.printStackTrace();

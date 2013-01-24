@@ -49,7 +49,7 @@ public class AnswerMapper {
 
     public static Answer buildAnswerDetails(ODocument answerDoc) {
         Answer answer = buildAnswer(answerDoc);
-        Set<ODocument> commentsDoc = answerDoc.field("comments");
+        List<ODocument> commentsDoc = answerDoc.field("comments");
         if(commentsDoc != null) {
             for(ODocument commentDoc : commentsDoc) {
                 String status = commentDoc.field("status", String.class);
@@ -58,27 +58,8 @@ public class AnswerMapper {
                     answer.addComment(comment);
                 }
             }
-            /**
-            List<AnswerComment> answerComments = AnswerCommentMapper.buildAnswerComments(commentsDoc);
-            answer.setComments(answerComments); 
-            */
         }
         return answer;
     }
-
-    /**
-    public static List<Answer> buildAnswers(Set<ODocument> answersDoc) {
-        List<Answer> answers = new ArrayList();
-        for(ODocument answerDoc : answersDoc) {
-            String status = answerDoc.field("status", String.class);
-            if(status == null) {
-                Answer answer = buildAnswerDetails(answerDoc);
-                if(answer != null) 
-                    answers.add(answer);
-            }
-        }
-        return answers;
-    }
-    */
 
 }

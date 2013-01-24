@@ -23,6 +23,8 @@ public class AnswerDaoImpl extends OrientDao implements AnswerDao {
             ODocument doc = AnswerMapper.convertAnswer(answer);
             saveDoc(doc);
 
+            System.out.println("create in answer dao: " + doc);
+
             String ridAnswer = doc.getIdentity().toString();
             String ridUser = OrientIdentityUtil.decode(answer.getUser().getId());
             String ridQuestion = OrientIdentityUtil.decode(answer.getQuestion().getId());

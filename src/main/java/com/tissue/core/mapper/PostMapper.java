@@ -66,7 +66,7 @@ public class PostMapper {
     }
 
     public static Post buildPostDetails(ODocument postDoc) {
-        Post post = buildPostSelf(postDoc);
+        Post post = buildPost(postDoc);
 
         ODocument planDoc = postDoc.field("plan");
         Plan plan = PlanMapper.buildPlan(planDoc);
@@ -74,7 +74,7 @@ public class PostMapper {
 
         if("question".equals(post.getType())) {
             Question q = new Question(post);
-            Set<ODocument> questionCommentsDoc = postDoc.field("comments");
+            List<ODocument> questionCommentsDoc = postDoc.field("comments");
             if(questionCommentsDoc != null) {
                 for(ODocument commentDoc : questionCommentsDoc) {
                     String status = commentDoc.field("status", String.class);
@@ -83,38 +83,29 @@ public class PostMapper {
                         q.addComment(comment);
                     }
                 }
-                //List<QuestionComment> questionComments = QuestionCommentMapper.buildQuestionComments(questionCommentsDoc);
-                //q.setComments(questionComments);
             }
-
-            Set<ODocument> answersDoc = postDoc.field("answers");
+            List<ODocument> answersDoc = postDoc.field("answers");
             if(answersDoc != null) {
                 for(ODocument answerDoc : answersDoc) {
                     String status = answerDoc.field("status", String.class);
                     if(status == null) {
-                        Answer answer = AnswerMapper.buildAnswer(answerDoc);
+                        Answer answer = AnswerMapper.buildAnswerDetails(answerDoc);
                         q.addAnswer(answer);
                     }
                 }
-
-                //List<Answer> answers = AnswerMapper.buildAnswers(answersDoc);
-                //q.setAnswers(answers);
             }
-
             return q;
         }
         else {
             Cnt cnt = new Cnt(post);
-            Set<ODocument> messagesDoc = postDoc.field("messages");
+            List<ODocument> messagesDoc = postDoc.field("messages");
             if(messagesDoc != null) {
                 for(ODocument messageDoc : messagesDoc) {
                     String status = messageDoc.field("status", String.class);
                     if(status == null) {
-                        PostMessage postMessage = PostMessageMapper.buildPostMessage(messageDoc);
+                        PostMessage postMessage = PostMessageMapper.buildPostMessageDetails(messageDoc);
                         cnt.addPostMessage(postMessage);
                     }
-                //List<PostMessage> messages = PostMessageMapper.buildPostMessages(messagesDoc);
-                //cnt.setMessages(messages);
                 }
             }
             return cnt;

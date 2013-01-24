@@ -42,7 +42,6 @@ public class PostMessageMapper {
                 break;
             }
         }
-
         ODocument postDoc = messageDoc.field("post");
         Post post = PostMapper.buildPost(postDoc);
         message.setPost(post);
@@ -54,7 +53,7 @@ public class PostMessageMapper {
 
         PostMessage message = buildPostMessage(messageDoc);
 
-        Set<ODocument> commentsDoc = messageDoc.field("comments");
+        List<ODocument> commentsDoc = messageDoc.field("comments");
         if(commentsDoc != null) {
             for(ODocument commentDoc : commentsDoc) {
                 String status = commentDoc.field("status", String.class);
@@ -63,26 +62,7 @@ public class PostMessageMapper {
                     message.addComment(comment);
                 }
             }
-            //List<PostMessageComment> messageComments = PostMessageCommentMapper.buildPostMessageComments(commentsDoc);
-            //message.setComments(messageComments); 
         }
- 
         return message;
     }
-
-    /**
-    public static List<PostMessage> buildPostMessages(Set<ODocument> messagesDoc) {
-        List<PostMessage> messages = new ArrayList();
-        for(ODocument messageDoc : messagesDoc) {
-            String status = messageDoc.field("status", String.class);
-            //deleted if status's value is set
-            if(status == null) {
-                PostMessage message = buildPostMessageDetails(messageDoc);
-                messages.add(message);
-            }
-        }
-        return messages;
-    }
-    */
-
 }

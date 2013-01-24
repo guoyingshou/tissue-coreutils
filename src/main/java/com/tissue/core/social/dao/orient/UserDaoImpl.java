@@ -79,7 +79,7 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         String ridFrom = OrientIdentityUtil.decode(fromId);
         String ridTo = OrientIdentityUtil.decode(toId);
         
-        String sql = "create edge from " + ridFrom + " to " + ridTo + " set label = 'invite', createTime = sysdate(), content = '" + content + "'";
+        String sql = "create edge EdgeFriend from " + ridFrom + " to " + ridTo + " set label = 'invite', createTime = sysdate(), content = '" + content + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -98,13 +98,19 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         List<Invitation> invitations = new ArrayList();
 
         String rid = OrientIdentityUtil.decode(userId);
-        String sql = "select from ographedge where label = 'invite' and in in " + rid;
+        String sql = "select @this as invitation, out as user from EdgeFriend where label = 'invite' and in in " + rid;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
             for(ODocument doc : docs) {
-                Invitation invitation = UserMapper.buildInvitation(doc);
+                ODocument invDoc = doc.field("invitation");
+                Invitation invitation = UserMapper.buildInvitationSelf(invDoc);
+
+                ODocument userDoc = doc.field("user");
+                User user = UserMapper.buildUserSelf(userDoc);
+                invitation.setInvitor(user);
+                
                 invitations.add(invitation);
             }
         }
@@ -118,13 +124,19 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         List<Invitation> invitations = new ArrayList();
 
         String rid = OrientIdentityUtil.decode(userId);
-        String sql = "select from ographedge where label = 'invite' and out in " + rid;
+        String sql = "select @this as invitation, in as user from EdgeFriend where label = 'invite' and out in " + rid;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
             for(ODocument doc : docs) {
-                Invitation invitation = UserMapper.buildInvitation(doc);
+                ODocument invDoc = doc.field("invitation");
+                Invitation invitation = UserMapper.buildInvitationSelf(invDoc);
+
+                ODocument userDoc = doc.field("user");
+                User user = UserMapper.buildUserSelf(userDoc);
+                invitation.setInvitee(user);
+
                 invitations.add(invitation);
             }
         }
@@ -178,7 +190,7 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         String ridFrom = OrientIdentityUtil.decode(impression.getFrom().getId());
         String ridTo = OrientIdentityUtil.decode(impression.getTo().getId());
 
-        String sql = "create edge from " + ridFrom + " to " + ridTo + " set label = 'impression', createTime = sysdate(), content = '" + impression.getContent() + "'";
+        String sql = "create edge EdgeImpression from " + ridFrom + " to " + ridTo + " set label = 'impression', createTime = sysdate(), content = '" + impression.getContent() + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -193,13 +205,19 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         List<Impression> impressions = new ArrayList();
 
         String rid = OrientIdentityUtil.decode(userId);
-        String sql = "select from ographedge where label = 'impression' and in in " + rid;
+        String sql = "select @this as impression, out as user from EdgeImpression where in in " + rid;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);
             for(ODocument doc : docs) {
-                Impression impression = UserMapper.buildImpression(doc);
+                ODocument impDoc = doc.field("impression");
+                Impression impression = UserMapper.buildImpressionSelf(impDoc);
+
+                ODocument userDoc = doc.field("user");
+                User user = UserMapper.buildUserSelf(userDoc);
+                impression.setFrom(user);
+
                 impressions.add(impression);
             }
         }
@@ -221,7 +239,6 @@ public class UserDaoImpl extends OrientDao implements UserDao {
 
             List<ODocument> friendsDoc = doc.field("friends");
             for(ODocument friendDoc : friendsDoc) {
-                System.out.println(friendDoc);
                 User friend = UserMapper.buildUserSelf(friendDoc);
                 friends.add(friend);
             }
@@ -235,18 +252,14 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         return friends;
     }
 
-    public List<User> getNewUsers(String ... excludingUserIds) {
+    public List<User> getNewUsers(String excludingUserId, int limit) {
         List<User> users = new ArrayList();
 
-        String sql = "select from user order by createTime desc limit 20";
-        if(excludingUserIds.length > 0) {
-            List<String> rids = new ArrayList();
-            for(String id : excludingUserIds) {
-                rids.add(OrientIdentityUtil.decode(id));
-            }
-            sql = "select from user where @this not in " + rids.toString() + " order by createTime desc limit 20";
+        String sql = "select from user order by createTime desc limit " + limit;
+        if(excludingUserId != null) {
+            String rid = OrientIdentityUtil.decode(excludingUserId);
+            sql = "select from user where @this not in " + rid + " order by createTime desc limit " + limit;
         }
-        System.out.println("+++ " + sql);
 
         OGraphDatabase db = dataSource.getDB();
         try {

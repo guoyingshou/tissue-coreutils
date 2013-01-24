@@ -288,6 +288,8 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
         if(excludingUserId != null) {
             sql = "select from topic where in.out not in " + rid + " and plans.in.out not in " + rid + " order by createTime desc limit " + limit;
         }
+        System.out.println("+++getNewTopics sql: " + sql);
+
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = query(db, sql);

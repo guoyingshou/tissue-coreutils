@@ -45,27 +45,12 @@ public class PostDaoImpl extends OrientDao implements PostDao {
         Post post = null;
 
         String ridPost = OrientIdentityUtil.decode(id);
-        String sql = "select @this as post, in.out as user, plan.in[label='plan'].out as planUser from " + ridPost;
+        String sql = "select from " + ridPost;
+
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = querySingle(db, sql);
-            ODocument postDoc = doc.field("post");
-            post = PostMapper.buildPostSelf(postDoc);
-
-            List<ODocument> docs = doc.field("user");
-            ODocument userDoc = docs.get(0);
-            User user = UserMapper.buildUserSelf(userDoc);
-            post.setUser(user);
-
-            ODocument planDoc = postDoc.field("plan");
-            Plan plan = PlanMapper.buildPlanSelf(planDoc);
-
-            ODocument planUserDoc = doc.field("planUser");
-            User planUser = UserMapper.buildUserSelf(planUserDoc);
-            plan.setUser(planUser);
-            post.setPlan(plan);
-
-            post = new PostWrapper(post);
+            post = PostMapper.buildPostDetails(doc);
         }
         catch(Exception exc) {
             exc.printStackTrace();

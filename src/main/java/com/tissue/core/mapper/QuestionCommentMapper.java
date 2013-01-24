@@ -45,33 +45,4 @@ public class QuestionCommentMapper {
         }
         return questionComment;
     }
-
-    public static QuestionComment buildQuestionCommentDetails(ODocument commentDoc) {
-
-        QuestionComment questionComment = buildQuestionComment(commentDoc);
-
-        ODocument questionDoc = commentDoc.field("question");
-        Post question = PostMapper.buildPost(questionDoc);
-        questionComment.setQuestion(question);
-
-        return questionComment;
-    }
-
-    /**
-    public static List<QuestionComment> buildQuestionComments(Set<ODocument> commentsDoc) {
-        List<QuestionComment> questionComments = new ArrayList();
-
-        for(ODocument commentDoc : commentsDoc) {
-            String status = commentDoc.field("status", String.class);
-            if(status == null) {
-                QuestionComment questionComment = buildQuestionComment(commentDoc);
-                questionComments.add(questionComment);
-            }
-        }
-
-        return questionComments;
-    }
-    */
-
-
 }

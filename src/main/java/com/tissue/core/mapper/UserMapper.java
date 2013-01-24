@@ -57,7 +57,7 @@ public class UserMapper {
         return user;
     }
 
-    public static Impression buildImpression(ODocument impressionDoc) {
+    public static Impression buildImpressionSelf(ODocument impressionDoc) {
 
         Impression impression = new Impression();
         impression.setId(OrientIdentityUtil.encode(impressionDoc.getIdentity().toString()));
@@ -68,6 +68,7 @@ public class UserMapper {
         Date createTime = impressionDoc.field("createTime", Date.class);
         impression.setCreateTime(createTime);
 
+        /**
         User from = new User();
         ODocument fromDoc = impressionDoc.field("out");
         from.setId(OrientIdentityUtil.encode(fromDoc.getIdentity().toString()));
@@ -85,21 +86,24 @@ public class UserMapper {
         to.setDisplayName(toDisplayName);
 
         impression.setTo(to);
+        */
 
         return impression;
     }
 
-    public static Invitation buildInvitation(ODocument invitationDoc) {
+    public static Invitation buildInvitationSelf(ODocument doc) {
+        System.out.println("in user mapper: " + doc); 
 
         Invitation invitation = new Invitation();
-        invitation.setId(OrientIdentityUtil.encode(invitationDoc.getIdentity().toString()));
+        invitation.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
 
-        String content = invitationDoc.field("content", String.class);
+        String content = doc.field("content", String.class);
         invitation.setContent(content);
 
-        Date createTime = invitationDoc.field("createTime", Date.class);
+        Date createTime = doc.field("createTime", Date.class);
         invitation.setCreateTime(createTime);
 
+        /**
         User from = new User();
         ODocument fromDoc = invitationDoc.field("out");
         from.setId(OrientIdentityUtil.encode(fromDoc.getIdentity().toString()));
@@ -117,6 +121,7 @@ public class UserMapper {
         to.setDisplayName(toDisplayName);
 
         invitation.setInvitee(to);
+        */
 
         return invitation;
     }

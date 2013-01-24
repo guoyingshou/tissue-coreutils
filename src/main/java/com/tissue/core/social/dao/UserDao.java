@@ -31,6 +31,6 @@ public interface UserDao {
 
     List<User> getFriends(String userId);
 
-    List<User> getNewUsers(String ... excludingUserIds);
+    List<User> getNewUsers(String excludingUserId, int limit);
 
 }

@@ -46,31 +46,4 @@ public class PostMessageCommentMapper {
         return messageComment;
     }
 
-    /**
-    public static List<PostMessageComment> buildPostMessageComments(Set<ODocument> commentsDoc) {
-        List<PostMessageComment> messageComments = new ArrayList();
-
-        for(ODocument commentDoc : commentsDoc) {
-            String status = commentDoc.field("status", String.class);
-            if(status == null) {
-                PostMessageComment messageComment = buildPostMessageComment(commentDoc);
-                messageComments.add(messageComment);
-            }
-        }
-
-        return messageComments;
-    }
-
-    public static PostMessageComment buildPostMessageCommentWithParent(ODocument commentDoc) {
-        PostMessageComment messageComment = buildPostMessageComment(commentDoc);
-
-        ODocument postMessageDoc = commentDoc.field("postMessage");
-        PostMessage postMessage = PostMessageMapper.buildPostMessage(postMessageDoc);
-        messageComment.setPostMessage(postMessage);
- 
-        return messageComment;
-    }
-    */
-
-
 }
