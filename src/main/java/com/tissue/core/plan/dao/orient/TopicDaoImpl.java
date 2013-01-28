@@ -283,9 +283,9 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
     public List<Topic> getNewTopics(String excludingUserId, int limit) {
         List<Topic> topics = new ArrayList();
 
-        String rid = OrientIdentityUtil.decode(excludingUserId);
         String sql = "select from topic order by createTime desc limit " + limit;
         if(excludingUserId != null) {
+            String rid = OrientIdentityUtil.decode(excludingUserId);
             sql = "select from topic where in.out not in " + rid + " and plans.in.out not in " + rid + " order by createTime desc limit " + limit;
         }
         System.out.println("+++getNewTopics sql: " + sql);

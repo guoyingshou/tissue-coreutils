@@ -40,7 +40,7 @@ public class Parent implements Serializable {
     }
 
     public boolean isOwner(String viewerId) {
-        if(viewerId.equals(user.getId())) {
+        if((viewerId != null) && viewerId.equals(user.getId())) {
             return true;
         }
         return false;

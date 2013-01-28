@@ -17,8 +17,9 @@ public class User implements Serializable {
     private String password;
 
     private String displayName;
-    private String email;
+    private String headline;
     private String resume;
+    private String email;
 
     private List<Impression> impressions;
 
@@ -64,6 +65,14 @@ public class User implements Serializable {
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public void setHeadline(String headline) {
+        this.headline = headline;
+    }
+
+    public String getHeadline() {
+        return headline;
     }
 
     public void setEmail(String email) {

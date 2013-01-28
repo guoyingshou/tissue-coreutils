@@ -69,7 +69,7 @@ public class PostMapper {
         Post post = buildPost(postDoc);
 
         ODocument planDoc = postDoc.field("plan");
-        Plan plan = PlanMapper.buildPlan(planDoc);
+        Plan plan = PlanMapper.buildPlanDetails(planDoc);
         post.setPlan(plan);
 
         if("question".equals(post.getType())) {

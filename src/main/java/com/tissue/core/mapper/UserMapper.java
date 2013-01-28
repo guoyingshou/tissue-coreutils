@@ -20,8 +20,9 @@ public class UserMapper {
         ODocument doc = new ODocument("User");
         doc.field("username", user.getUsername());
         doc.field("password", user.getPassword());
-        doc.field("email", user.getEmail());
         doc.field("displayName", user.getDisplayName());
+        doc.field("headline", user.getHeadline());
+        doc.field("email", user.getEmail());
         doc.field("createTime", user.getCreateTime());
         return doc;
     }
@@ -33,6 +34,9 @@ public class UserMapper {
 
         String displayName = userDoc.field("displayName", String.class);
         user.setDisplayName(displayName);
+
+        String headline = userDoc.field("headline", String.class);
+        user.setHeadline(headline);
 
         String resume = userDoc.field("resume", String.class);
         user.setResume(resume);

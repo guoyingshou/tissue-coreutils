@@ -18,21 +18,6 @@ import java.util.Map;
 public class ActivityMapper {
 
     /**
-    public static List<Activity> buildActivities(List<ODocument> docs) {
-        List<Activity> activities = new ArrayList();
-        if(docs != null) {
-            for(ODocument doc : docs) {
-                if(doc != null) {
-                    Activity activity = buildActivity(doc);
-                    activities.add(activity);
-                }
-            }
-        }
-        return activities;
-    }
-    */
-
-    /**
      * @params doc out edge from user node
      */
     public static Activity buildActivity(ODocument doc) {
@@ -47,6 +32,11 @@ public class ActivityMapper {
 
         ActivityObject who = new ActivityObject();
         activity.setWho(who);
+        ODocument userDoc = doc.field("out");
+        who.setId(OrientIdentityUtil.encode(userDoc.getIdentity().toString()));
+        String displayName = userDoc.field("displayName", String.class);
+        who.setDisplayName(displayName);
+        who.setObjectType("person");
 
         ActivityObject what = new ActivityObject();
         activity.setWhat(what);
@@ -57,25 +47,14 @@ public class ActivityMapper {
         ActivityObject where = new ActivityObject();
         activity.setWhere(where);
 
-        //set up who. out property node is a user
-        ODocument userDoc = doc.field("out");
-        who.setId(OrientIdentityUtil.encode(userDoc.getIdentity().toString()));
-        String displayName = userDoc.field("displayName", String.class);
-        who.setDisplayName(displayName);
-        who.setObjectType("person");
-
-        //pre set up what. in property's node type depends on the label value
-        //the type of whatDoc is determined by the label's value
         ODocument whatDoc = doc.field("in");
         what.setId(OrientIdentityUtil.encode(whatDoc.getIdentity().toString()));
 
         if("topic".equals(label)) {
-            //whatDoc is topicDoc
             String topicTitle = whatDoc.field("title");
             what.setDisplayName(topicTitle);
         }
         if("plan".equals(label) || "members".equals(label)) {
-            //whatdoc is plandoc
             what.setDisplayName("plan");
 
             ODocument whereDoc = whatDoc.field("topic");
@@ -85,7 +64,6 @@ public class ActivityMapper {
             where.setDisplayName(topicTitle);
         }
         if("concept".equals(label) || "note".equals(label) || "tutorial".equals(label) || "question".equals(label)) {
-            //whatDoc is postDoc('concept', 'note', 'tutorial' or 'question')
             String postTitle = whatDoc.field("title");
             what.setDisplayName(postTitle);
 
@@ -97,7 +75,9 @@ public class ActivityMapper {
             where.setDisplayName(topicTitle);
         }
         if("postMessage".equals(label)) {
-            what.setDisplayName("post message");
+            //what.setDisplayName("post message");
+            //
+            System.out.println("++++mapper postMessage doc: " + doc);
 
             ODocument toDoc = whatDoc.field("post");
             to.setId(OrientIdentityUtil.encode(toDoc.getIdentity().toString()));

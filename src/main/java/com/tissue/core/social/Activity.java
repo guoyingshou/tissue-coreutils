@@ -2,19 +2,21 @@ package com.tissue.core.social;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Activity implements Serializable {
 
     //friends
     //topic, plan, members, concept, note, tutorial, question, 
     //postMessage, messageComment, questionComment, answer, answerComment
-    private String label;
-    private Date createTime;
+    protected String label;
+    protected Date createTime;
 
-    private ActivityObject who;
-    private ActivityObject what;
-    private ActivityObject to;
-    private ActivityObject where;
+    protected ActivityObject who;
+    protected ActivityObject what;
+    protected ActivityObject to;
+    protected ActivityObject where;
 
     public void setLabel(String label) {
         this.label = label;
@@ -64,4 +66,19 @@ public class Activity implements Serializable {
         return where;
     }
 
+    public List<String> getMessageArgs() {
+
+        List<String> args = new ArrayList();
+
+        args.add(what.getId());
+        args.add(what.getDisplayName());
+
+        args.add(to.getId());
+        args.add(to.getDisplayName());
+
+        args.add(where.getId());
+        args.add(where.getDisplayName());
+
+        return args;
+    }
 }
