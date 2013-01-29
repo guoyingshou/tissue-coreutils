@@ -38,6 +38,9 @@ public class UserMapper {
         String headline = userDoc.field("headline", String.class);
         user.setHeadline(headline);
 
+        String email = userDoc.field("email", String.class);
+        user.setEmail(email);
+
         String resume = userDoc.field("resume", String.class);
         user.setResume(resume);
 

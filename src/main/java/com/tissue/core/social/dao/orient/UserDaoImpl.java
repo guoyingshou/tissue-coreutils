@@ -17,6 +17,7 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 
 @Component
@@ -36,7 +37,32 @@ public class UserDaoImpl extends OrientDao implements UserDao {
     }
 
     public User update(User user) {
-        return null;
+        String rid = OrientIdentityUtil.decode(user.getId());
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = db.load(new ORecordId(rid));
+            doc.field("displayName", user.getDisplayName());
+            doc.field("headline", user.getHeadline());
+            doc.field("email", user.getEmail());
+            db.save(doc);
+        }
+        finally {
+           db.close();
+        }
+        return user;
+    }
+
+    public void changePassword(User user) {
+        String rid = OrientIdentityUtil.decode(user.getId());
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = db.load(new ORecordId(rid));
+            doc.field("password", user.getPassword());
+            db.save(doc);
+        }
+        finally {
+           db.close();
+        }
     }
 
     /**

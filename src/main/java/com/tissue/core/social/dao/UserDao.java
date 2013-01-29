@@ -11,6 +11,8 @@ public interface UserDao {
 
     User update(User user);
 
+    void changePassword(User user);
+
     void addResume(String userId, String content);
 
     void inviteFriend(String fromId, String toId, String content);
