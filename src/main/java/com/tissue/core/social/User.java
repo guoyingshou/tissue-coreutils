@@ -124,8 +124,6 @@ public class User implements Serializable {
     }
 
     public boolean isSelf(String userId) {
-        System.out.println("<<<id>>> " + id);
-        System.out.println("<<<userId>>> " + userId);
         return id.equals(userId);
     }
 
@@ -188,35 +186,6 @@ public class User implements Serializable {
         return false;
     }
 
-    /**
-    public boolean hasInvited(String userId) {
-        List<String> ids = new ArrayList();
-        for(Invitation inv : invitationsReceived) {
-            if(userId.equals(inv.getInvitor().getId())) {
-                return true;   
-            } 
-        }
-        for(Invitation inv : invitationsSent) {
-            if(userId.equals(inv.getInvitee().getId())) {
-                return true;   
-            } 
-        }
-        for(User user : declinedUsers) {
-            if(userId.equals(user.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean canInvite(String userId) {
-        if(isSelf(userId) || isFriend(userId) || hasInvited(userId)) {
-            return false;
-        }
-        return true;
-    }
-    */
-
     public void setInvitable(boolean invitable) {
         this.invitable = invitable;
     }
@@ -232,7 +201,28 @@ public class User implements Serializable {
         plans.add(plan);
     }
 
-    public List<Plan> getPlans() {
-        return plans;
+    public List<Plan> getOwnedPlans() {
+        List<Plan> ownedPlans = new ArrayList();
+        if(plans != null) {
+            for(Plan plan : plans) {
+                if(plan.isActive()) {
+                    ownedPlans.add(plan);
+                }
+            }
+        }
+        return ownedPlans;
     }
+
+    public List<Plan> getArchivedPlans() {
+        List<Plan> archivedPlans = new ArrayList();
+        if(plans != null) {
+            for(Plan plan : plans) {
+                if(!plan.isActive()) {
+                    archivedPlans.add(plan);
+                }
+            }
+        }
+        return archivedPlans;
+    }
+
 }

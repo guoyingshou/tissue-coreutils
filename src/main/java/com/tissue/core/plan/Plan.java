@@ -60,6 +60,11 @@ public class Plan extends Parent {
         return false;
     }
 
+    public Date getEndTime() {
+        DateTime dt = new DateTime(this.createTime).plusMonths(this.duration);
+        return dt.toDate();
+    }
+
     public Boolean isActive() {
         DateTime dt = new DateTime(this.createTime).plusMonths(this.duration);
         if(dt.isAfterNow()) {

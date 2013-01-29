@@ -43,7 +43,7 @@ public class Topic extends ContentParent {
         return null;
     }
 
-    public List<Plan> getDeadPlans() {
+    public List<Plan> getArchivedPlans() {
         List<Plan> result = new ArrayList();
 
         if(plans != null) {
