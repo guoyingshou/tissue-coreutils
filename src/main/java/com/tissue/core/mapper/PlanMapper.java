@@ -61,14 +61,17 @@ public class PlanMapper {
 
     public static Plan buildPlanDetails(ODocument doc) {
         Plan plan = buildPlan(doc);
-        Set<ODocument> inEdgesDoc = doc.field("in");
-        if(inEdgesDoc != null) {
-            for(ODocument inEdgeDoc : inEdgesDoc) {
-                String label = inEdgeDoc.field("label");
-                if("members".equals(label)) {
-                    ODocument memberDoc = inEdgeDoc.field("out");
-                    User member = UserMapper.buildUserSelf(memberDoc);
-                    plan.addMember(member);
+        //only retrieve active plan's members
+        if(plan.isActive()) { 
+            Set<ODocument> inEdgesDoc = doc.field("in");
+            if(inEdgesDoc != null) {
+                for(ODocument inEdgeDoc : inEdgesDoc) {
+                    String label = inEdgeDoc.field("label");
+                    if("members".equals(label)) {
+                        ODocument memberDoc = inEdgeDoc.field("out");
+                        User member = UserMapper.buildUserSelf(memberDoc);
+                        plan.addMember(member);
+                    }
                 }
             }
         }

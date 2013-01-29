@@ -215,7 +215,6 @@ public class PostDaoImpl extends OrientDao implements PostDao {
                 Post post = PostMapper.buildPost(doc);
                 posts.add(post);
             }
-            //posts = PostMapper.buildPosts(docs);
         }
         catch(Exception exc) {
             exc.printStackTrace();
@@ -225,5 +224,27 @@ public class PostDaoImpl extends OrientDao implements PostDao {
         }
         return posts;
     }
+
+    public List<Post> getLatestPosts(int limit) {
+        List<Post> posts = new ArrayList();
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            String sql = "select from Post order by createTime desc limit " + limit;
+            List<ODocument> docs = query(db, sql);
+            for(ODocument doc : docs) {
+                Post post = PostMapper.buildPost(doc);
+                posts.add(post);
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return posts;
+    }
+
 
 }

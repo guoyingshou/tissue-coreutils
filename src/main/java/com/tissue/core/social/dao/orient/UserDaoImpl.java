@@ -278,4 +278,29 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         return users;
     }
 
+    public boolean isInvitable(String userId1, String userId2) {
+        boolean invitable = true;
+
+        String rid1 = OrientIdentityUtil.decode(userId1);
+        String rid2 = OrientIdentityUtil.decode(userId2);
+
+        String sql = "select from ographedge where (label contains ['friends', 'invite']) and ((in in " + rid1 + " and out in " + rid2 + ") or (in in " + rid2 + " and out in " + rid1 + "))";
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = query(db, sql);
+            if(docs.size() > 0) {
+               invitable = false;
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return invitable;
+    }
+
+
 }

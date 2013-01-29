@@ -26,7 +26,7 @@ public class User implements Serializable {
     private Date createTime;
     private Date updateTime;
     private boolean verified = false;
-    private boolean invitable = false;
+    //private boolean invitable = false;
 
     private List<User> friends;
     private List<User> declinedUsers;
@@ -186,6 +186,7 @@ public class User implements Serializable {
         return false;
     }
 
+    /**
     public void setInvitable(boolean invitable) {
         this.invitable = invitable;
     }
@@ -193,6 +194,7 @@ public class User implements Serializable {
     public boolean isInvitable() {
         return invitable;
     }
+    */
 
     public void addPlan(Plan plan) {
         if(plans == null) {

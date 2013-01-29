@@ -31,6 +31,8 @@ public interface UserDao {
 
     List<User> getFriends(String userId);
 
+    boolean isInvitable(String userId1, String userId2);
+
     List<User> getNewUsers(String excludingUserId, int limit);
 
 }

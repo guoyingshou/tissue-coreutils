@@ -24,21 +24,15 @@ public interface PostDao {
 
     List<Post> getPagedPostsByTopicId(String topicId, int page, int size);
 
-    //List<Post> getPostsByTopicId(String topicId);
-
     //-- by topic and type
     long getPostsCountByTopicIdAndType(String topicId, String type);
 
     List<Post> getPagedPostsByTopicIdAndType(String topicId, String type, int page, int size);
 
-    //List<Post> getPostsByTopicIdAndType(String topicId, String type);
-
     //-- by plan
     long getPostsCountByPlanId(String planId);
 
     List<Post> getPagedPostsByPlanId(String planId, int page, int size);
-
-    //List<Post> getPostsByPlanId(String planId);
 
     //-- by user
 
@@ -46,6 +40,7 @@ public interface PostDao {
 
     List<Post> getPagedPostsByUserId(String userId, int page, int size);
 
-    //List<Post> getPostsByUserId(String userId);
+    //by timestamp
+    List<Post> getLatestPosts(int limit);
 
 }
