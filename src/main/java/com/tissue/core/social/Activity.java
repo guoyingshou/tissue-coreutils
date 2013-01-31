@@ -1,9 +1,13 @@
 package com.tissue.core.social;
 
-import java.io.Serializable;
+import com.tissue.core.util.TimeFormat;
+
+import org.joda.time.DateTime;
+import org.joda.time.Period;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.Serializable;
 
 public class Activity implements Serializable {
 
@@ -81,4 +85,42 @@ public class Activity implements Serializable {
 
         return args;
     }
+
+    public TimeFormat getTimeBefore() {
+        return new TimeFormat() {
+            public int getMonths() {
+                return getPeriod().getMonths();
+            }
+
+            public int getWeeks() {
+                return getPeriod().getWeeks();
+            }
+
+            public int getDays() {
+                return getPeriod().getDays();
+            }
+
+            public int getHours() {
+                return getPeriod().getHours();
+            }
+
+            public int getMinutes() {
+                return getPeriod().getMinutes();
+            }
+
+            public int getSeconds() {
+                return getPeriod().getSeconds();
+            }
+        };
+    }
+
+    private Period getPeriod() {
+        DateTime now = new DateTime();
+        DateTime end = new DateTime(createTime);
+
+        Period p = new Period(end, now);
+        return p;
+    }
+
+
 }

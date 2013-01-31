@@ -1,7 +1,10 @@
 package com.tissue.core.plan;
 
+import com.tissue.core.util.TimeFormat;
 import com.tissue.core.social.User;
 
+import org.joda.time.DateTime;
+import org.joda.time.Period;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
@@ -45,4 +48,41 @@ public class Parent implements Serializable {
         }
         return false;
     }
+
+    public TimeFormat getTimeBefore() {
+        return new TimeFormat() {
+            public int getMonths() {
+                return getPeriod().getMonths();
+            }
+
+            public int getWeeks() {
+                return getPeriod().getWeeks();
+            }
+
+            public int getDays() {
+                return getPeriod().getDays();
+            }
+
+            public int getHours() {
+                return getPeriod().getHours();
+            }
+
+            public int getMinutes() {
+                return getPeriod().getMinutes();
+            }
+
+            public int getSeconds() {
+                return getPeriod().getSeconds();
+            }
+        };
+    }
+
+    private Period getPeriod() {
+        DateTime start = new DateTime(getCreateTime());
+        DateTime now = new DateTime();
+
+        Period p = new Period(start, now);
+        return p;
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.tissue.core.plan;
 
 import com.tissue.core.social.User;
+import com.tissue.core.util.TimeFormat;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -73,32 +74,41 @@ public class Plan extends Parent {
         return false;
     }
 
+    public TimeFormat getTimeRemaining() {
+        return new TimeFormat() {
+            public int getMonths() {
+                return getPeriod().getMonths();
+            }
+
+            public int getWeeks() {
+                return getPeriod().getWeeks();
+            }
+
+            public int getDays() {
+                return getPeriod().getDays();
+            }
+
+            public int getHours() {
+                return getPeriod().getHours();
+            }
+
+            public int getMinutes() {
+                return getPeriod().getMinutes();
+            }
+
+            public int getSeconds() {
+                return getPeriod().getSeconds();
+            }
+
+        };
+    }
+
     private Period getPeriod() {
         DateTime now = new DateTime();
         DateTime end = new DateTime(createTime).plusMonths(duration);
 
         Period p = new Period(now, end);
         return p;
-    }
-
-    public int getMonths() {
-        return getPeriod().getMonths();
-    }
-
-    public int getWeeks() {
-        return getPeriod().getWeeks();
-    }
-
-    public int getDays() {
-        return getPeriod().getDays();
-    }
-
-    public int getHours() {
-        return getPeriod().getHours();
-    }
-
-    public int getMinutes() {
-        return getPeriod().getMinutes();
     }
 
 }
