@@ -39,7 +39,7 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
             String sqlUsername = "select from User where username = ?";
             OSQLSynchQuery<ODocument> query = new OSQLSynchQuery(sqlUsername);
             List<ODocument> result = db.command(query).execute(username);
-            if(result != null) {
+            if((result != null) && (result.size() > 0)) {
                 ODocument doc = result.get(0);
                 userDetails = UserDetailsMapper.buildUser(doc);
             }
