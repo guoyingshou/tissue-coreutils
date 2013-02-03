@@ -328,5 +328,47 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         return invitable;
     }
 
+    public boolean isUsernameExist(String username) {
+        boolean exist = false;
+
+        String sql = "select from user where username = '" + username + "'";
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = query(db, sql);
+            if(docs.size() > 0) {
+               exist = true;
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return exist;
+    }
+
+    public boolean isEmailExist(String email) {
+        boolean exist = false;
+
+        String sql = "select from user where email = '" + email + "'";
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = query(db, sql);
+            if(docs.size() > 0) {
+               exist = true;
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return exist;
+    }
+
 
 }

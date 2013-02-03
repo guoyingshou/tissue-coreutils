@@ -13,6 +13,10 @@ public interface UserDao {
 
     void changePassword(User user);
 
+    boolean isUsernameExist(String username);
+
+    boolean isEmailExist(String email);
+
     void addResume(String userId, String content);
 
     void inviteFriend(String fromId, String toId, String content);
@@ -36,5 +40,6 @@ public interface UserDao {
     boolean isInvitable(String userId1, String userId2);
 
     List<User> getNewUsers(String excludingUserId, int limit);
+
 
 }
