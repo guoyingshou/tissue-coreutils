@@ -16,6 +16,7 @@ import com.tissue.core.plan.dao.PostDao;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import java.util.List;
 import java.util.ArrayList;
@@ -26,11 +27,15 @@ public class PostDaoImpl extends OrientDao implements PostDao {
 
     public Post update(Post post) {
         String ridPost = OrientIdentityUtil.decode(post.getId());
-        String sql = "update " + ridPost + " set title = '" + post.getTitle() + "', content = '" + post.getContent() + "'";
+        //String sql = "update " + ridPost + " set title = '" + post.getTitle() + "', content = '" + post.getContent() + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            executeCommand(db, sql);
+            ODocument doc = db.load(new ORecordId(ridPost));
+            doc.field("title", post.getTitle());
+            doc.field("content", post.getContent());
+            doc.save();
+            //executeCommand(db, sql);
         }
         catch(Exception exc) {
             exc.printStackTrace();
