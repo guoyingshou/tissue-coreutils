@@ -43,13 +43,25 @@ public class UserDaoImpl extends OrientDao implements UserDao {
             ODocument doc = db.load(new ORecordId(rid));
             doc.field("displayName", user.getDisplayName());
             doc.field("headline", user.getHeadline());
-            doc.field("email", user.getEmail());
             db.save(doc);
         }
         finally {
            db.close();
         }
         return user;
+    }
+
+    public void updateEmail(User user) {
+        String rid = OrientIdentityUtil.decode(user.getId());
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = db.load(new ORecordId(rid));
+            doc.field("email", user.getEmail());
+            db.save(doc);
+        }
+        finally {
+           db.close();
+        }
     }
 
     public void changePassword(User user) {
@@ -328,6 +340,29 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         return invitable;
     }
 
+    public boolean isUserIdExist(String userId) {
+
+        boolean exist = false;
+
+        String rid = OrientIdentityUtil.decode(userId);
+        String sql = "select from " + rid;
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = query(db, sql);
+            if(docs.size() > 0) {
+               exist = true;
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return exist;
+    }
+
     public boolean isUsernameExist(String username) {
         boolean exist = false;
 
@@ -353,6 +388,29 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         boolean exist = false;
 
         String sql = "select from user where email = '" + email + "'";
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = query(db, sql);
+            if(docs.size() > 0) {
+               exist = true;
+            }
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return exist;
+    }
+
+    public boolean isEmailExist(String excludingUserId, String email) {
+        String rid = OrientIdentityUtil.decode(excludingUserId);
+
+        boolean exist = false;
+
+        String sql = "select from user where email = '" + email + "' and @rid <> " + rid;
 
         OGraphDatabase db = dataSource.getDB();
         try {

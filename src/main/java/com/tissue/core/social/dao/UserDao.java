@@ -11,11 +11,17 @@ public interface UserDao {
 
     User update(User user);
 
+    void updateEmail(User user);
+
     void changePassword(User user);
+
+    boolean isUserIdExist(String userId);
 
     boolean isUsernameExist(String username);
 
     boolean isEmailExist(String email);
+
+    boolean isEmailExist(String excludingUserId, String email);
 
     void addResume(String userId, String content);
 

@@ -60,6 +60,7 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(ridTopic));
+            doc.field("title", topic.getTitle());
             doc.field("content", topic.getContent());
             doc.field("tags", topic.getTags());
             db.save(doc);
