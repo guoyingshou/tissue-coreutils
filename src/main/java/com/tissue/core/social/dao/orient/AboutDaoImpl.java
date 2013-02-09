@@ -1,8 +1,8 @@
 package com.tissue.core.social.dao.orient;
 
+import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.orient.dao.OrientDao;
 import com.tissue.core.mapper.AboutMapper;
-import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.social.About;
 import com.tissue.core.social.User;
 import com.tissue.core.social.dao.AboutDao;
