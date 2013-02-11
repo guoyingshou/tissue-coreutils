@@ -88,6 +88,10 @@ public class Activity implements Serializable {
 
     public TimeFormat getTimeBefore() {
         return new TimeFormat() {
+            public int getYears() {
+                return getPeriod().getYears();
+            }
+
             public int getMonths() {
                 return getPeriod().getMonths();
             }

@@ -4,6 +4,7 @@ import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
+import com.tissue.core.plan.command.TopicCommand;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
@@ -12,15 +13,20 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Sets;
+
 public class TopicMapper {
 
-    public static ODocument convertTopic(Topic topic) {
+    public static ODocument convertTopic(TopicCommand command) {
 
         ODocument doc = new ODocument("Topic");
-        doc.field("title", topic.getTitle());
-        doc.field("content", topic.getContent());
-        doc.field("tags", topic.getTags());
-        doc.field("createTime", topic.getCreateTime());
+        doc.field("title", command.getTitle());
+        doc.field("content", command.getContent());
+        Set<String> tags = command.getTags();
+        doc.field("tags", tags);
+        //doc.field("tags", command.getTags());
+        doc.field("createTime", new Date());
 
         return doc;
     }

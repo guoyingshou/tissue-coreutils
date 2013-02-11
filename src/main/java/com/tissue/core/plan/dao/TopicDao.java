@@ -1,14 +1,15 @@
 package com.tissue.core.plan.dao;
 
+import com.tissue.core.plan.command.TopicCommand;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 import java.util.List;
 
 public interface TopicDao {
 
-    Topic create(Topic topic);
+    Topic create(TopicCommand command);
 
-    void update(Topic topic);
+    void update(TopicCommand command);
 
     Topic getTopic(String id);
 

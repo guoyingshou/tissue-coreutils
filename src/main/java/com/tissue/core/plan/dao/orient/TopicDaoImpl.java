@@ -2,6 +2,7 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.orient.dao.OrientDao;
 import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.plan.command.TopicCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Topic;
@@ -29,18 +30,25 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
     /**
      * Add a topic.
      */
-    public Topic create(Topic topic) {
+    public Topic create(TopicCommand command) {
+        Topic topic = null;
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = TopicMapper.convertTopic(topic);
+            ODocument doc = TopicMapper.convertTopic(command);
             saveDoc(doc);
 
             String ridTopic = doc.getIdentity().toString();
-            String ridUser = OrientIdentityUtil.decode(topic.getUser().getId());
+            String ridUser = OrientIdentityUtil.decode(command.getUser().getId());
 
-            String sql = "create edge from " + ridUser + " to " + ridTopic + " set label = 'topic', createTime = sysdate()";
+            String sql = "create edge EdgePost from " + ridUser + " to " + ridTopic + " set label = 'topic', createTime = sysdate()";
             executeCommand(db, sql);
+
+            topic = new Topic();
             topic.setId(OrientIdentityUtil.encode(ridTopic));
+            topic.setTitle(command.getTitle());
+            topic.setContent(command.getContent());
+            topic.setTags(command.getTags());
+            topic.setUser(command.getUser());
         }
         catch(Exception exc) {
             //to do
@@ -55,14 +63,14 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
     /**
      * Update a topic.
      */
-    public void update(Topic topic) {
-        String ridTopic = OrientIdentityUtil.decode(topic.getId());
+    public void update(TopicCommand command) {
+        String ridTopic = OrientIdentityUtil.decode(command.getId());
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(ridTopic));
-            doc.field("title", topic.getTitle());
-            doc.field("content", topic.getContent());
-            doc.field("tags", topic.getTags());
+            doc.field("title", command.getTitle());
+            doc.field("content", command.getContent());
+            doc.field("tags", command.getTags());
             db.save(doc);
         }
         finally {

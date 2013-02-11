@@ -51,6 +51,10 @@ public class Parent implements Serializable {
 
     public TimeFormat getTimeBefore() {
         return new TimeFormat() {
+            public int getYears() {
+                return getPeriod().getYears();
+            }
+
             public int getMonths() {
                 return getPeriod().getMonths();
             }

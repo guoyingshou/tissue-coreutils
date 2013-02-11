@@ -76,6 +76,10 @@ public class Plan extends Parent {
 
     public TimeFormat getTimeRemaining() {
         return new TimeFormat() {
+            public int getYears() {
+                return getPeriod().getYears();
+            }
+
             public int getMonths() {
                 return getPeriod().getMonths();
             }
