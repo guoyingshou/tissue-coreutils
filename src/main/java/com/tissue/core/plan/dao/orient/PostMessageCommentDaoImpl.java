@@ -29,7 +29,7 @@ public class PostMessageCommentDaoImpl extends OrientDao implements PostMessageC
             String sql = "update " + ridComment + " set postMessage = " + ridPostMessage;
             executeCommand(db, sql);
 
-            sql = "create edge from " + ridUser + " to " + ridComment + " set label = 'postMessageComment', createTime = sysdate()";
+            sql = "create edge EdgePost from " + ridUser + " to " + ridComment + " set label = 'postMessageComment', createTime = sysdate()";
             executeCommand(db, sql);
         
             sql = "update " + ridPostMessage + " add comments = " + ridComment;

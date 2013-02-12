@@ -30,7 +30,7 @@ public class PostMessageDaoImpl extends OrientDao implements PostMessageDao {
             String sql = "update " + ridMessage + " set post = " + ridPost;
             executeCommand(db, sql);
 
-            sql = "create edge from " + ridUser + " to " + ridMessage + " set label = 'postMessage', createTime = sysdate()";
+            sql = "create edge EdgePost from " + ridUser + " to " + ridMessage + " set label = 'postMessage', createTime = sysdate()";
             executeCommand(db, sql);
 
             sql = "update " + ridPost + " add messages = " + ridMessage;

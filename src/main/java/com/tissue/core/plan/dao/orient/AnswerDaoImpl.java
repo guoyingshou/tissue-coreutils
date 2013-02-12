@@ -29,7 +29,7 @@ public class AnswerDaoImpl extends OrientDao implements AnswerDao {
             String ridUser = OrientIdentityUtil.decode(answer.getUser().getId());
             String ridQuestion = OrientIdentityUtil.decode(answer.getQuestion().getId());
 
-            String sql = "create edge from " + ridUser + " to " + ridAnswer + " set label = 'answer', createTime = sysdate()";
+            String sql = "create edge EdgePost from " + ridUser + " to " + ridAnswer + " set label = 'answer', createTime = sysdate()";
             executeCommand(db, sql);
 
             sql = "update " + ridAnswer + " set question = " + ridQuestion;

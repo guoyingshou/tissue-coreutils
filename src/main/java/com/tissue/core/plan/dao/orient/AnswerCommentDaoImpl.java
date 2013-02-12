@@ -27,7 +27,7 @@ public class AnswerCommentDaoImpl extends OrientDao implements AnswerCommentDao 
             String ridUser = OrientIdentityUtil.decode(comment.getUser().getId());
             String ridAnswer = OrientIdentityUtil.decode(comment.getAnswer().getId());
 
-            String sql = "create edge from " + ridUser + " to " + ridComment + " set label = 'answerComment', createTime = sysdate()";
+            String sql = "create edge EdgePost from " + ridUser + " to " + ridComment + " set label = 'answerComment', createTime = sysdate()";
             executeCommand(db, sql);
 
             sql = "update " + ridAnswer + " add comments = " + ridComment;

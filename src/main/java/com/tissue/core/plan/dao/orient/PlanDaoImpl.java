@@ -30,7 +30,7 @@ public class PlanDaoImpl extends OrientDao implements PlanDao {
             String ridUser = OrientIdentityUtil.decode(plan.getUser().getId());
             String ridTopic = OrientIdentityUtil.decode(plan.getTopic().getId());
 
-            String sql = "create edge from " + ridUser + " to " + ridPlan + " set label = 'plan', createTime = sysdate()";
+            String sql = "create edge EdgeJoin from " + ridUser + " to " + ridPlan + " set label = 'plan', createTime = sysdate()";
             executeCommand(db, sql);
 
             sql = "update " + ridPlan + " set topic = " + ridTopic;

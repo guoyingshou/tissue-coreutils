@@ -28,7 +28,7 @@ public class TutorialDaoImpl extends OrientDao implements TutorialDao {
             String sql = "update " + ridTutorial + " set plan = " + ridPlan;
             executeCommand(db, sql);
 
-            sql = "create edge from " + ridUser + " to " + ridTutorial + " set label = 'tutorial', createTime = sysdate()";
+            sql = "create edge EdgePost from " + ridUser + " to " + ridTutorial + " set label = 'tutorial', createTime = sysdate()";
             executeCommand(db, sql);
 
             tutorial.setId(OrientIdentityUtil.encode(ridTutorial));

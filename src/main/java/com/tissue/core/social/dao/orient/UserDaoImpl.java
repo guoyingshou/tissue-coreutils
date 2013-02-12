@@ -322,7 +322,7 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         String rid1 = OrientIdentityUtil.decode(userId1);
         String rid2 = OrientIdentityUtil.decode(userId2);
 
-        String sql = "select from ographedge where (label contains ['friends', 'invite']) and ((in in " + rid1 + " and out in " + rid2 + ") or (in in " + rid2 + " and out in " + rid1 + "))";
+        String sql = "select from EdgeFriend where (label contains ['friends', 'invite']) and ((in in " + rid1 + " and out in " + rid2 + ") or (in in " + rid2 + " and out in " + rid1 + "))";
 
         OGraphDatabase db = dataSource.getDB();
         try {
