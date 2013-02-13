@@ -1,5 +1,6 @@
 package com.tissue.core.social.dao.orient;
 
+import com.tissue.core.NoRecordFoundException;
 import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.orient.dao.OrientDao;
 import com.tissue.core.orient.dao.DuplicateEmailException;
@@ -19,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
 
 @Component
 public class UserDaoImpl extends OrientDao implements UserDao {
@@ -41,6 +44,9 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(rid));
+            if(doc == null) {
+                throw new NoRecordFoundException(rid);
+            }
             doc.field("displayName", user.getDisplayName());
             doc.field("headline", user.getHeadline());
             db.save(doc);
@@ -56,6 +62,9 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(rid));
+            if(doc == null) {
+                throw new NoRecordFoundException(rid);
+            }
             doc.field("email", user.getEmail());
             db.save(doc);
         }
@@ -69,6 +78,9 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(rid));
+            if(doc == null) {
+                throw new NoRecordFoundException(rid);
+            }
             doc.field("password", user.getPassword());
             db.save(doc);
         }
@@ -89,10 +101,10 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         try {
             String sql = "select from " + rid;
             ODocument doc = querySingle(db, sql);
+            if(doc == null) {
+                throw new NoRecordFoundException(rid);
+            }
             user = UserMapper.buildUser(doc);
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
         }
         finally {
             db.close();
@@ -212,12 +224,18 @@ public class UserDaoImpl extends OrientDao implements UserDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            executeCommand(db, sql);
+            //executeCommand(db, sql);
+            OCommandSQL cmd = new OCommandSQL(sql);
+            int result = db.command(cmd).execute();
+            if(result != 1) {
+                throw new NoRecordFoundException(rid);
+            }
         }
+        /**
         catch(Exception exc) {
-            //to do
             exc.printStackTrace();
         }
+        */
         finally {
             db.close();
         }

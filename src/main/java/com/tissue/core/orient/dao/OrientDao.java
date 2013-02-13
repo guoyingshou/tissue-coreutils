@@ -39,7 +39,9 @@ public abstract class OrientDao {
 
     protected void executeCommand(OGraphDatabase db, String sql) {
         OCommandSQL cmd = new OCommandSQL(sql);
-        db.command(cmd).execute();
+        Object result = db.command(cmd).execute();
+        System.out.println(">>>execute command result<<<" + result);
+        System.out.println(">>>execute command result<<<" + result.getClass());
     }
 
     protected long countClass(String name) {
