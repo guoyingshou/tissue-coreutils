@@ -2,6 +2,7 @@ package com.tissue.core.plan.dao;
 
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.Topic;
+import com.tissue.core.plan.command.PostCommand;
 import java.util.List;
 
 public interface PostDao {
@@ -9,7 +10,7 @@ public interface PostDao {
     /**
      * Add a post.
      */
-    //Post create(Post post);
+    String create(PostCommand postCommand);
 
     Post update(Post post);
 
@@ -43,4 +44,5 @@ public interface PostDao {
     //by timestamp
     List<Post> getLatestPosts(int limit);
 
+    Topic getTopic(String postId);
 }

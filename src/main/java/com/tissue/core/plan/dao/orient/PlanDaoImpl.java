@@ -4,6 +4,7 @@ import com.tissue.core.orient.dao.OrientDao;
 import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.mapper.PlanMapper;
+import com.tissue.core.mapper.TopicMapper;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Topic;
@@ -109,6 +110,29 @@ public class PlanDaoImpl extends OrientDao implements PlanDao {
         finally {
             db.close();
         }
+    }
+
+    /**
+     * Get a topic by plan id with all fields available.
+     */
+    public Topic getTopic(String planId) {
+        Topic topic = null;
+
+        String ridPlan = OrientIdentityUtil.decode(planId);
+        String sql = "select topic from " + ridPlan;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = querySingle(db, sql);
+            ODocument topicDoc = doc.field("topic");
+            topic = TopicMapper.buildTopicDetails(topicDoc);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return topic;
     }
 
 }

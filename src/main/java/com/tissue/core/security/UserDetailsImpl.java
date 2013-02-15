@@ -24,6 +24,8 @@ public class UserDetailsImpl implements UserDetails {
 
     private List<? extends GrantedAuthority> authorities;
 
+    private int inviteLimit;
+
     public void setAuthorities(List<? extends GrantedAuthority> authorities) {
         this.authorities = authorities;
     }
@@ -86,5 +88,17 @@ public class UserDetailsImpl implements UserDetails {
 
     public String getPassword() {
         return password;
+    }
+
+    public void setInviteLimit(int inviteLimit) {
+        this.inviteLimit = inviteLimit;
+    }
+
+    public int getInviteLimit() {
+        return inviteLimit;
+    }
+
+    public boolean canInvite() {
+        return inviteLimit > 0;
     }
 }

@@ -13,9 +13,9 @@ public interface TopicDao {
 
     Topic getTopic(String id);
 
-    Topic getTopicByPlanId(String planId);
+    //Topic getTopicByPlanId(String planId);
 
-    Topic getTopicByPostId(String postId);
+    //Topic getTopicByPostId(String postId);
 
     List<Topic> getTrendingTopics(int num);
 

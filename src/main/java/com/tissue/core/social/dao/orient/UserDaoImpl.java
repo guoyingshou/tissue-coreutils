@@ -30,6 +30,7 @@ public class UserDaoImpl extends OrientDao implements UserDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = UserMapper.convertUser(user);
+            doc.field("inviteLimit", 32);
             String id = saveDoc(doc);
             user.setId(id);
         }
@@ -224,7 +225,6 @@ public class UserDaoImpl extends OrientDao implements UserDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             int result = db.command(cmd).execute();
             if(result != 1) {

@@ -44,10 +44,6 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
                 userDetails = UserDetailsMapper.buildUser(doc);
             }
         }
-        catch(Exception exc) {
-            //to do:
-            exc.printStackTrace();
-        }
         finally {
             db.close();
         }

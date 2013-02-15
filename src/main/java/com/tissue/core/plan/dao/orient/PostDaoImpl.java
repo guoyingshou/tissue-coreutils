@@ -12,6 +12,7 @@ import com.tissue.core.plan.PostWrapper;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.dao.PostDao;
+import com.tissue.core.plan.command.PostCommand;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,17 +26,39 @@ import java.util.Set;
 @Component
 public class PostDaoImpl extends OrientDao implements PostDao {
 
+    public String create(PostCommand postCommand) {
+        String postId = null;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = PostMapper.convert(postCommand);
+            saveDoc(doc);
+
+            String ridPost = doc.getIdentity().toString();
+            String ridUser = OrientIdentityUtil.decode(postCommand.getUser().getId());
+            String ridPlan = OrientIdentityUtil.decode(postCommand.getPlan().getId());
+
+            String sql = "update " + ridPost + " set plan = " + ridPlan;
+            executeCommand(db, sql);
+
+            sql = "create edge EdgePost from " + ridUser + " to " + ridPost + " set createTime = sysdate(), label = '" + postCommand.getType() + "'";
+            executeCommand(db, sql);
+
+            postId = OrientIdentityUtil.encode(ridPost);
+        }
+        finally {
+            db.close();
+        }
+        return postId;
+    }
+
     public Post update(Post post) {
         String ridPost = OrientIdentityUtil.decode(post.getId());
-        //String sql = "update " + ridPost + " set title = '" + post.getTitle() + "', content = '" + post.getContent() + "'";
-
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(ridPost));
             doc.field("title", post.getTitle());
             doc.field("content", post.getContent());
             doc.save();
-            //executeCommand(db, sql);
         }
         catch(Exception exc) {
             exc.printStackTrace();
@@ -251,5 +274,24 @@ public class PostDaoImpl extends OrientDao implements PostDao {
         return posts;
     }
 
+    public Topic getTopic(String postId) {
+        Topic topic = null;
+
+        String ridPost = OrientIdentityUtil.decode(postId);
+        String sql = "select plan.topic as topic from " + ridPost;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = querySingle(db, sql);
+            ODocument topicDoc = doc.field("topic");
+            topic = TopicMapper.buildTopicDetails(topicDoc);
+        }
+        catch(Exception exc) {
+            exc.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
+        return topic;
+    }
 
 }

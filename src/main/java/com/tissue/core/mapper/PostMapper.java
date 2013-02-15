@@ -9,6 +9,7 @@ import com.tissue.core.plan.Question;
 import com.tissue.core.plan.QuestionComment;
 import com.tissue.core.plan.Answer;
 import com.tissue.core.plan.Plan;
+import com.tissue.core.plan.command.PostCommand;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
@@ -21,12 +22,12 @@ import java.util.Set;
 
 public class PostMapper {
 
-    public static ODocument convert(Post post) {
-        ODocument doc = new ODocument(post.getType());
-        doc.field("title", post.getTitle());
-        doc.field("content", post.getContent());
-        doc.field("type", post.getType());
-        doc.field("createTime", post.getCreateTime());
+    public static ODocument convert(PostCommand postCommand) {
+        ODocument doc = new ODocument(postCommand.getType());
+        doc.field("title", postCommand.getTitle());
+        doc.field("content", postCommand.getContent());
+        doc.field("type", postCommand.getType());
+        doc.field("createTime", new Date());
         return doc;
     }
 

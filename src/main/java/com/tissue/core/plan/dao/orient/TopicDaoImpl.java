@@ -103,50 +103,6 @@ public class TopicDaoImpl extends OrientDao implements TopicDao {
     }
 
     /**
-     * Get a topic by plan id with all fields available.
-     */
-    public Topic getTopicByPlanId(String planId) {
-        Topic topic = null;
-
-        String ridPlan = OrientIdentityUtil.decode(planId);
-        String sql = "select topic from " + ridPlan;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = querySingle(db, sql);
-            ODocument topicDoc = doc.field("topic");
-            topic = TopicMapper.buildTopicDetails(topicDoc);
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
-        }
-        finally {
-            db.close();
-        }
-        return topic;
-    }
-
-    public Topic getTopicByPostId(String postId) {
-        Topic topic = null;
-
-        String ridPost = OrientIdentityUtil.decode(postId);
-        String sql = "select plan.topic as topic from " + ridPost;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = querySingle(db, sql);
-            ODocument topicDoc = doc.field("topic");
-            topic = TopicMapper.buildTopicDetails(topicDoc);
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
-        }
-        finally {
-            db.close();
-        }
-        return topic;
-    }
-
-
-    /**
      * Get topics with the largest members.
      */
     public List<Topic> getTrendingTopics(int num) {

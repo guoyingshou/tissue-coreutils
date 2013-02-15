@@ -27,6 +27,9 @@ public class UserDetailsMapper {
         String displayName = userDetailsDoc.field("displayName", String.class);
         userDetails.setDisplayName(displayName);
 
+        Integer inviteLimit = userDetailsDoc.field("inviteLimit", Integer.class);
+        userDetails.setInviteLimit(inviteLimit);
+
         return userDetails;
     }
 
