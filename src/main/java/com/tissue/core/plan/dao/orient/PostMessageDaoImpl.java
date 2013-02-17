@@ -1,7 +1,8 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.orient.dao.OrientDao;
-import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.command.PostMessageCommand;
+import com.tissue.core.util.OrientDataSource;
+
 import com.tissue.core.mapper.PostMessageMapper;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.Post;
@@ -12,59 +13,75 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 @Component
-public class PostMessageDaoImpl extends OrientDao implements PostMessageDao {
+public class PostMessageDaoImpl implements PostMessageDao {
+    @Autowired
+    protected OrientDataSource dataSource;
 
-    public PostMessage create(PostMessage message) {
+    public String create(PostMessageCommand message) {
+        String id = null;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = PostMessageMapper.convertPostMessage(message);
-            saveDoc(doc);
+            db.save(doc);
 
-            String ridMessage = doc.getIdentity().toString();
-            String ridPost = OrientIdentityUtil.decode(message.getPost().getId());
-            String ridUser = OrientIdentityUtil.decode(message.getUser().getId());
+            id = doc.getIdentity().toString();
+            String postId = message.getPost().getId();
+            String userId = message.getUser().getId();
 
-            String sql = "update " + ridMessage + " set post = " + ridPost;
-            executeCommand(db, sql);
-
-            sql = "create edge EdgePost from " + ridUser + " to " + ridMessage + " set label = 'postMessage', createTime = sysdate()";
-            executeCommand(db, sql);
-
-            sql = "update " + ridPost + " add messages = " + ridMessage;
-            executeCommand(db, sql);
+            String sql = "update " + id + " set post = " + postId;
+            //executeCommand(db, sql);
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
  
-            message.setId(OrientIdentityUtil.encode(ridMessage));
+            sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'postMessage', createTime = sysdate()";
+            //executeCommand(db, sql);
+            cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+ 
+            sql = "update " + postId + " add messages = " + id;
+            //executeCommand(db, sql);
+            cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+ 
+            //message.setId(OrientIdentityUtil.encode(ridMessage));
         }
         finally {
             db.close();
         }
-        return message;
+        return id;
     }
 
-    public void update(PostMessage message) {
+    public void update(PostMessageCommand message) {
 
-        String ridMessage = OrientIdentityUtil.decode(message.getId());
-        String sql = "update " + ridMessage + " set content = '" + message.getContent() + "'";
+        //String ridMessage = OrientIdentityUtil.decode(message.getId());
+        String sql = "update " + message.getId() + " set content = '" + message.getContent() + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            executeCommand(db, sql);
-        }
+            //executeCommand(db, sql);
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+         }
         finally {
             db.close();
         }
     }
 
     public void delete(String messageId) {
-        String ridMessage = OrientIdentityUtil.decode(messageId);
-        String sql = "update " + ridMessage + " set status = 'deleted'";
+        //String ridMessage = OrientIdentityUtil.decode(messageId);
+        String sql = "update " + messageId + " set status = 'deleted'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            executeCommand(db, sql);
+            //executeCommand(db, sql);
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+ 
         }
         finally {
             db.close();

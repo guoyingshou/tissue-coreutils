@@ -1,9 +1,10 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.command.AnswerCommentCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.AnswerComment;
 import com.tissue.core.plan.Answer;
+import com.tissue.core.command.AnswerCommentCommand;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -15,16 +16,18 @@ import java.util.Set;
 
 public class AnswerCommentMapper {
 
-    public static ODocument convertAnswerComment(AnswerComment comment) {
+    public static ODocument convertAnswerComment(AnswerCommentCommand comment) {
         ODocument commentDoc = new ODocument("AnswerComment");
         commentDoc.field("content", comment.getContent());
-        commentDoc.field("answer", new ORecordId(OrientIdentityUtil.decode(comment.getAnswer().getId())));
+        //commentDoc.field("answer", new ORecordId(OrientIdentityUtil.decode(comment.getAnswer().getId())));
+        commentDoc.field("answer", new ORecordId(comment.getAnswer().getId()));
         return commentDoc;
     }
 
     public static AnswerComment buildAnswerComment(ODocument commentDoc) {
         AnswerComment answerComment = new AnswerComment();
-        answerComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
+        //answerComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
+        answerComment.setId(commentDoc.getIdentity().toString());
 
         String commentContent = commentDoc.field("content", String.class);
         answerComment.setContent(commentContent);
@@ -56,21 +59,5 @@ public class AnswerCommentMapper {
 
         return answerComment;
     }
-
-    /**
-    public static List<AnswerComment> buildAnswerComments(Set<ODocument> commentsDoc) {
-        List<AnswerComment> answerComments = new ArrayList();
-
-        for(ODocument commentDoc : commentsDoc) {
-            String status = commentDoc.field("status", String.class);
-            if(status == null) {
-                AnswerComment answerComment = buildAnswerComment(commentDoc);
-                answerComments.add(answerComment);
-            }
-        }
-
-        return answerComments;
-    }
-    */
 
 }

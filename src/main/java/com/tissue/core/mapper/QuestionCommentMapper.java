@@ -1,6 +1,6 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.command.QuestionCommentCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.QuestionComment;
 import com.tissue.core.plan.Post;
@@ -15,17 +15,19 @@ import java.util.Set;
 
 public class QuestionCommentMapper {
 
-    public static ODocument convertQuestionComment(QuestionComment comment) {
+    public static ODocument convertQuestionComment(QuestionCommentCommand comment) {
         ODocument commentDoc = new ODocument("QuestionComment");
         commentDoc.field("content", comment.getContent());
-        commentDoc.field("question", new ORecordId(OrientIdentityUtil.decode(comment.getQuestion().getId())));
+        //commentDoc.field("question", new ORecordId(OrientIdentityUtil.decode(comment.getQuestion().getId())));
+        commentDoc.field("question", new ORecordId(comment.getQuestion().getId()));
         return commentDoc;
     }
 
     public static QuestionComment buildQuestionComment(ODocument commentDoc) {
 
         QuestionComment questionComment = new QuestionComment();
-        questionComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
+        //questionComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
+        questionComment.setId(commentDoc.getIdentity().toString());
 
         String commentContent = commentDoc.field("content", String.class);
         questionComment.setContent(commentContent);

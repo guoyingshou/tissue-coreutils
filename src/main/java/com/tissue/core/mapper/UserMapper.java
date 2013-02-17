@@ -1,6 +1,8 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.util.OrientIdentityUtil;
+//import com.tissue.core.util.OrientIdentityUtil;
+
+import com.tissue.core.social.command.UserCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.social.Invitation;
 import com.tissue.core.social.Impression;
@@ -16,21 +18,23 @@ import java.util.Set;
 
 public class UserMapper {
 
-    public static ODocument convertUser(User user) {
+    public static ODocument convertUser(UserCommand userCommand) {
         ODocument doc = new ODocument("User");
-        doc.field("username", user.getUsername());
-        doc.field("password", user.getPassword());
-        doc.field("displayName", user.getDisplayName());
-        doc.field("headline", user.getHeadline());
-        doc.field("email", user.getEmail());
-        doc.field("createTime", user.getCreateTime());
+        doc.field("username", userCommand.getUsername());
+        doc.field("password", userCommand.getPassword());
+        doc.field("displayName", userCommand.getDisplayName());
+        doc.field("headline", userCommand.getHeadline());
+        doc.field("email", userCommand.getEmail());
+        doc.field("createTime", new Date());
+        doc.field("inviteLimit", 32);
         return doc;
     }
 
     public static User buildUserSelf(ODocument userDoc) {
         User user = new User();
         String rid = userDoc.getIdentity().toString();
-        user.setId(OrientIdentityUtil.encode(rid));
+        //user.setId(OrientIdentityUtil.encode(rid));
+        user.setId(rid);
 
         String displayName = userDoc.field("displayName", String.class);
         user.setDisplayName(displayName);
@@ -67,7 +71,8 @@ public class UserMapper {
     public static Impression buildImpressionSelf(ODocument impressionDoc) {
 
         Impression impression = new Impression();
-        impression.setId(OrientIdentityUtil.encode(impressionDoc.getIdentity().toString()));
+        //impression.setId(OrientIdentityUtil.encode(impressionDoc.getIdentity().toString()));
+        impression.setId(impressionDoc.getIdentity().toString());
 
         String content = impressionDoc.field("content", String.class);
         impression.setContent(content);
@@ -102,7 +107,8 @@ public class UserMapper {
         System.out.println("in user mapper: " + doc); 
 
         Invitation invitation = new Invitation();
-        invitation.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
+        //invitation.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
+        invitation.setId(doc.getIdentity().toString());
 
         String content = doc.field("content", String.class);
         invitation.setContent(content);

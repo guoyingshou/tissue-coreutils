@@ -1,7 +1,7 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.orient.dao.OrientDao;
-import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.command.PlanCommand;
+import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.mapper.PlanMapper;
 import com.tissue.core.mapper.TopicMapper;
@@ -14,56 +14,68 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+
 import java.util.List;
 import java.util.ArrayList;
 
 @Component
-public class PlanDaoImpl extends OrientDao implements PlanDao {
+public class PlanDaoImpl implements PlanDao {
     
-    public Plan create(Plan plan) {
+    @Autowired
+    protected OrientDataSource dataSource;
+
+    public String create(PlanCommand plan) {
+        String id = null;
         
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = PlanMapper.convertPlan(plan);
-            saveDoc(doc);
+            db.save(doc);
 
-            String ridPlan = doc.getIdentity().toString();
-            String ridUser = OrientIdentityUtil.decode(plan.getUser().getId());
-            String ridTopic = OrientIdentityUtil.decode(plan.getTopic().getId());
+            id = doc.getIdentity().toString();
+            String userId = plan.getUser().getId();
+            String topicId = plan.getTopic().getId();
 
-            String sql = "create edge EdgeJoin from " + ridUser + " to " + ridPlan + " set label = 'plan', createTime = sysdate()";
-            executeCommand(db, sql);
+            String sql = "create edge EdgeJoin from " + userId + " to " + id + " set label = 'plan', createTime = sysdate()";
+            //executeCommand(db, sql);
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+ 
+            sql = "update " + id + " set topic = " + topicId;
+            cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+ 
+            //executeCommand(db, sql);
 
-            sql = "update " + ridPlan + " set topic = " + ridTopic;
-            executeCommand(db, sql);
-
-            sql = "update " + ridTopic + " add plans = " + ridPlan;
-            executeCommand(db, sql);
-
-            plan.setId(OrientIdentityUtil.encode(ridPlan));
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
+            sql = "update " + topicId + " add plans = " + id;
+            //executeCommand(db, sql);
+            cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+ 
+            //plan.setId(OrientIdentityUtil.encode(ridPlan));
         }
         finally {
             db.close();
         }
-        return plan;
+        return id;
     }
 
     public Plan getPlan(String planId) {
         Plan plan = null;
 
-        String rid = OrientIdentityUtil.decode(planId);
-        String sql = "select from " + rid;
+        //String rid = OrientIdentityUtil.decode(planId);
+        String sql = "select from " + planId;
         
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = querySingle(db, sql);
-            plan = PlanMapper.buildPlanDetails(doc);
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
+            //ODocument doc = querySingle(db, sql);
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                plan = PlanMapper.buildPlanDetails(doc);
+            }
         }
         finally {
             db.close();
@@ -74,19 +86,17 @@ public class PlanDaoImpl extends OrientDao implements PlanDao {
     public List<Plan> getPlansByUserId(String userId) {
         List<Plan> plans = new ArrayList();
 
-        String rid = OrientIdentityUtil.decode(userId);
-        String sql = "select from plan where in.out in " + rid;
+        //String rid = OrientIdentityUtil.decode(userId);
+        String sql = "select from plan where in.out in " + userId;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            List<ODocument> docs = query(db, sql);
+            //List<ODocument> docs = query(db, sql);
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Plan plan = PlanMapper.buildPlan(doc);
                 plans.add(plan);
             }
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
         }
         finally {
             db.close();
@@ -96,16 +106,21 @@ public class PlanDaoImpl extends OrientDao implements PlanDao {
 
     public void addMember(String planId, String userId) {
 
-        String ridUser = OrientIdentityUtil.decode(userId);
-        String ridPlan = OrientIdentityUtil.decode(planId);
+        //String ridUser = OrientIdentityUtil.decode(userId);
+        //String ridPlan = OrientIdentityUtil.decode(planId);
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "create edge from " + ridUser + " to " + ridPlan + " set label='members', createTime=sysdate()";
-            executeCommand(db, sql);
-
-            sql = "update " + ridPlan + " increment count = 1";
-            executeCommand(db, sql);
+            String sql = "create edge from " + userId + " to " + planId + " set label='members', createTime=sysdate()";
+            //executeCommand(db, sql);
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+ 
+            sql = "update " + planId + " increment count = 1";
+            //executeCommand(db, sql);
+            cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+ 
         }
         finally {
             db.close();
@@ -118,16 +133,16 @@ public class PlanDaoImpl extends OrientDao implements PlanDao {
     public Topic getTopic(String planId) {
         Topic topic = null;
 
-        String ridPlan = OrientIdentityUtil.decode(planId);
-        String sql = "select topic from " + ridPlan;
+        //String ridPlan = OrientIdentityUtil.decode(planId);
+        String sql = "select topic from " + planId;
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = querySingle(db, sql);
-            ODocument topicDoc = doc.field("topic");
-            topic = TopicMapper.buildTopicDetails(topicDoc);
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                ODocument topicDoc = doc.field("topic");
+                topic = TopicMapper.buildTopicDetails(topicDoc);
+            }
         }
         finally {
             db.close();

@@ -1,6 +1,6 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.command.PostCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.Cnt;
@@ -9,7 +9,6 @@ import com.tissue.core.plan.Question;
 import com.tissue.core.plan.QuestionComment;
 import com.tissue.core.plan.Answer;
 import com.tissue.core.plan.Plan;
-import com.tissue.core.plan.command.PostCommand;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
@@ -33,7 +32,8 @@ public class PostMapper {
 
     public static Post buildPostSelf(ODocument postDoc) {
         Post post = new Post();
-        post.setId(OrientIdentityUtil.encode(postDoc.getIdentity().toString()));
+        //post.setId(OrientIdentityUtil.encode(postDoc.getIdentity().toString()));
+        post.setId(postDoc.getIdentity().toString());
 
         String postTitle = postDoc.field("title", String.class);
         post.setTitle(postTitle);

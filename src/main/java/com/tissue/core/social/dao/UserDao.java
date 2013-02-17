@@ -1,5 +1,6 @@
 package com.tissue.core.social.dao;
 
+import com.tissue.core.social.command.UserCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.social.Impression;
 import com.tissue.core.social.Invitation;
@@ -7,13 +8,13 @@ import java.util.List;
 
 public interface UserDao {
 
-    User create(User user);
+    String create(UserCommand userCommand);
 
-    User update(User user);
+    void update(UserCommand userCommand);
 
-    void updateEmail(User user);
+    void updateEmail(UserCommand userCommand);
 
-    void changePassword(User user);
+    void changePassword(UserCommand userCommand);
 
     boolean isUserIdExist(String userId);
 

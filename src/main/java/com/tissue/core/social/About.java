@@ -1,5 +1,6 @@
 package com.tissue.core.social;
 
+//import com.tissue.core.util.OrientIdentityUtil;
 import java.io.Serializable;
 import java.util.Date;
 

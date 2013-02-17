@@ -1,6 +1,6 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.command.PlanCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Topic;
@@ -14,10 +14,10 @@ import java.util.Set;
 
 public class PlanMapper {
 
-    public static ODocument convertPlan(Plan plan) {
+    public static ODocument convertPlan(PlanCommand plan) {
         ODocument doc = new ODocument("Plan");
         doc.field("duration", plan.getDuration());
-        doc.field("createTime", plan.getCreateTime());
+        doc.field("createTime", new Date());
         doc.field("count", 0);
         return doc;
     }
@@ -25,7 +25,8 @@ public class PlanMapper {
     public static Plan buildPlanSelf(ODocument doc) {
 
         Plan plan = new Plan();
-        plan.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
+        //plan.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
+        plan.setId(doc.getIdentity().toString());
 
         Integer duration = doc.field("duration", Integer.class);
         plan.setDuration(duration);

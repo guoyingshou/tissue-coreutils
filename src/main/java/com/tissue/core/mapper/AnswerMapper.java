@@ -1,6 +1,6 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.command.AnswerCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.Answer;
 import com.tissue.core.plan.AnswerComment;
@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class AnswerMapper {
 
-    public static ODocument convertAnswer(Answer answer) {
+    public static ODocument convertAnswer(AnswerCommand answer) {
         ODocument doc = new ODocument("Answer");
         doc.field("content", answer.getContent());
         return doc;
@@ -23,7 +23,8 @@ public class AnswerMapper {
 
     public static Answer buildAnswer(ODocument answerDoc) {
         Answer answer = new Answer();
-        answer.setId(OrientIdentityUtil.encode(answerDoc.getIdentity().toString()));
+        //answer.setId(OrientIdentityUtil.encode(answerDoc.getIdentity().toString()));
+        answer.setId(answerDoc.getIdentity().toString());
 
         String answerContent = answerDoc.field("content", String.class);
         answer.setContent(answerContent);

@@ -1,10 +1,9 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.command.TopicCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
-import com.tissue.core.plan.command.TopicCommand;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
@@ -33,7 +32,8 @@ public class TopicMapper {
 
     public static Topic buildTopicSelf(ODocument doc) {
         Topic topic = new Topic();
-        topic.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
+        //topic.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
+        topic.setId(doc.getIdentity().toString());
 
         String title = doc.field("title", String.class);
         topic.setTitle(title);

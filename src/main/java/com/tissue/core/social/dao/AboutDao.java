@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface AboutDao {
 
-    About create(About about);
+    String create(About about);
 
     List<About> getAbouts();
 

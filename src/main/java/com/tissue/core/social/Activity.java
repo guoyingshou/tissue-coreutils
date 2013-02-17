@@ -74,14 +74,20 @@ public class Activity implements Serializable {
 
         List<String> args = new ArrayList();
 
-        args.add(what.getId());
-        args.add(what.getDisplayName());
+        if(what != null && what.getId() != null) {
+            args.add(what.getId().replace("#", ""));
+            args.add(what.getDisplayName());
+        }
 
-        args.add(to.getId());
-        args.add(to.getDisplayName());
+        if(to != null && to.getId() != null) {
+            args.add(to.getId().replace("#", ""));
+            args.add(to.getDisplayName());
+        }
 
-        args.add(where.getId());
-        args.add(where.getDisplayName());
+        if(where != null && where.getId() != null) {
+            args.add(where.getId().replace("#", ""));
+            args.add(where.getDisplayName());
+        }
 
         return args;
     }

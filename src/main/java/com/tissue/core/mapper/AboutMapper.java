@@ -1,6 +1,6 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.util.OrientIdentityUtil;
+//import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.social.User;
 import com.tissue.core.social.About;
 
@@ -30,7 +30,8 @@ public class AboutMapper {
 
     public static About buildAbout(ODocument doc) {
         About about = new About();
-        about.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
+        //about.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
+        about.setId(doc.getIdentity().toString());
 
         String content = doc.field("content", String.class);
         about.setContent(content);

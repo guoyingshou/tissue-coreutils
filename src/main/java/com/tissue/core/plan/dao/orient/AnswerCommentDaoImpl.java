@@ -1,7 +1,9 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.orient.dao.OrientDao;
-import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.command.AnswerCommentCommand;
+//import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.util.OrientDataSource;
+
 import com.tissue.core.mapper.AnswerCommentMapper;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.Answer;
@@ -12,46 +14,55 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 @Component
-public class AnswerCommentDaoImpl extends OrientDao implements AnswerCommentDao {
+public class AnswerCommentDaoImpl implements AnswerCommentDao {
 
-    public AnswerComment create(AnswerComment comment) {
+    @Autowired
+    protected OrientDataSource dataSource;
+
+    public String create(AnswerCommentCommand command) {
+        String id = null;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument commentDoc = AnswerCommentMapper.convertAnswerComment(comment);
-            saveDoc(commentDoc);
+            ODocument commentDoc = AnswerCommentMapper.convertAnswerComment(command);
+            db.save(commentDoc);
 
-            String ridComment = commentDoc.getIdentity().toString();
-            String ridUser = OrientIdentityUtil.decode(comment.getUser().getId());
-            String ridAnswer = OrientIdentityUtil.decode(comment.getAnswer().getId());
+            id = commentDoc.getIdentity().toString();
+            String userId = command.getUser().getId();
+            String answerId = command.getAnswer().getId();
 
-            String sql = "create edge EdgePost from " + ridUser + " to " + ridComment + " set label = 'answerComment', createTime = sysdate()";
-            executeCommand(db, sql);
-
-            sql = "update " + ridAnswer + " add comments = " + ridComment;
-            executeCommand(db, sql);
+            String sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'answerComment', createTime = sysdate()";
+            //executeCommand(db, sql);
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
  
-            comment.setId(OrientIdentityUtil.encode(ridComment));
-        }
-        catch(Exception exc) {
-            exc.printStackTrace();
+            sql = "update " + answerId + " add comments = " + id;
+            cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+            //executeCommand(db, sql);
+ 
+            //comment.setId(OrientIdentityUtil.encode(ridComment));
         }
         finally {
              db.close();
         }
 
-        return comment;
+        return id;
     }
 
-    public void update(AnswerComment comment) {
+    public void update(AnswerCommentCommand comment) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            String ridComment = OrientIdentityUtil.decode(comment.getId());
-            String sql = "update " + ridComment + " set content = '" + comment.getContent() + "'";
-            executeCommand(db, sql);
-        }
+            //String ridComment = OrientIdentityUtil.decode(comment.getId());
+            String sql = "update " + comment.getId() + " set content = '" + comment.getContent() + "'";
+            //executeCommand(db, sql);
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+         }
         finally {
             db.close();
         }
@@ -61,10 +72,12 @@ public class AnswerCommentDaoImpl extends OrientDao implements AnswerCommentDao 
         OGraphDatabase db = dataSource.getDB();
 
         try {
-            String ridComment = OrientIdentityUtil.decode(commentId);
-            String sql = "update " + ridComment + " set status = 'deleted'";
-            executeCommand(db, sql);
-        }
+            //String ridComment = OrientIdentityUtil.decode(commentId);
+            String sql = "update " + commentId + " set status = 'deleted'";
+            //executeCommand(db, sql);
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+         }
         finally {
             db.close();
         }

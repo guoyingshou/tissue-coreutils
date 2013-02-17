@@ -1,21 +1,17 @@
 package com.tissue.core.plan.dao;
 
-import com.tissue.core.plan.command.TopicCommand;
+import com.tissue.core.command.TopicCommand;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 import java.util.List;
 
 public interface TopicDao {
 
-    Topic create(TopicCommand command);
+    String create(TopicCommand command);
 
     void update(TopicCommand command);
 
     Topic getTopic(String id);
-
-    //Topic getTopicByPlanId(String planId);
-
-    //Topic getTopicByPostId(String postId);
 
     List<Topic> getTrendingTopics(int num);
 

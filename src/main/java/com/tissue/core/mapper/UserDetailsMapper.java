@@ -1,6 +1,5 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.security.UserDetailsImpl;
 
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -16,7 +15,8 @@ public class UserDetailsMapper {
     public static UserDetailsImpl buildUser(ODocument userDetailsDoc) {
 
         UserDetailsImpl userDetails = new UserDetailsImpl();
-        userDetails.setId(OrientIdentityUtil.encode(userDetailsDoc.getIdentity().toString()));
+        //userDetails.setId(OrientIdentityUtil.encode(userDetailsDoc.getIdentity().toString()));
+        userDetails.setId(userDetailsDoc.getIdentity().toString());
 
         String username = userDetailsDoc.field("username", String.class);
         userDetails.setUsername(username);

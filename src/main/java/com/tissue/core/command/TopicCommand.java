@@ -1,4 +1,4 @@
-package com.tissue.core.plan.command;
+package com.tissue.core.command;
 
 import com.tissue.core.social.User;
 import java.util.Set;

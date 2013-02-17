@@ -1,5 +1,6 @@
 package com.tissue.core.plan;
 
+import com.tissue.core.spring.formatters.IDFormat;
 import com.tissue.core.util.TimeFormat;
 import com.tissue.core.social.User;
 
@@ -13,7 +14,9 @@ import java.util.ArrayList;
 
 public class Parent implements Serializable {
 
+    @IDFormat
     protected String id;
+
     protected Date createTime;
 
     protected User user;

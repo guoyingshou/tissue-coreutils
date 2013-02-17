@@ -1,6 +1,6 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.command.PostMessageCommentCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.PostMessageComment;
 import com.tissue.core.plan.PostMessage;
@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class PostMessageCommentMapper {
 
-    public static ODocument convertPostMessageComment(PostMessageComment postMessageComment) {
+    public static ODocument convertPostMessageComment(PostMessageCommentCommand postMessageComment) {
         ODocument commentDoc = new ODocument("PostMessageComment");
         commentDoc.field("content", postMessageComment.getContent());
         return commentDoc;
@@ -24,7 +24,8 @@ public class PostMessageCommentMapper {
     public static PostMessageComment buildPostMessageComment(ODocument commentDoc) {
 
         PostMessageComment messageComment = new PostMessageComment();
-        messageComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
+        //messageComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
+        messageComment.setId(commentDoc.getIdentity().toString());
        
         String commentContent = commentDoc.field("content", String.class);
         messageComment.setContent(commentContent);
