@@ -25,7 +25,6 @@ public class PlanMapper {
     public static Plan buildPlanSelf(ODocument doc) {
 
         Plan plan = new Plan();
-        //plan.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
         plan.setId(doc.getIdentity().toString());
 
         Integer duration = doc.field("duration", Integer.class);
@@ -62,7 +61,6 @@ public class PlanMapper {
 
     public static Plan buildPlanDetails(ODocument doc) {
         Plan plan = buildPlan(doc);
-        //only retrieve active plan's members
         if(plan.isActive()) { 
             Set<ODocument> inEdgesDoc = doc.field("in");
             if(inEdgesDoc != null) {

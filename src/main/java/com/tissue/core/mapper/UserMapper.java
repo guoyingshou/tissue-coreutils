@@ -33,7 +33,6 @@ public class UserMapper {
     public static User buildUserSelf(ODocument userDoc) {
         User user = new User();
         String rid = userDoc.getIdentity().toString();
-        //user.setId(OrientIdentityUtil.encode(rid));
         user.setId(rid);
 
         String displayName = userDoc.field("displayName", String.class);
@@ -61,7 +60,11 @@ public class UserMapper {
                 if("plan".equals(label) || "members".equals(label)) {
                     ODocument planDoc = outEdgeDoc.field("in");
                     Plan plan = PlanMapper.buildPlanSelf(planDoc);
-                    user.addPlan(plan);
+
+                    //plan == null means the containing topic has been deleted
+                    if(plan != null) {
+                        user.addPlan(plan);
+                    }
                 }
              }
         }
@@ -71,7 +74,6 @@ public class UserMapper {
     public static Impression buildImpressionSelf(ODocument impressionDoc) {
 
         Impression impression = new Impression();
-        //impression.setId(OrientIdentityUtil.encode(impressionDoc.getIdentity().toString()));
         impression.setId(impressionDoc.getIdentity().toString());
 
         String content = impressionDoc.field("content", String.class);
@@ -80,26 +82,6 @@ public class UserMapper {
         Date createTime = impressionDoc.field("createTime", Date.class);
         impression.setCreateTime(createTime);
 
-        /**
-        User from = new User();
-        ODocument fromDoc = impressionDoc.field("out");
-        from.setId(OrientIdentityUtil.encode(fromDoc.getIdentity().toString()));
-
-        String fromDisplayName = fromDoc.field("displayName", String.class);
-        from.setDisplayName(fromDisplayName);
-
-        impression.setFrom(from);
-
-        User to = new User();
-        ODocument toDoc = impressionDoc.field("in");
-        to.setId(OrientIdentityUtil.encode(toDoc.getIdentity().toString()));
-
-        String toDisplayName = toDoc.field("displayName", String.class);
-        to.setDisplayName(toDisplayName);
-
-        impression.setTo(to);
-        */
-
         return impression;
     }
 
@@ -107,7 +89,6 @@ public class UserMapper {
         System.out.println("in user mapper: " + doc); 
 
         Invitation invitation = new Invitation();
-        //invitation.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
         invitation.setId(doc.getIdentity().toString());
 
         String content = doc.field("content", String.class);
@@ -115,26 +96,6 @@ public class UserMapper {
 
         Date createTime = doc.field("createTime", Date.class);
         invitation.setCreateTime(createTime);
-
-        /**
-        User from = new User();
-        ODocument fromDoc = invitationDoc.field("out");
-        from.setId(OrientIdentityUtil.encode(fromDoc.getIdentity().toString()));
-
-        String fromDisplayName = fromDoc.field("displayName", String.class);
-        from.setDisplayName(fromDisplayName);
-
-        invitation.setInvitor(from);
-
-        User to = new User();
-        ODocument toDoc = invitationDoc.field("in");
-        to.setId(OrientIdentityUtil.encode(toDoc.getIdentity().toString()));
-
-        String toDisplayName = toDoc.field("displayName", String.class);
-        to.setDisplayName(toDisplayName);
-
-        invitation.setInvitee(to);
-        */
 
         return invitation;
     }

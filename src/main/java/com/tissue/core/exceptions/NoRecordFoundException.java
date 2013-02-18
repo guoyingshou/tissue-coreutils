@@ -1,4 +1,4 @@
-package com.tissue.core;
+package com.tissue.core.exceptions;
 
 public class NoRecordFoundException extends RuntimeException {
     private String rid;

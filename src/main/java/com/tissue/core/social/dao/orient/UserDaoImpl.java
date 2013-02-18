@@ -1,10 +1,9 @@
 package com.tissue.core.social.dao.orient;
 
-import com.tissue.core.NoRecordFoundException;
+import com.tissue.core.exceptions.NoRecordFoundException;
 import com.tissue.core.mapper.UserMapper;
 
 import com.tissue.core.orient.dao.DuplicateEmailException;
-//import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
 
 import com.tissue.core.social.command.UserCommand;
@@ -40,7 +39,6 @@ public class UserDaoImpl implements UserDao {
         try {
             ODocument doc = UserMapper.convertUser(userCommand);
             db.save(doc);
-            //userId = OrientIdentityUtil.encode(doc.getIdentity().toString());
             userId = doc.getIdentity().toString();
         }
         finally {
@@ -50,7 +48,6 @@ public class UserDaoImpl implements UserDao {
     }
 
     public void update(UserCommand userCommand) {
-        //String rid = OrientIdentityUtil.decode(userCommand.getId());
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(userCommand.getId()));
@@ -67,10 +64,8 @@ public class UserDaoImpl implements UserDao {
     }
 
     public void updateEmail(UserCommand userCommand) {
-        //String rid = OrientIdentityUtil.decode(userCommand.getId());
         OGraphDatabase db = dataSource.getDB();
         try {
-            //ODocument doc = db.load(new ORecordId(rid));
             ODocument doc = db.load(new ORecordId(userCommand.getId()));
             if(doc == null) {
                 throw new NoRecordFoundException(userCommand.getId());
@@ -84,7 +79,6 @@ public class UserDaoImpl implements UserDao {
     }
 
     public void changePassword(UserCommand userCommand) {
-        //String rid = OrientIdentityUtil.decode(userCommand.getId());
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(userCommand.getId()));
@@ -105,23 +99,14 @@ public class UserDaoImpl implements UserDao {
      */
     public User getUserById(String id) {
         User user = null;
-        //String rid = OrientIdentityUtil.decode(id);
-
         OGraphDatabase db = dataSource.getDB();
         try {
             String sql = "select from " + id;
-            //ODocument doc = querySingle(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 user = UserMapper.buildUser(doc);
             }
- 
-            /**
-            if(doc == null) {
-                throw new NoRecordFoundException(rid);
-            }
-            */
         }
         finally {
             db.close();
@@ -130,11 +115,9 @@ public class UserDaoImpl implements UserDao {
     }
  
     public void addResume(String userId, String content) {
-        //String rid = OrientIdentityUtil.decode(userId);
         String sql = "update " + userId + " set resume = '" + content + "'";
         OGraphDatabase db = dataSource.getDB();
         try {
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
@@ -144,15 +127,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     public void inviteFriend(String fromId, String toId, String content) {
-
-        //String ridFrom = OrientIdentityUtil.decode(fromId);
-        //String ridTo = OrientIdentityUtil.decode(toId);
-        
         String sql = "create edge EdgeFriend from " + fromId + " to " + toId + " set label = 'invite', createTime = sysdate(), content = '" + content + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
@@ -163,13 +141,10 @@ public class UserDaoImpl implements UserDao {
 
     public List<Invitation> getInvitationsReceived(String userId) {
         List<Invitation> invitations = new ArrayList();
-
-        //String rid = OrientIdentityUtil.decode(userId);
         String sql = "select @this as invitation, out as user from EdgeFriend where label = 'invite' and in in " + userId;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 ODocument invDoc = doc.field("invitation");
@@ -191,12 +166,10 @@ public class UserDaoImpl implements UserDao {
     public List<Invitation> getInvitationsSent(String userId) {
         List<Invitation> invitations = new ArrayList();
 
-        //String rid = OrientIdentityUtil.decode(userId);
         String sql = "select @this as invitation, in as user from EdgeFriend where label = 'invite' and out in " + userId;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 ODocument invDoc = doc.field("invitation");
@@ -219,13 +192,10 @@ public class UserDaoImpl implements UserDao {
      * @param id id of an ographedge instance
      */
     public void declineInvitation(String id) {
-        //String rid = OrientIdentityUtil.decode(id);
-        
         String sql = "update " + id + " set label = 'declined', updateTime = sysdate()";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
          }
@@ -235,10 +205,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     public void acceptInvitation(String id) {
-        //String rid = OrientIdentityUtil.decode(id);
-        
         String sql = "update " + id + " set label = 'friends', updateTime = sysdate()";
-
         OGraphDatabase db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -253,17 +220,12 @@ public class UserDaoImpl implements UserDao {
     }
 
     public void addImpression(Impression impression) {
-
-        //String ridFrom = OrientIdentityUtil.decode(impression.getFrom().getId());
-        //String ridTo = OrientIdentityUtil.decode(impression.getTo().getId());
-
         String fromId = impression.getFrom().getId();
         String toId = impression.getTo().getId();
         String sql = "create edge EdgeImpression from " + fromId + " to " + toId + " set label = 'impression', createTime = sysdate(), content = '" + impression.getContent() + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
          }
@@ -274,13 +236,9 @@ public class UserDaoImpl implements UserDao {
 
     public List<Impression> getImpressions(String userId) {
         List<Impression> impressions = new ArrayList();
-
-        //String rid = OrientIdentityUtil.decode(userId);
         String sql = "select @this as impression, out as user from EdgeImpression where in in " + userId;
-
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 ODocument impDoc = doc.field("impression");
@@ -301,13 +259,9 @@ public class UserDaoImpl implements UserDao {
 
     public List<User> getFriends(String userId) {
         List<User> friends = new ArrayList();
-
-        //String rid = OrientIdentityUtil.decode(userId);
-
         OGraphDatabase db = dataSource.getDB();
         try {
             String sql = "select union(in[label='friends'].out, out[label='friends'].in) as friends from " + userId;
-            //ODocument doc = querySingle(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
@@ -326,16 +280,13 @@ public class UserDaoImpl implements UserDao {
 
     public List<User> getNewUsers(String excludingUserId, int limit) {
         List<User> users = new ArrayList();
-
         String sql = "select from user order by createTime desc limit " + limit;
         if(excludingUserId != null) {
-            //String rid = OrientIdentityUtil.decode(excludingUserId);
             sql = "select from user where @this not in " + excludingUserId + " order by createTime desc limit " + limit;
         }
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 User user = UserMapper.buildUserSelf(doc);
@@ -350,15 +301,10 @@ public class UserDaoImpl implements UserDao {
 
     public boolean isInvitable(String userId1, String userId2) {
         boolean invitable = true;
-
-        //String rid1 = OrientIdentityUtil.decode(userId1);
-        //String rid2 = OrientIdentityUtil.decode(userId2);
-
         String sql = "select from EdgeFriend where (label contains ['friends', 'invite']) and ((in in " + userId1 + " and out in " + userId2 + ") or (in in " + userId2 + " and out in " + userId1 + "))";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(docs.size() > 0) {
                invitable = false;
@@ -371,15 +317,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     public boolean isUserIdExist(String userId) {
-
         boolean exist = false;
-
-        //String rid = OrientIdentityUtil.decode(userId);
         String sql = "select from " + userId;
-
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(docs.size() > 0) {
                exist = true;
@@ -393,12 +334,9 @@ public class UserDaoImpl implements UserDao {
 
     public boolean isUsernameExist(String username) {
         boolean exist = false;
-
         String sql = "select from user where username = '" + username + "'";
-
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(docs.size() > 0) {
                exist = true;
@@ -412,12 +350,9 @@ public class UserDaoImpl implements UserDao {
 
     public boolean isEmailExist(String email) {
         boolean exist = false;
-
         String sql = "select from user where email = '" + email + "'";
-
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(docs.size() > 0) {
                exist = true;
@@ -430,15 +365,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     public boolean isEmailExist(String excludingUserId, String email) {
-        //String rid = OrientIdentityUtil.decode(excludingUserId);
-
         boolean exist = false;
-
         String sql = "select from user where email = '" + email + "' and @rid <> " + excludingUserId;
-
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(docs.size() > 0) {
                exist = true;

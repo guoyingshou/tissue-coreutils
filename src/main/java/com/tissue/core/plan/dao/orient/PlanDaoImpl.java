@@ -58,13 +58,9 @@ public class PlanDaoImpl implements PlanDao {
 
     public Plan getPlan(String planId) {
         Plan plan = null;
-
-        //String rid = OrientIdentityUtil.decode(planId);
         String sql = "select from " + planId;
-        
         OGraphDatabase db = dataSource.getDB();
         try {
-            //ODocument doc = querySingle(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
@@ -79,13 +75,9 @@ public class PlanDaoImpl implements PlanDao {
 
     public List<Plan> getPlansByUserId(String userId) {
         List<Plan> plans = new ArrayList();
-
-        //String rid = OrientIdentityUtil.decode(userId);
         String sql = "select from plan where in.out in " + userId;
-
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Plan plan = PlanMapper.buildPlan(doc);
@@ -99,22 +91,15 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public void addMember(String planId, String userId) {
-
-        //String ridUser = OrientIdentityUtil.decode(userId);
-        //String ridPlan = OrientIdentityUtil.decode(planId);
-
         OGraphDatabase db = dataSource.getDB();
         try {
             String sql = "create edge from " + userId + " to " + planId + " set label='members', createTime=sysdate()";
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
             sql = "update " + planId + " increment count = 1";
-            //executeCommand(db, sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
- 
         }
         finally {
             db.close();
@@ -126,8 +111,6 @@ public class PlanDaoImpl implements PlanDao {
      */
     public Topic getTopic(String planId) {
         Topic topic = null;
-
-        //String ridPlan = OrientIdentityUtil.decode(planId);
         String sql = "select topic from " + planId;
         OGraphDatabase db = dataSource.getDB();
         try {

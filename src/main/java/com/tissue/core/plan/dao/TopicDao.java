@@ -11,6 +11,8 @@ public interface TopicDao {
 
     void update(TopicCommand command);
 
+    void delete(String topicId);
+
     Topic getTopic(String id);
 
     List<Topic> getTrendingTopics(int num);

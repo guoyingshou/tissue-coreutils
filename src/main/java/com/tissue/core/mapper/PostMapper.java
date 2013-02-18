@@ -32,7 +32,6 @@ public class PostMapper {
 
     public static Post buildPostSelf(ODocument postDoc) {
         Post post = new Post();
-        //post.setId(OrientIdentityUtil.encode(postDoc.getIdentity().toString()));
         post.setId(postDoc.getIdentity().toString());
 
         String postTitle = postDoc.field("title", String.class);

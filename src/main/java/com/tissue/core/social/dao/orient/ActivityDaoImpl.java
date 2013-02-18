@@ -1,7 +1,6 @@
 package com.tissue.core.social.dao.orient;
 
 import com.tissue.core.mapper.ActivityMapper;
-//import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
 
 import com.tissue.core.social.Activity;
@@ -35,12 +34,10 @@ public class ActivityDaoImpl implements ActivityDao {
     public List<Activity> getFriendsActivities(String userId, int num) {
         List<Activity> activities = new ArrayList();
 
-        //String ridUser = OrientIdentityUtil.decode(userId);
         String sql = "select from EdgeAction where out in (select union(in[label='friends'].out, out[label='friends'].in) from " + userId + ") and (label contains ['concept', 'topic']) order by createTime desc limit " + num;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Activity activity = ActivityMapper.buildActivity(doc);
@@ -56,12 +53,10 @@ public class ActivityDaoImpl implements ActivityDao {
     public List<Activity> getUserActivities(String userId, int num) {
         List<Activity> activities = new ArrayList();
 
-        //String rid = OrientIdentityUtil.decode(userId);
         String sql = "select from EdgeAction where out in " + userId + " order by createTime desc";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Activity act = ActivityMapper.buildActivity(doc);
@@ -81,7 +76,6 @@ public class ActivityDaoImpl implements ActivityDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Activity act = ActivityMapper.buildActivity(doc);
@@ -101,7 +95,6 @@ public class ActivityDaoImpl implements ActivityDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Activity act = ActivityMapper.buildActivity(doc);

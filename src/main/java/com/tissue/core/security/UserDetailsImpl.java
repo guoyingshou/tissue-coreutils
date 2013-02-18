@@ -1,16 +1,16 @@
 package com.tissue.core.security;
 
-import com.tissue.core.social.User;
-import com.tissue.core.social.Invitation;
-import java.io.Serializable;
-import java.util.Date;
+//import com.tissue.core.social.User;
+//import com.tissue.core.social.Invitation;
+//import java.io.Serializable;
+//import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.HashSet;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class UserDetailsImpl implements UserDetails {
 
@@ -22,18 +22,32 @@ public class UserDetailsImpl implements UserDetails {
     private String displayName;
     private String email;
 
-    private List<? extends GrantedAuthority> authorities;
+    private Set<String> roles;
 
     private int inviteLimit;
 
-    public void setAuthorities(List<? extends GrantedAuthority> authorities) {
-        this.authorities = authorities;
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
+    }
+
+    public boolean hasRole(String name) {
+        return (roles != null) && roles.contains(name);
     }
 
     public List<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+
+        if(roles != null) {
+            for(String role : roles) {
+                GrantedAuthority authority = new SimpleGrantedAuthority(role);
+                authorities.add(authority);
+            }
+        }
+
         return authorities;
     }
-
+ 
     public void setId(String id) {
         this.id = id;
     }

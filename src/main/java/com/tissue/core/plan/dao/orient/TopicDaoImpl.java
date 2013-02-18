@@ -15,6 +15,7 @@ import com.tissue.core.mapper.UserMapper;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 @Component
-//public class TopicDaoImpl extends OrientDao implements TopicDao {
 public class TopicDaoImpl implements TopicDao {
 
     @Autowired
@@ -42,18 +42,13 @@ public class TopicDaoImpl implements TopicDao {
         try {
             ODocument doc = TopicMapper.convertTopic(command);
             db.save(doc);
-            //saveDoc(doc);
 
             id = doc.getIdentity().toString();
             String uId = command.getUser().getId();
 
             String sql = "create edge EdgePost from " + uId + " to " + id + " set label = 'topic', createTime = sysdate()";
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
-            //Object result = db.command(cmd).execute();
             db.command(cmd).execute();
- 
-            //topicId = OrientIdentityUtil.encode(ridTopic);
         }
         finally {
             db.close();
@@ -65,14 +60,26 @@ public class TopicDaoImpl implements TopicDao {
      * Update a topic.
      */
     public void update(TopicCommand command) {
-        //String ridTopic = OrientIdentityUtil.decode(command.getId());
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(command.getId()));
             doc.field("title", command.getTitle());
             doc.field("content", command.getContent());
             doc.field("tags", command.getTags());
+            doc.field("updateTime", new Date());
             db.save(doc);
+        }
+        finally {
+            db.close();
+        }
+    }
+
+    public void delete(String topicId) {
+        String sql = "update " + topicId + " set deleted = true";
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
         }
         finally {
             db.close();
@@ -84,8 +91,6 @@ public class TopicDaoImpl implements TopicDao {
      */
     public Topic getTopic(String topicId) {
         Topic topic = null;
-
-        //String rid = OrientIdentityUtil.decode(topicId);
         String sql = "select from " + topicId;
 
         OGraphDatabase db = dataSource.getDB();
@@ -108,7 +113,7 @@ public class TopicDaoImpl implements TopicDao {
     public List<Topic> getTrendingTopics(int num) {
         List<Topic> topics = new ArrayList();
 
-        String sql = "select topic from Plan order by count desc limit " + num;
+        String sql = "select topic from Plan where topic.deleted is null order by count desc limit " + num;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -130,7 +135,7 @@ public class TopicDaoImpl implements TopicDao {
     public List<Topic> getFeaturedTopics(int num) {
         List<Topic> topics = new ArrayList();
 
-        String sql = "select from Topic where type = 'featured' order by createTime desc limit " + num;
+        String sql = "select from Topic where deleted is null and type = 'featured' order by createTime desc limit " + num;
         OGraphDatabase db = dataSource.getDB();
         try {
 
@@ -168,7 +173,7 @@ public class TopicDaoImpl implements TopicDao {
     public List<Topic> getPagedTopics(int page, int size) {
         List<Topic> topics = new ArrayList();
 
-        String sql = "select from Topic order by createTime desc skip " + ((page -1) * size) + " limit " + size;
+        String sql = "select from Topic where deleted is null order by createTime desc skip " + ((page -1) * size) + " limit " + size;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -188,7 +193,7 @@ public class TopicDaoImpl implements TopicDao {
      */
     public List<String> getTopicTags() {
         OTrackedList<String> tags = null;
-        String sql = "select set(tags) from Topic";
+        String sql = "select set(tags) from Topic where deleted is null";
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -206,7 +211,7 @@ public class TopicDaoImpl implements TopicDao {
     public long getTopicsCountByTag(String tag) {
         long result = 0L;
 
-        String sql = "select count(*) from Topic where tags in " + tag;
+        String sql = "select count(*) from Topic where deleted is null and tags in " + tag;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -224,7 +229,7 @@ public class TopicDaoImpl implements TopicDao {
     public List<Topic> getPagedTopicsByTag(String tag, int page, int size) {
         List<Topic> topics = new ArrayList();
 
-        String sql = "select from Topic where tags in '" + tag + "' order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select from Topic where deleted is null and tags in '" + tag + "' order by createTime desc skip " + (page - 1) * size + " limit " + size;
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -243,10 +248,9 @@ public class TopicDaoImpl implements TopicDao {
     public List<Topic> getNewTopics(String excludingUserId, int limit) {
         List<Topic> topics = new ArrayList();
 
-        String sql = "select from topic order by createTime desc limit " + limit;
+        String sql = "select from topic where deleted is null order by createTime desc limit " + limit;
         if(excludingUserId != null) {
-            //String rid = OrientIdentityUtil.decode(excludingUserId);
-            sql = "select from topic where in.out not in " + excludingUserId + " and plans.in.out not in " + excludingUserId + " order by createTime desc limit " + limit;
+            sql = "select from topic where deleted is null and in.out not in " + excludingUserId + " and plans.in.out not in " + excludingUserId + " order by createTime desc limit " + limit;
         }
 
         OGraphDatabase db = dataSource.getDB();

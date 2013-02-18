@@ -12,22 +12,24 @@ import java.util.Set;
 
 public class UserDetailsMapper {
 
-    public static UserDetailsImpl buildUser(ODocument userDetailsDoc) {
+    public static UserDetailsImpl buildUser(ODocument doc) {
 
         UserDetailsImpl userDetails = new UserDetailsImpl();
-        //userDetails.setId(OrientIdentityUtil.encode(userDetailsDoc.getIdentity().toString()));
-        userDetails.setId(userDetailsDoc.getIdentity().toString());
+        userDetails.setId(doc.getIdentity().toString());
 
-        String username = userDetailsDoc.field("username", String.class);
+        String username = doc.field("username", String.class);
         userDetails.setUsername(username);
 
-        String password = userDetailsDoc.field("password", String.class);
+        String password = doc.field("password", String.class);
         userDetails.setPassword(password);
 
-        String displayName = userDetailsDoc.field("displayName", String.class);
+        String displayName = doc.field("displayName", String.class);
         userDetails.setDisplayName(displayName);
 
-        Integer inviteLimit = userDetailsDoc.field("inviteLimit", Integer.class);
+        Set<String> roles = doc.field("roles", Set.class);
+        userDetails.setRoles(roles);
+
+        Integer inviteLimit = doc.field("inviteLimit", Integer.class);
         userDetails.setInviteLimit(inviteLimit);
 
         return userDetails;
