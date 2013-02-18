@@ -1,7 +1,6 @@
 package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.command.AnswerCommentCommand;
-//import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
 
 import com.tissue.core.mapper.AnswerCommentMapper;
@@ -23,43 +22,43 @@ public class AnswerCommentDaoImpl implements AnswerCommentDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public String create(AnswerCommentCommand command) {
-        String id = null;
+    public AnswerComment create(AnswerCommentCommand command) {
+        AnswerComment comment = null;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument commentDoc = AnswerCommentMapper.convertAnswerComment(command);
-            db.save(commentDoc);
+            ODocument doc = AnswerCommentMapper.convertAnswerComment(command);
+            db.save(doc);
 
-            id = commentDoc.getIdentity().toString();
+            String id = doc.getIdentity().toString();
             String userId = command.getUser().getId();
             String answerId = command.getAnswer().getId();
 
             String sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'answerComment', createTime = sysdate()";
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
             sql = "update " + answerId + " add comments = " + id;
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
-            //executeCommand(db, sql);
  
-            //comment.setId(OrientIdentityUtil.encode(ridComment));
+            comment = new AnswerComment();
+            comment.setId(id);
+            comment.setContent(command.getContent());
+            comment.setUser(command.getUser());
+            comment.setAnswer(command.getAnswer());
         }
         finally {
              db.close();
         }
 
-        return id;
+        return comment;
     }
 
-    public void update(AnswerCommentCommand comment) {
+    public void update(AnswerCommentCommand command) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            //String ridComment = OrientIdentityUtil.decode(comment.getId());
-            String sql = "update " + comment.getId() + " set content = '" + comment.getContent() + "'";
-            //executeCommand(db, sql);
+            String sql = "update " + command.getId() + " set content = '" + command.getContent() + "'";
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
          }
@@ -72,9 +71,7 @@ public class AnswerCommentDaoImpl implements AnswerCommentDao {
         OGraphDatabase db = dataSource.getDB();
 
         try {
-            //String ridComment = OrientIdentityUtil.decode(commentId);
             String sql = "update " + commentId + " set status = 'deleted'";
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
          }

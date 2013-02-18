@@ -19,14 +19,12 @@ public class AnswerCommentMapper {
     public static ODocument convertAnswerComment(AnswerCommentCommand comment) {
         ODocument commentDoc = new ODocument("AnswerComment");
         commentDoc.field("content", comment.getContent());
-        //commentDoc.field("answer", new ORecordId(OrientIdentityUtil.decode(comment.getAnswer().getId())));
         commentDoc.field("answer", new ORecordId(comment.getAnswer().getId()));
         return commentDoc;
     }
 
     public static AnswerComment buildAnswerComment(ODocument commentDoc) {
         AnswerComment answerComment = new AnswerComment();
-        //answerComment.setId(OrientIdentityUtil.encode(commentDoc.getIdentity().toString()));
         answerComment.setId(commentDoc.getIdentity().toString());
 
         String commentContent = commentDoc.field("content", String.class);

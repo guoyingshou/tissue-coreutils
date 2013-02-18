@@ -39,7 +39,6 @@ public class PlanDaoImpl implements PlanDao {
             String topicId = plan.getTopic().getId();
 
             String sql = "create edge EdgeJoin from " + userId + " to " + id + " set label = 'plan', createTime = sysdate()";
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
@@ -47,14 +46,9 @@ public class PlanDaoImpl implements PlanDao {
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            //executeCommand(db, sql);
-
             sql = "update " + topicId + " add plans = " + id;
-            //executeCommand(db, sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
- 
-            //plan.setId(OrientIdentityUtil.encode(ridPlan));
         }
         finally {
             db.close();

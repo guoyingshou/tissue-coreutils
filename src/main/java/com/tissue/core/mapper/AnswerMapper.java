@@ -23,7 +23,6 @@ public class AnswerMapper {
 
     public static Answer buildAnswer(ODocument answerDoc) {
         Answer answer = new Answer();
-        //answer.setId(OrientIdentityUtil.encode(answerDoc.getIdentity().toString()));
         answer.setId(answerDoc.getIdentity().toString());
 
         String answerContent = answerDoc.field("content", String.class);

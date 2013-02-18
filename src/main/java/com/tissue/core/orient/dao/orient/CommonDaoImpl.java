@@ -1,6 +1,5 @@
 package com.tissue.core.orient.dao.orient;
 
-import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.orient.dao.CommonDao;
 
@@ -21,13 +20,9 @@ public class CommonDaoImpl implements CommonDao {
 
     public boolean isResourceExist(String resourceId) {
         boolean exist = false;
-
-        String rid = OrientIdentityUtil.decode(resourceId);
-        String sql = "select from " + rid;
-
+        String sql = "select from " + resourceId;
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(docs.size() > 0) {
                  exist = true;
@@ -42,15 +37,9 @@ public class CommonDaoImpl implements CommonDao {
 
     public boolean isOwner(String userId, String resourceId) {
         boolean owner = false;
-
-        String ridUser = OrientIdentityUtil.decode(userId);
-        String rid = OrientIdentityUtil.decode(resourceId);
-
-        String sql = "select from " + rid + " where in.out in " + ridUser;
-
+        String sql = "select from " + resourceId + " where in.out in " + userId;
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(docs.size() > 0) {
                  owner = true;
@@ -64,15 +53,9 @@ public class CommonDaoImpl implements CommonDao {
 
     public boolean isMemberOrOwner(String userId, String postId) {
         boolean memberOrOwner = false;
-
-        String ridUser = OrientIdentityUtil.decode(userId);
-        String ridPost = OrientIdentityUtil.decode(postId);
-
-        String sql = "select from " + ridPost + " where plan.in.out contains " + ridUser;
-
+        String sql = "select from " + postId + " where plan.in.out contains " + userId;
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(docs.size() > 0) {
                  memberOrOwner = true;

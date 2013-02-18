@@ -62,7 +62,6 @@ public class PostDaoImpl implements PostDao {
     }
 
     public void update(PostCommand post) {
-        //String ridPost = OrientIdentityUtil.decode(post.getId());
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(post.getId()));

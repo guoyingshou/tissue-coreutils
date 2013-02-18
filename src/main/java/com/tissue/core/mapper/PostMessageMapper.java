@@ -24,7 +24,6 @@ public class PostMessageMapper {
     public static PostMessage buildPostMessage(ODocument messageDoc) {
 
         PostMessage message = new PostMessage();
-        //message.setId(OrientIdentityUtil.encode(messageDoc.getIdentity().toString()));
         message.setId(messageDoc.getIdentity().toString());
 
         String messageContent = messageDoc.field("content", String.class);

@@ -22,40 +22,41 @@ public class PostMessageCommentDaoImpl implements PostMessageCommentDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public String create(PostMessageCommentCommand comment) {
-        String id = null;
+    public PostMessageComment create(PostMessageCommentCommand command) {
+        PostMessageComment comment = null;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument commentDoc = PostMessageCommentMapper.convertPostMessageComment(comment);
-            db.save(commentDoc);
+            ODocument doc = PostMessageCommentMapper.convertPostMessageComment(command);
+            db.save(doc);
 
-            id = commentDoc.getIdentity().toString();
-            String msgId = comment.getPostMessage().getId();
-            String userId = comment.getUser().getId();
+            String id = doc.getIdentity().toString();
+            String msgId = command.getPostMessage().getId();
+            String userId = command.getUser().getId();
 
             String sql = "update " + id + " set postMessage = " + msgId;
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-
             sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'postMessageComment', createTime = sysdate()";
-            //executeCommand(db, sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         
             sql = "update " + msgId + " add comments = " + id;
-            //executeCommand(db, sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
+
+            comment = new PostMessageComment();
+            comment.setId(id);
+            comment.setContent(command.getContent());
+            comment.setUser(command.getUser());
+            comment.setPostMessage(command.getPostMessage());
  
-            //comment.setId(OrientIdentityUtil.encode(ridComment));
         }
         finally {
             db.close();
         }
-        return id;
+        return comment;
     }
 
     public void update(PostMessageCommentCommand comment) {

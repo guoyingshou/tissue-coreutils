@@ -21,43 +21,43 @@ public class QuestionCommentDaoImpl implements QuestionCommentDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public String create(QuestionCommentCommand comment) {
-        String id = null;
+    public QuestionComment create(QuestionCommentCommand command) {
+        QuestionComment comment = null;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument commentDoc = QuestionCommentMapper.convertQuestionComment(comment);
-            db.save(commentDoc);
+            ODocument doc = QuestionCommentMapper.convertQuestionComment(command);
+            db.save(doc);
         
-            id = commentDoc.getIdentity().toString();
-            String userId = comment.getUser().getId();
-            String qId = comment.getQuestion().getId();
+            String id = doc.getIdentity().toString();
+            String userId = command.getUser().getId();
+            String qId = command.getQuestion().getId();
 
             String sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'questionComment', createTime = sysdate()";
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
             sql = "update " + qId + " add comments = " + id;
-            //executeCommand(db, sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            //comment.setId(OrientIdentityUtil.encode(ridComment));
+            comment = new QuestionComment();
+            comment.setId(id);
+            comment.setContent(command.getContent());
+            comment.setUser(command.getUser());
+            comment.setQuestion(command.getQuestion());
         }
         finally {
             db.close();
         }
-        return id;
+        return comment;
     }
 
-    public void update(QuestionCommentCommand comment) {
-        //String ridComment = OrientIdentityUtil.decode(comment.getId());
-        String sql = "update " + comment.getId() + " set content = '" + comment.getContent() + "'"; 
+    public void update(QuestionCommentCommand command) {
+        String sql = "update " + command.getId() + " set content = '" + command.getContent() + "'"; 
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
          }
@@ -67,12 +67,10 @@ public class QuestionCommentDaoImpl implements QuestionCommentDao {
     }
 
     public void delete(String commentId) {
-        //String ridComment = OrientIdentityUtil.decode(commentId);
         String sql = "update " + commentId + " set status = 'deleted'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }

@@ -21,48 +21,46 @@ public class AnswerDaoImpl implements AnswerDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public String create(AnswerCommand answer) {
+    public Answer create(AnswerCommand command) {
 
-        String id = null;
+        Answer answer = null;
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = AnswerMapper.convertAnswer(answer);
+            ODocument doc = AnswerMapper.convertAnswer(command);
             db.save(doc);
 
-            id = doc.getIdentity().toString();
-            String userId = answer.getUser().getId();
-            String qId = answer.getQuestion().getId();
+            String id = doc.getIdentity().toString();
+            String userId = command.getUser().getId();
+            String qId = command.getQuestion().getId();
 
             String sql = "create edge EdgePost from " + userId + " to " + id+ " set label = 'answer', createTime = sysdate()";
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
             sql = "update " + id + " set question = " + qId;
-            //executeCommand(db, sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
             sql = "update " + qId + " add answers = " + id;
-            //executeCommand(db, sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            //answer.setId(OrientIdentityUtil.encode(ridAnswer));
-
+            answer = new Answer();
+            answer.setId(id);
+            answer.setContent(command.getContent());
+            answer.setUser(command.getUser());
+            answer.setQuestion(command.getQuestion());
         }
         finally {
             db.close();
         }
-        return id;
+        return answer;
     }
 
-    public void update(AnswerCommand answer) {
+    public void update(AnswerCommand command) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            //String ridAnswer = OrientIdentityUtil.decode(answer.getId());
-            String sql = "update " + answer.getId() + " set content = '" + answer.getContent() + "'";
-            //executeCommand(db, sql);
+            String sql = "update " + command.getId() + " set content = '" + command.getContent() + "'";
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
          }
@@ -74,9 +72,7 @@ public class AnswerDaoImpl implements AnswerDao {
     public void delete(String answerId) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            //String ridAnswer = OrientIdentityUtil.decode(answerId);
             String sql = "update " + answerId + " set status = 'deleted'";
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }

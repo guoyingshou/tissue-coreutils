@@ -21,39 +21,41 @@ public class PostMessageDaoImpl implements PostMessageDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public String create(PostMessageCommand message) {
-        String id = null;
+    public PostMessage create(PostMessageCommand command) {
+
+        PostMessage postMessage = null;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = PostMessageMapper.convertPostMessage(message);
+            ODocument doc = PostMessageMapper.convertPostMessage(command);
             db.save(doc);
 
-            id = doc.getIdentity().toString();
-            String postId = message.getPost().getId();
-            String userId = message.getUser().getId();
+            String id = doc.getIdentity().toString();
+            String postId = command.getPost().getId();
+            String userId = command.getUser().getId();
 
             String sql = "update " + id + " set post = " + postId;
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
             sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'postMessage', createTime = sysdate()";
-            //executeCommand(db, sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
             sql = "update " + postId + " add messages = " + id;
-            //executeCommand(db, sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
- 
-            //message.setId(OrientIdentityUtil.encode(ridMessage));
+
+            postMessage = new PostMessage();
+            postMessage.setId(id);
+            postMessage.setContent(command.getContent());
+            postMessage.setUser(command.getUser());
+            postMessage.setPost(command.getPost());
         }
         finally {
             db.close();
         }
-        return id;
+        return postMessage;
     }
 
     public void update(PostMessageCommand message) {
