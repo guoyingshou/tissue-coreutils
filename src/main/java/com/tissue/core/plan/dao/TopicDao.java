@@ -11,7 +11,7 @@ public interface TopicDao {
 
     void update(TopicCommand command);
 
-    void delete(String topicId);
+    //void delete(String topicId);
 
     Topic getTopic(String id);
 

@@ -1,6 +1,5 @@
 package com.tissue.core.mapper;
 
-//import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.social.Activity;
 import com.tissue.core.social.ActivityObject;
 
@@ -33,7 +32,6 @@ public class ActivityMapper {
         ActivityObject who = new ActivityObject();
         activity.setWho(who);
         ODocument userDoc = doc.field("out");
-        //who.setId(OrientIdentityUtil.encode(userDoc.getIdentity().toString()));
         who.setId(userDoc.getIdentity().toString());
         String displayName = userDoc.field("displayName", String.class);
         who.setDisplayName(displayName);
@@ -49,7 +47,6 @@ public class ActivityMapper {
         activity.setWhere(where);
 
         ODocument whatDoc = doc.field("in");
-        //what.setId(OrientIdentityUtil.encode(whatDoc.getIdentity().toString()));
         what.setId(whatDoc.getIdentity().toString());
 
         if("topic".equals(label)) {
@@ -57,13 +54,11 @@ public class ActivityMapper {
             what.setDisplayName(topicTitle);
         }
         if("plan".equals(label) || "members".equals(label)) {
-            what.setDisplayName("plan");
+            //what.setDisplayName("plan");
 
             ODocument whereDoc = whatDoc.field("topic");
-            //where.setId(OrientIdentityUtil.encode(whereDoc.getIdentity().toString()));
-            where.setId(whereDoc.getIdentity().toString());
-
             String topicTitle = whereDoc.field("title");
+            where.setId(whereDoc.getIdentity().toString());
             where.setDisplayName(topicTitle);
         }
         if("concept".equals(label) || "note".equals(label) || "tutorial".equals(label) || "question".equals(label)) {
@@ -72,17 +67,13 @@ public class ActivityMapper {
 
             ODocument planDoc = whatDoc.field("plan");
             ODocument whereDoc = planDoc.field("topic");
-            //where.setId(OrientIdentityUtil.encode(whereDoc.getIdentity().toString()));
             where.setId(whereDoc.getIdentity().toString());
             
             String topicTitle = whereDoc.field("title");
             where.setDisplayName(topicTitle);
         }
         if("postMessage".equals(label)) {
-            //what.setDisplayName("post message");
-
             ODocument toDoc = whatDoc.field("post");
-            //to.setId(OrientIdentityUtil.encode(toDoc.getIdentity().toString()));
             to.setId(toDoc.getIdentity().toString());
 
             String postTitle = toDoc.field("title", String.class);
@@ -90,7 +81,6 @@ public class ActivityMapper {
 
             ODocument planDoc = toDoc.field("plan");
             ODocument whereDoc = planDoc.field("topic");
-            //where.setId(OrientIdentityUtil.encode(whereDoc.getIdentity().toString()));
             where.setId(whereDoc.getIdentity().toString());
             
             String topicTitle = whereDoc.field("title");
@@ -101,14 +91,12 @@ public class ActivityMapper {
 
             ODocument postMessageDoc = whatDoc.field("postMessage");
             ODocument toDoc = postMessageDoc.field("post");
-            //to.setId(OrientIdentityUtil.encode(toDoc.getIdentity().toString()));
             to.setId(toDoc.getIdentity().toString());
             String postTitle = toDoc.field("title", String.class);
             to.setDisplayName(postTitle);
 
             ODocument planDoc = toDoc.field("plan");
             ODocument whereDoc = planDoc.field("topic");
-            //where.setId(OrientIdentityUtil.encode(whereDoc.getIdentity().toString()));
             where.setId(whereDoc.getIdentity().toString());
             
             String topicTitle = whereDoc.field("title");
@@ -118,7 +106,6 @@ public class ActivityMapper {
             what.setDisplayName("qustion comments or answers");
 
             ODocument toDoc = whatDoc.field("question");
-            //to.setId(OrientIdentityUtil.encode(toDoc.getIdentity().toString()));
             to.setId(toDoc.getIdentity().toString());
 
             String postTitle = toDoc.field("title", String.class);
@@ -126,7 +113,6 @@ public class ActivityMapper {
 
             ODocument planDoc = toDoc.field("plan");
             ODocument whereDoc = planDoc.field("topic");
-            //where.setId(OrientIdentityUtil.encode(whereDoc.getIdentity().toString()));
             where.setId(whereDoc.getIdentity().toString());
             
             String topicTitle = whereDoc.field("title");
@@ -137,14 +123,12 @@ public class ActivityMapper {
 
             ODocument answerCommentDoc = whatDoc.field("answer");
             ODocument toDoc = answerCommentDoc.field("question");
-            //to.setId(OrientIdentityUtil.encode(toDoc.getIdentity().toString()));
             to.setId(toDoc.getIdentity().toString());
             String postTitle = toDoc.field("title", String.class);
             to.setDisplayName(postTitle);
 
             ODocument planDoc = toDoc.field("plan");
             ODocument whereDoc = planDoc.field("topic");
-            //where.setId(OrientIdentityUtil.encode(whereDoc.getIdentity().toString()));
             where.setId(whereDoc.getIdentity().toString());
             
             String topicTitle = whereDoc.field("title");

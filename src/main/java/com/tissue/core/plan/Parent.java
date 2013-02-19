@@ -1,6 +1,5 @@
 package com.tissue.core.plan;
 
-import com.tissue.core.spring.formatters.IDFormat;
 import com.tissue.core.util.TimeFormat;
 import com.tissue.core.social.User;
 
@@ -14,13 +13,14 @@ import java.util.ArrayList;
 
 public class Parent implements Serializable {
 
-    @IDFormat
     protected String id;
 
     protected Date createTime;
 
     protected User user;
    
+    private boolean deleted = false;
+
     public void setId(String id) {
         this.id = id;
     }
@@ -50,6 +50,14 @@ public class Parent implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
     }
 
     public TimeFormat getTimeBefore() {

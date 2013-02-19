@@ -57,4 +57,8 @@ public class PostWrapper extends Post {
         return post.isOwner(viewerId);
     }
 
+    public boolean isDeleted() {
+        return post.isDeleted();
+    }
+
 }

@@ -66,4 +66,16 @@ public class CommonDaoImpl implements CommonDao {
         }
         return memberOrOwner;
     }
+
+    public void delete(String rid) {
+        String sql = "update " + rid + " set deleted = true";
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+        }
+        finally {
+            db.close();
+        }
+    }
 }

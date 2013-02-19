@@ -13,4 +13,7 @@ public interface CommonDao {
      * @param postId post id for which the plan's membership need to check
      */
     boolean isMemberOrOwner(String userId, String postId);
+
+    void delete(String rid);
+
 }

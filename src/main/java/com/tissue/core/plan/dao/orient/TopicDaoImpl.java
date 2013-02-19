@@ -74,18 +74,6 @@ public class TopicDaoImpl implements TopicDao {
         }
     }
 
-    public void delete(String topicId) {
-        String sql = "update " + topicId + " set deleted = true";
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-        }
-        finally {
-            db.close();
-        }
-    }
-
     /**
      * Get a topic with all fields available.
      */

@@ -45,4 +45,7 @@ public interface PostDao {
     List<Post> getLatestPosts(int limit);
 
     Topic getTopic(String postId);
+
+    String getTopicId(String postId);
+    
 }

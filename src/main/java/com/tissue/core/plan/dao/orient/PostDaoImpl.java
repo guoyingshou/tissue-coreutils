@@ -32,9 +32,7 @@ public class PostDaoImpl implements PostDao {
     protected OrientDataSource dataSource;
 
     public String create(PostCommand postCommand) {
-
         String id = null;
-
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = PostMapper.convert(postCommand);
@@ -44,16 +42,12 @@ public class PostDaoImpl implements PostDao {
             String planId = postCommand.getPlan().getId();
 
             String sql = "update " + id + " set plan = " + planId;
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
             sql = "create edge EdgePost from " + userId + " to " + id + " set createTime = sysdate(), label = '" + postCommand.getType() + "'";
-            //executeCommand(db, sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
- 
-            //postId = OrientIdentityUtil.encode(ridPost);
         }
         finally {
             db.close();
@@ -76,13 +70,9 @@ public class PostDaoImpl implements PostDao {
 
     public Post getPost(String id) {
         Post post = null;
-
-        //String ridPost = OrientIdentityUtil.decode(id);
         String sql = "select from " + id;
-
         OGraphDatabase db = dataSource.getDB();
         try {
-            //ODocument doc = querySingle(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
@@ -97,13 +87,10 @@ public class PostDaoImpl implements PostDao {
 
     public List<Post> getPagedPostsByTopicId(String topicId, int page, int size) {
         List<Post> posts = new ArrayList();
-
-        //String ridTopic = OrientIdentityUtil.decode(topicId);
-        String sql = "select from post where plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+        String sql = "select from post where deleted is null and plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Post post = PostMapper.buildPost(doc);
@@ -118,7 +105,7 @@ public class PostDaoImpl implements PostDao {
 
     public long getPostsCountByTopicId(String topicId) {
         long count = 0;
-        String sql = "select count(*) from Post where plan.topic in " + topicId;
+        String sql = "select count(*) from Post where deleted is null and plan.topic in " + topicId;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -126,7 +113,6 @@ public class PostDaoImpl implements PostDao {
                 ODocument doc = docs.get(0);
                 count = doc.field("count", long.class);
             }
-            // ODocument doc = querySingle(db, sql);
         }
         finally {
             db.close();
@@ -136,8 +122,7 @@ public class PostDaoImpl implements PostDao {
 
     public long getPostsCountByTopicIdAndType(String topicId, String type) {
         long count = 0;
-        //String ridTopic = OrientIdentityUtil.decode(topicId);
-        String sql = "select count(*) from Post where plan.topic in " + topicId + " and type = '" + type + "'";
+        String sql = "select count(*) from Post where deleted is null and plan.topic in " + topicId + " and type = '" + type + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -146,7 +131,6 @@ public class PostDaoImpl implements PostDao {
                 ODocument doc = docs.get(0);
                 count = doc.field("count", long.class);
             }
-             //ODocument doc = querySingle(db, sql);
         }
         finally {
             db.close();
@@ -157,14 +141,11 @@ public class PostDaoImpl implements PostDao {
     public List<Post> getPagedPostsByTopicIdAndType(String topicId, String type, int page, int size) {
         List<Post> posts = new ArrayList();
 
-        //String ridTopic = OrientIdentityUtil.decode(topicId);
-
-        String sql = "select from post where type = '" + type + "' and plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+        String sql = "select from post where deleted is null and type = '" + type + "' and plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
 
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Post post = PostMapper.buildPost(doc);
@@ -180,8 +161,7 @@ public class PostDaoImpl implements PostDao {
     public long getPostsCountByPlanId(String planId) {
         long count = 0;
 
-        //String ridPlan = OrientIdentityUtil.decode(planId);
-        String sql = "select count(*) from Post where plan in " + planId;
+        String sql = "select count(*) from Post where deleted is null and plan in " + planId;
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -190,7 +170,6 @@ public class PostDaoImpl implements PostDao {
                 ODocument doc = docs.get(0);
                 count = doc.field("count", long.class);
             }
-            // ODocument doc = querySingle(db, sql);
         }
         finally {
             db.close();
@@ -200,19 +179,15 @@ public class PostDaoImpl implements PostDao {
 
     public List<Post> getPagedPostsByPlanId(String planId, int page, int size) {
         List<Post> posts = new ArrayList();
-
-        //String ridPlan = OrientIdentityUtil.decode(planId);
-        String sql = "select from Post where plan in " + planId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select from Post where deleted is null and plan in " + planId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Post post = PostMapper.buildPost(doc);
                 posts.add(post);
             }
-            //posts = PostMapper.buildPosts(docs);
         }
         finally {
             db.close();
@@ -222,13 +197,10 @@ public class PostDaoImpl implements PostDao {
     
     public long getPostsCountByUserId(String userId) {
         long count = 0;
-
-        //String rid = OrientIdentityUtil.decode(userId);
-        String sql = "select count(*) from Post where in.out in " + userId;
+        String sql = "select count(*) from Post where deleted is null and in.out in " + userId;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //ODocument doc = querySingle(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
@@ -243,13 +215,10 @@ public class PostDaoImpl implements PostDao {
 
     public List<Post> getPagedPostsByUserId(String userId, int page, int size) {
         List<Post> posts = new ArrayList();
-
-//        String rid = OrientIdentityUtil.decode(userId);
-        String sql = "select from Post where in.out in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select from Post where deleted is null and in.out in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //List<ODocument> docs = query(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Post post = PostMapper.buildPost(doc);
@@ -267,8 +236,7 @@ public class PostDaoImpl implements PostDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "select from Post order by createTime desc limit " + limit;
-            //List<ODocument> docs = query(db, sql);
+            String sql = "select from Post where deleted is null and plan.topic.deleted is null order by createTime desc limit " + limit;
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Post post = PostMapper.buildPost(doc);
@@ -283,12 +251,9 @@ public class PostDaoImpl implements PostDao {
 
     public Topic getTopic(String postId) {
         Topic topic = null;
-
-//        String ridPost = OrientIdentityUtil.decode(postId);
         String sql = "select plan.topic as topic from " + postId;
         OGraphDatabase db = dataSource.getDB();
         try {
-            //ODocument doc = querySingle(db, sql);
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
@@ -300,6 +265,23 @@ public class PostDaoImpl implements PostDao {
             db.close();
         }
         return topic;
+    }
+
+    public String getTopicId(String postId) {
+        String id = null;
+        String sql = "select plan.topic.@rid as id from " + postId;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                id = doc.field("id", String.class);
+             }
+        }
+        finally {
+            db.close();
+        }
+        return id;
     }
 
 }

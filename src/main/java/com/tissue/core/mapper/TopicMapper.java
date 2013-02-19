@@ -24,7 +24,6 @@ public class TopicMapper {
         doc.field("content", command.getContent());
         Set<String> tags = command.getTags();
         doc.field("tags", tags);
-        //doc.field("tags", command.getTags());
         doc.field("createTime", new Date());
 
         return doc;
@@ -32,7 +31,6 @@ public class TopicMapper {
 
     public static Topic buildTopicSelf(ODocument doc) {
         Topic topic = new Topic();
-        //topic.setId(OrientIdentityUtil.encode(doc.getIdentity().toString()));
         topic.setId(doc.getIdentity().toString());
 
         String title = doc.field("title", String.class);
@@ -46,6 +44,11 @@ public class TopicMapper {
 
         Date createTime = doc.field("createTime", Date.class);
         topic.setCreateTime(createTime);
+
+        Boolean deleted = doc.field("deleted", Boolean.class);
+        if(deleted != null) {
+            topic.setDeleted(deleted); 
+        }
 
         return topic;
     }

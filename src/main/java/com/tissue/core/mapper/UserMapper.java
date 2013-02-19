@@ -60,11 +60,6 @@ public class UserMapper {
                 if("plan".equals(label) || "members".equals(label)) {
                     ODocument planDoc = outEdgeDoc.field("in");
                     Plan plan = PlanMapper.buildPlanSelf(planDoc);
-
-                    //plan == null means the containing topic has been deleted
-                    if(plan != null) {
-                        user.addPlan(plan);
-                    }
                 }
              }
         }

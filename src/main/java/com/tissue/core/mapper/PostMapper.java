@@ -30,21 +30,26 @@ public class PostMapper {
         return doc;
     }
 
-    public static Post buildPostSelf(ODocument postDoc) {
+    public static Post buildPostSelf(ODocument doc) {
         Post post = new Post();
-        post.setId(postDoc.getIdentity().toString());
+        post.setId(doc.getIdentity().toString());
 
-        String postTitle = postDoc.field("title", String.class);
+        String postTitle = doc.field("title", String.class);
         post.setTitle(postTitle);
 
-        String postContent = postDoc.field("content", String.class);
+        String postContent = doc.field("content", String.class);
         post.setContent(postContent);
 
-        String postType = postDoc.field("type", String.class);
+        String postType = doc.field("type", String.class);
         post.setType(postType);
 
-        Date createTime = postDoc.field("createTime", Date.class);
+        Date createTime = doc.field("createTime", Date.class);
         post.setCreateTime(createTime);
+
+        Boolean deleted = doc.field("deleted", Boolean.class);
+        if(deleted != null) {
+            post.setDeleted(deleted);
+        }
  
         return post;
     }
