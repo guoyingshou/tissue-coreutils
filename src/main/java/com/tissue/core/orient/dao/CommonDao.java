@@ -1,5 +1,7 @@
 package com.tissue.core.orient.dao;
 
+import com.tissue.core.command.ItemCommand;
+
 public interface CommonDao {
 
     boolean isResourceExist(String rid);
@@ -14,6 +16,7 @@ public interface CommonDao {
      */
     boolean isMemberOrOwner(String userId, String postId);
 
-    void delete(String rid);
+    //void delete(String rid);
+    void delete(ItemCommand command);
 
 }

@@ -2,6 +2,7 @@ package com.tissue.core.orient.dao.orient;
 
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.orient.dao.CommonDao;
+import com.tissue.core.command.ItemCommand;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,8 +68,9 @@ public class CommonDaoImpl implements CommonDao {
         return memberOrOwner;
     }
 
-    public void delete(String rid) {
-        String sql = "update " + rid + " set deleted = true";
+    public void delete(ItemCommand command) {
+        String sql = "update " + command.getId() + " set deleted = true, reason = '" + command.getContent() + "', editor = " + command.getUser().getId();
+
         OGraphDatabase db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
