@@ -31,10 +31,10 @@ public class ActivityDaoImpl implements ActivityDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public List<Activity> getFriendsActivities(String userId, int num) {
+    public List<Activity> getWatchedActivities(String userId, int num) {
         List<Activity> activities = new ArrayList();
 
-        String sql = "select from EdgeAction where out in (select union(in[label='friends'].out, out[label='friends'].in) from " + userId + ") and (label contains ['concept', 'topic']) order by createTime desc limit " + num;
+        String sql = "select from EdgeAction where (out in (select union(in[label='friends'].out, out[label='friends'].in) from " + userId + ") and (label contains ['concept', 'topic'])) or in.plan.in.out in " + userId + " order by createTime desc limit " + num;
 
         OGraphDatabase db = dataSource.getDB();
         try {

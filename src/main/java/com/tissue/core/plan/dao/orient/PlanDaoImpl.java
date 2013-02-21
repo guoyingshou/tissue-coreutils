@@ -93,7 +93,7 @@ public class PlanDaoImpl implements PlanDao {
     public void addMember(String planId, String userId) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "create edge from " + userId + " to " + planId + " set label='members', createTime=sysdate()";
+            String sql = "create edge EdgeJoin from " + userId + " to " + planId + " set label='members', createTime=sysdate()";
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
