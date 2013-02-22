@@ -1,6 +1,5 @@
 package com.tissue.core.social;
 
-//import com.tissue.core.util.OrientIdentityUtil;
 import com.tissue.core.plan.Plan;
 
 import java.io.Serializable;
@@ -13,28 +12,24 @@ import java.util.HashSet;
 public class User implements Serializable {
 
     private String id;
-
     private String username;
-    private String password;
-
+    private String email;
     private String displayName;
     private String headline;
     private String resume;
-    private String email;
 
-    private List<Impression> impressions;
-
+    /**
     private Date createTime;
     private Date updateTime;
     private boolean verified = false;
-    //private boolean invitable = false;
 
-    private List<User> friends;
-    private List<User> declinedUsers;
+    private List<Impression> impressions;
     private List<Invitation> invitationsReceived;
     private List<Invitation> invitationsSent;
-
+    private List<User> declinedUsers;
+    private List<User> friends;
     private List<Plan> plans;
+    */
 
     public void setId(String id) {
         this.id = id;
@@ -52,12 +47,12 @@ public class User implements Serializable {
         return username;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getEmail() {
+        return email;
     }
 
     public void setDisplayName(String displayName) {
@@ -76,14 +71,6 @@ public class User implements Serializable {
         return headline;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
     public void setResume(String resume) {
         this.resume = resume;
     }
@@ -92,6 +79,7 @@ public class User implements Serializable {
         return resume;
     }
 
+    /**
     public void setImpressions(List<Impression> impressions) {
         this.impressions = impressions;
     }
@@ -187,16 +175,6 @@ public class User implements Serializable {
         return false;
     }
 
-    /**
-    public void setInvitable(boolean invitable) {
-        this.invitable = invitable;
-    }
-
-    public boolean isInvitable() {
-        return invitable;
-    }
-    */
-
     public void addPlan(Plan plan) {
         if(plans == null) {
             plans = new ArrayList();
@@ -227,5 +205,6 @@ public class User implements Serializable {
         }
         return archivedPlans;
     }
+    */
 
 }

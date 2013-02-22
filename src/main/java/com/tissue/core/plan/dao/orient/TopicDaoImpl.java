@@ -8,9 +8,9 @@ import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.dao.TopicDao;
-import com.tissue.core.plan.dao.PostDao;
 import com.tissue.core.mapper.TopicMapper;
 import com.tissue.core.mapper.PlanMapper;
+import com.tissue.core.mapper.PostMapper;
 import com.tissue.core.mapper.UserMapper;
 
 import java.util.List;
@@ -233,26 +233,82 @@ public class TopicDaoImpl implements TopicDao {
         return topics;
     }
 
-    public List<Topic> getNewTopics(String excludingUserId, int limit) {
-        List<Topic> topics = new ArrayList();
+    /**
+     * posts
+     */
 
-        String sql = "select from topic where deleted is null order by createTime desc limit " + limit;
-        if(excludingUserId != null) {
-            sql = "select from topic where deleted is null and in.out not in " + excludingUserId + " and plans.in.out not in " + excludingUserId + " order by createTime desc limit " + limit;
-        }
-
+    public long getPostsCount(String topicId) {
+        long count = 0;
+        String sql = "select count(*) from Post where deleted is null and plan.topic in " + topicId;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            for(ODocument doc : docs) {
-                Topic topic = TopicMapper.buildTopic(doc);
-                topics.add(topic);
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                count = doc.field("count", long.class);
             }
         }
         finally {
             db.close();
         }
-        return topics;
+        return count;
     }
+
+    public List<Post> getPagedPosts(String topicId, int page, int size) {
+        List<Post> posts = new ArrayList();
+        String sql = "select from post where deleted is null and plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            for(ODocument doc : docs) {
+                Post post = PostMapper.buildPost(doc);
+                posts.add(post);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return posts;
+    }
+
+    public long getPostsCountByType(String topicId, String type) {
+        long count = 0;
+        String sql = "select count(*) from Post where deleted is null and plan.topic in " + topicId + " and type = '" + type + "'";
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                count = doc.field("count", long.class);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return count;
+    }
+
+    public List<Post> getPagedPostsByType(String topicId, String type, int page, int size) {
+        List<Post> posts = new ArrayList();
+
+        String sql = "select from post where deleted is null and type = '" + type + "' and plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            for(ODocument doc : docs) {
+                Post post = PostMapper.buildPost(doc);
+                posts.add(post);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return posts;
+    }
+
 
 }

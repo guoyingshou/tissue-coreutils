@@ -48,7 +48,7 @@ public class PlanMapper {
         Set<ODocument> inEdgesDoc = doc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
             String label = inEdgeDoc.field("label");
-            if("plan".equals(label)) {
+            if("host".equals(label)) {
                 ODocument userDoc = inEdgeDoc.field("out");
                 User user = UserMapper.buildUserSelf(userDoc);
                 plan.setUser(user);
@@ -66,7 +66,7 @@ public class PlanMapper {
             if(inEdgesDoc != null) {
                 for(ODocument inEdgeDoc : inEdgesDoc) {
                     String label = inEdgeDoc.field("label");
-                    if("members".equals(label)) {
+                    if("member".equals(label)) {
                         ODocument memberDoc = inEdgeDoc.field("out");
                         User member = UserMapper.buildUserSelf(memberDoc);
                         plan.addMember(member);

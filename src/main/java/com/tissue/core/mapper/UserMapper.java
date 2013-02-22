@@ -57,7 +57,7 @@ public class UserMapper {
         if(outEdgesDoc != null) {
             for(ODocument outEdgeDoc : outEdgesDoc) {
                 String label = outEdgeDoc.field("label", String.class);
-                if("plan".equals(label) || "members".equals(label)) {
+                if("host".equals(label) || "member".equals(label)) {
                     ODocument planDoc = outEdgeDoc.field("in");
                     Plan plan = PlanMapper.buildPlanSelf(planDoc);
                 }

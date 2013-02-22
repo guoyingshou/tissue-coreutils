@@ -1,5 +1,8 @@
 package com.tissue.core.social.dao;
 
+import com.tissue.core.plan.Topic;
+import com.tissue.core.plan.Plan;
+import com.tissue.core.plan.Post;
 import com.tissue.core.social.command.UserCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.social.Impression;
@@ -12,11 +15,11 @@ public interface UserDao {
 
     void update(UserCommand userCommand);
 
+    User getUser(String userId);
+
     void updateEmail(UserCommand userCommand);
 
     void changePassword(UserCommand userCommand);
-
-    boolean isUserIdExist(String userId);
 
     boolean isUsernameExist(String username);
 
@@ -40,13 +43,27 @@ public interface UserDao {
 
     List<Impression> getImpressions(String userId);
 
-    User getUserById(String userId);
-
     List<User> getFriends(String userId);
 
     boolean isInvitable(String userId1, String userId2);
 
     List<User> getNewUsers(String excludingUserId, int limit);
 
+    /**
+     * topic
+     */
+    List<Topic> getNewTopics(String excludingUserId, int limit);
+
+    /**
+     * plan
+     */
+    List<Plan> getPlans(String userId);
+
+    /**
+     * post
+     */
+    long getPostsCount(String userId);
+
+    List<Post> getPagedPosts(String userId, int page, int size);
 
 }

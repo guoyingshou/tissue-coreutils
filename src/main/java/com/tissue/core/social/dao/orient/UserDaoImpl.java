@@ -1,11 +1,14 @@
 package com.tissue.core.social.dao.orient;
 
 import com.tissue.core.exceptions.NoRecordFoundException;
-import com.tissue.core.mapper.UserMapper;
-
-import com.tissue.core.orient.dao.DuplicateEmailException;
 import com.tissue.core.util.OrientDataSource;
-
+import com.tissue.core.mapper.TopicMapper;
+import com.tissue.core.mapper.PlanMapper;
+import com.tissue.core.mapper.PostMapper;
+import com.tissue.core.mapper.UserMapper;
+import com.tissue.core.plan.Topic;
+import com.tissue.core.plan.Plan;
+import com.tissue.core.plan.Post;
 import com.tissue.core.social.command.UserCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.social.Impression;
@@ -63,6 +66,27 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    /**
+     * @param id user id
+     * @return a user with basic info plus plans he created or joined
+     */
+    public User getUser(String id) {
+        User user = null;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            String sql = "select from " + id;
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                user = UserMapper.buildUser(doc);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return user;
+    }
+ 
     public void updateEmail(UserCommand userCommand) {
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -93,27 +117,7 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
-    /**
-     * @param id user id
-     * @return a user with basic info plus plans he created or joined
-     */
-    public User getUserById(String id) {
-        User user = null;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            String sql = "select from " + id;
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                user = UserMapper.buildUser(doc);
-            }
-        }
-        finally {
-            db.close();
-        }
-        return user;
-    }
- 
+
     public void addResume(String userId, String content) {
         String sql = "update " + userId + " set resume = '" + content + "'";
         OGraphDatabase db = dataSource.getDB();
@@ -205,7 +209,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     public void acceptInvitation(String id) {
-        String sql = "update " + id + " set label = 'friends', updateTime = sysdate()";
+        String sql = "update " + id + " set label = 'friend', updateTime = sysdate()";
         OGraphDatabase db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -316,22 +320,6 @@ public class UserDaoImpl implements UserDao {
         return invitable;
     }
 
-    public boolean isUserIdExist(String userId) {
-        boolean exist = false;
-        String sql = "select from " + userId;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(docs.size() > 0) {
-               exist = true;
-            }
-        }
-        finally {
-            db.close();
-        }
-        return exist;
-    }
-
     public boolean isUsernameExist(String username) {
         boolean exist = false;
         String sql = "select from user where username = '" + username + "'";
@@ -379,4 +367,89 @@ public class UserDaoImpl implements UserDao {
         }
         return exist;
     }
+
+    /**
+     * topic
+     */
+    public List<Topic> getNewTopics(String excludingUserId, int limit) {
+        List<Topic> topics = new ArrayList();
+
+        String sql = "select from topic where deleted is null order by createTime desc limit " + limit;
+        if(excludingUserId != null) {
+            sql = "select from topic where deleted is null and in.out not in " + excludingUserId + " and plans.in.out not in " + excludingUserId + " order by createTime desc limit " + limit;
+        }
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            for(ODocument doc : docs) {
+                Topic topic = TopicMapper.buildTopic(doc);
+                topics.add(topic);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return topics;
+    }
+
+    /**
+     * plan
+     */
+    public List<Plan> getPlans(String userId) {
+        List<Plan> plans = new ArrayList();
+        String sql = "select from plan where in.out in " + userId;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            for(ODocument doc : docs) {
+                Plan plan = PlanMapper.buildPlan(doc);
+                plans.add(plan);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return plans;
+    }
+
+    /**
+     * post
+     */
+    public long getPostsCount(String userId) {
+        long count = 0;
+        String sql = "select count(*) from Post where deleted is null and in.out in " + userId;
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                count = doc.field("count", long.class);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return count;
+    }
+
+    public List<Post> getPagedPosts(String userId, int page, int size) {
+        List<Post> posts = new ArrayList();
+        String sql = "select from Post where deleted is null and in.out in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            for(ODocument doc : docs) {
+                Post post = PostMapper.buildPost(doc);
+                posts.add(post);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return posts;
+    }
+
 }

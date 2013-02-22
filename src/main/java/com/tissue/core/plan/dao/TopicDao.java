@@ -3,6 +3,7 @@ package com.tissue.core.plan.dao;
 import com.tissue.core.command.TopicCommand;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
+import com.tissue.core.plan.Post;
 import java.util.List;
 
 public interface TopicDao {
@@ -10,8 +11,6 @@ public interface TopicDao {
     String create(TopicCommand command);
 
     void update(TopicCommand command);
-
-    //void delete(String topicId);
 
     Topic getTopic(String id);
 
@@ -30,8 +29,15 @@ public interface TopicDao {
     List<Topic> getPagedTopicsByTag(String tag, int page, int size);
 
     /**
-     * Get topics that the user has not learned.
+     * posts
      */
-    List<Topic> getNewTopics(String excludingUserId, int limit);
+    long getPostsCount(String topicId);
+
+    List<Post> getPagedPosts(String topicId, int page, int size);
+
+    long getPostsCountByType(String topicId, String type);
+
+    List<Post> getPagedPostsByType(String topicId, String type, int page, int size);
+
 
 }

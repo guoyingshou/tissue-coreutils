@@ -53,7 +53,7 @@ public class ActivityMapper {
             String topicTitle = whatDoc.field("title");
             what.setDisplayName(topicTitle);
         }
-        if("plan".equals(label) || "members".equals(label)) {
+        if("host".equals(label) || "member".equals(label)) {
             //what.setDisplayName("plan");
 
             ODocument whereDoc = whatDoc.field("topic");
