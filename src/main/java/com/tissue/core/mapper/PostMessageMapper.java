@@ -1,7 +1,7 @@
 package com.tissue.core.mapper;
 
 import com.tissue.core.command.PostMessageCommand;
-import com.tissue.core.social.User;
+import com.tissue.core.social.Account;
 import com.tissue.core.plan.PostMessage;
 import com.tissue.core.plan.PostMessageComment;
 import com.tissue.core.plan.Post;
@@ -36,9 +36,9 @@ public class PostMessageMapper {
                 Date createTime = inEdge.field("createTime", Date.class);
                 message.setCreateTime(createTime);
 
-                ODocument userDoc = inEdge.field("out");
-                User user = UserMapper.buildUserSelf(userDoc);
-                message.setUser(user);
+                ODocument accountDoc = inEdge.field("out");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                message.setAccount(account);
                 break;
             }
         }

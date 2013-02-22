@@ -30,7 +30,7 @@ public class AnswerDaoImpl implements AnswerDao {
             db.save(doc);
 
             String id = doc.getIdentity().toString();
-            String userId = command.getUser().getId();
+            String userId = command.getAccount().getId();
             String qId = command.getQuestion().getId();
 
             String sql = "create edge EdgePost from " + userId + " to " + id+ " set label = 'answer', createTime = sysdate()";
@@ -48,7 +48,7 @@ public class AnswerDaoImpl implements AnswerDao {
             answer = new Answer();
             answer.setId(id);
             answer.setContent(command.getContent());
-            answer.setUser(command.getUser());
+            answer.setAccount(command.getAccount());
             answer.setQuestion(command.getQuestion());
         }
         finally {

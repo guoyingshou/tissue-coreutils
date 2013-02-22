@@ -37,7 +37,7 @@ public class PlanDaoImpl implements PlanDao {
             db.save(doc);
 
             id = doc.getIdentity().toString();
-            String userId = plan.getUser().getId();
+            String userId = plan.getAccount().getId();
             String topicId = plan.getTopic().getId();
 
             String sql = "create edge EdgeJoin from " + userId + " to " + id + " set label = 'host', createTime = sysdate()";

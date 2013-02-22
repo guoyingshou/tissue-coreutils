@@ -1,7 +1,7 @@
 package com.tissue.core.mapper;
 
 import com.tissue.core.command.QuestionCommentCommand;
-import com.tissue.core.social.User;
+import com.tissue.core.social.Account;
 import com.tissue.core.plan.QuestionComment;
 import com.tissue.core.plan.Post;
 
@@ -37,9 +37,9 @@ public class QuestionCommentMapper {
                 Date createTime = inEdge.field("createTime", Date.class);
                 questionComment.setCreateTime(createTime);
 
-                ODocument userDoc = inEdge.field("out");
-                User user = UserMapper.buildUserSelf(userDoc);
-                questionComment.setUser(user);
+                ODocument accountDoc = inEdge.field("out");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                questionComment.setAccount(account);
                 break;
             }
         }

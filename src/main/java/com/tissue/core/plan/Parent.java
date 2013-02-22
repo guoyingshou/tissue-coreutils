@@ -1,7 +1,7 @@
 package com.tissue.core.plan;
 
 import com.tissue.core.util.TimeFormat;
-import com.tissue.core.social.User;
+import com.tissue.core.social.Account;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -17,7 +17,7 @@ public class Parent implements Serializable {
 
     protected Date createTime;
 
-    protected User user;
+    protected Account account;
    
     private boolean deleted = false;
 
@@ -37,16 +37,16 @@ public class Parent implements Serializable {
         return createTime;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
-    public User getUser() {
-        return user;
+    public Account getAccount() {
+        return account;
     }
 
     public boolean isOwner(String viewerId) {
-        if((viewerId != null) && viewerId.equals(user.getId())) {
+        if((viewerId != null) && viewerId.equals(account.getId())) {
             return true;
         }
         return false;

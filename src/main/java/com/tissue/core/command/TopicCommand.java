@@ -1,6 +1,6 @@
 package com.tissue.core.command;
 
-import com.tissue.core.social.User;
+import com.tissue.core.social.Account;
 import java.util.Set;
 
 public interface TopicCommand {
@@ -8,5 +8,5 @@ public interface TopicCommand {
     String getTitle();
     String getContent();
     Set<String> getTags();
-    User getUser();
+    Account getAccount();
 }

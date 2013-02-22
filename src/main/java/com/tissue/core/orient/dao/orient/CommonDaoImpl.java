@@ -69,7 +69,7 @@ public class CommonDaoImpl implements CommonDao {
     }
 
     public void delete(ItemCommand command) {
-        String sql = "update " + command.getId() + " set deleted = true, reason = '" + command.getContent() + "', editor = " + command.getUser().getId();
+        String sql = "update " + command.getId() + " set deleted = true, reason = '" + command.getContent() + "', editor = " + command.getAccount().getId();
 
         OGraphDatabase db = dataSource.getDB();
         try {

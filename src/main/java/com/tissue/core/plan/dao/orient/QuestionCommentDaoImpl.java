@@ -30,7 +30,7 @@ public class QuestionCommentDaoImpl implements QuestionCommentDao {
             db.save(doc);
         
             String id = doc.getIdentity().toString();
-            String userId = command.getUser().getId();
+            String userId = command.getAccount().getId();
             String qId = command.getQuestion().getId();
 
             String sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'questionComment', createTime = sysdate()";
@@ -44,7 +44,7 @@ public class QuestionCommentDaoImpl implements QuestionCommentDao {
             comment = new QuestionComment();
             comment.setId(id);
             comment.setContent(command.getContent());
-            comment.setUser(command.getUser());
+            comment.setAccount(command.getAccount());
             comment.setQuestion(command.getQuestion());
         }
         finally {

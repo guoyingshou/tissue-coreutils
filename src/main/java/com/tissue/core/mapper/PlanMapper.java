@@ -1,7 +1,7 @@
 package com.tissue.core.mapper;
 
 import com.tissue.core.command.PlanCommand;
-import com.tissue.core.social.User;
+import com.tissue.core.social.Account;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Topic;
 
@@ -49,9 +49,9 @@ public class PlanMapper {
         for(ODocument inEdgeDoc : inEdgesDoc) {
             String label = inEdgeDoc.field("label");
             if("host".equals(label)) {
-                ODocument userDoc = inEdgeDoc.field("out");
-                User user = UserMapper.buildUserSelf(userDoc);
-                plan.setUser(user);
+                ODocument accountDoc = inEdgeDoc.field("out");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                plan.setAccount(account);
                 break;
             }
         }
@@ -68,7 +68,7 @@ public class PlanMapper {
                     String label = inEdgeDoc.field("label");
                     if("member".equals(label)) {
                         ODocument memberDoc = inEdgeDoc.field("out");
-                        User member = UserMapper.buildUserSelf(memberDoc);
+                        Account member = AccountMapper.buildAccount(memberDoc);
                         plan.addMember(member);
                     }
                 }

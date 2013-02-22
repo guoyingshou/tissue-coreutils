@@ -1,15 +1,20 @@
 package com.tissue.core.social.dao.orient;
 
+import com.tissue.core.command.UserCommand;
+import com.tissue.core.command.ProfileCommand;
+import com.tissue.core.command.EmailCommand;
+import com.tissue.core.command.PasswordCommand;
 import com.tissue.core.exceptions.NoRecordFoundException;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.TopicMapper;
 import com.tissue.core.mapper.PlanMapper;
 import com.tissue.core.mapper.PostMapper;
 import com.tissue.core.mapper.UserMapper;
+import com.tissue.core.mapper.AccountMapper;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Post;
-import com.tissue.core.social.command.UserCommand;
+import com.tissue.core.social.Account;
 import com.tissue.core.social.User;
 import com.tissue.core.social.Impression;
 import com.tissue.core.social.Invitation;
@@ -40,9 +45,19 @@ public class UserDaoImpl implements UserDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = UserMapper.convertUser(userCommand);
-            db.save(doc);
-            userId = doc.getIdentity().toString();
+            ODocument accountDoc = AccountMapper.convertAccount(userCommand);
+            accountDoc.save();
+
+            ODocument userDoc = UserMapper.convertUser(userCommand);
+            List accounts = new ArrayList();
+            accounts.add(accountDoc.getIdentity());
+            userDoc.field("accounts", accounts);
+            userDoc.save();
+
+            accountDoc.field("user", userDoc.getIdentity());
+            accountDoc.save();
+
+            userId = userDoc.getIdentity().toString();
         }
         finally {
            db.close();
@@ -50,15 +65,45 @@ public class UserDaoImpl implements UserDao {
         return userId;
     }
 
-    public void update(UserCommand userCommand) {
+    public void updateProfile(ProfileCommand command) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = db.load(new ORecordId(userCommand.getId()));
+            ODocument doc = db.load(new ORecordId(command.getUser().getId()));
             if(doc == null) {
-                throw new NoRecordFoundException(userCommand.getId());
+                throw new NoRecordFoundException(command.getUser().getId());
             }
-            doc.field("displayName", userCommand.getDisplayName());
-            doc.field("headline", userCommand.getHeadline());
+            doc.field("displayName", command.getDisplayName());
+            doc.field("headline", command.getHeadline());
+            db.save(doc);
+        }
+        finally {
+           db.close();
+        }
+    }
+ 
+    public void updateEmail(EmailCommand command) {
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = db.load(new ORecordId(command.getUser().getId()));
+            if(doc == null) {
+                throw new NoRecordFoundException(command.getUser().getId());
+            }
+            doc.field("email", command.getEmail());
+            db.save(doc);
+        }
+        finally {
+           db.close();
+        }
+    }
+
+    public void updatePassword(PasswordCommand command) {
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = db.load(new ORecordId(command.getUser().getId()));
+            if(doc == null) {
+                throw new NoRecordFoundException(command.getUser().getId());
+            }
+            doc.field("password", command.getPassword());
             db.save(doc);
         }
         finally {
@@ -70,53 +115,22 @@ public class UserDaoImpl implements UserDao {
      * @param id user id
      * @return a user with basic info plus plans he created or joined
      */
-    public User getUser(String id) {
-        User user = null;
+    public Account getUserAccount(String accountId) {
+        Account account = null;
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "select from " + id;
+            String sql = "select from " + accountId;
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
-                user = UserMapper.buildUser(doc);
+                account = AccountMapper.buildAccount(doc);
             }
         }
         finally {
             db.close();
         }
-        return user;
+        return account;
     }
- 
-    public void updateEmail(UserCommand userCommand) {
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = db.load(new ORecordId(userCommand.getId()));
-            if(doc == null) {
-                throw new NoRecordFoundException(userCommand.getId());
-            }
-            doc.field("email", userCommand.getEmail());
-            db.save(doc);
-        }
-        finally {
-           db.close();
-        }
-    }
-
-    public void changePassword(UserCommand userCommand) {
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = db.load(new ORecordId(userCommand.getId()));
-            if(doc == null) {
-                throw new NoRecordFoundException(userCommand.getId());
-            }
-            doc.field("password", userCommand.getPassword());
-            db.save(doc);
-        }
-        finally {
-           db.close();
-        }
-    }
-
 
     public void addResume(String userId, String content) {
         String sql = "update " + userId + " set resume = '" + content + "'";

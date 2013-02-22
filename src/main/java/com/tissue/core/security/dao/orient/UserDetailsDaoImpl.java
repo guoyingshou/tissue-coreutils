@@ -1,6 +1,5 @@
 package com.tissue.core.security.dao.orient;
 
-//import com.tissue.core.social.User;
 import com.tissue.core.mapper.UserDetailsMapper;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.security.UserDetailsImpl;
@@ -36,7 +35,7 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sqlUsername = "select from User where username = ?";
+            String sqlUsername = "select from Account where username = ?";
             OSQLSynchQuery<ODocument> query = new OSQLSynchQuery(sqlUsername);
             List<ODocument> result = db.command(query).execute(username);
             if(!result.isEmpty()) {

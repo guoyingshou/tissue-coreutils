@@ -23,14 +23,16 @@ public class UserDetailsMapper {
         String password = doc.field("password", String.class);
         userDetails.setPassword(password);
 
-        String displayName = doc.field("displayName", String.class);
-        userDetails.setDisplayName(displayName);
-
         Set<String> roles = doc.field("roles", Set.class);
         userDetails.setRoles(roles);
 
+        /**
+        String displayName = doc.field("displayName", String.class);
+        userDetails.setDisplayName(displayName);
+
         Integer inviteLimit = doc.field("inviteLimit", Integer.class);
         userDetails.setInviteLimit(inviteLimit);
+        */
 
         return userDetails;
     }

@@ -1,9 +1,5 @@
 package com.tissue.core.security;
 
-//import com.tissue.core.social.User;
-//import com.tissue.core.social.Invitation;
-//import java.io.Serializable;
-//import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;

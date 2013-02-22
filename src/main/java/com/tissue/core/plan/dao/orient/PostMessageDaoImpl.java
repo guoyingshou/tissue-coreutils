@@ -32,7 +32,7 @@ public class PostMessageDaoImpl implements PostMessageDao {
 
             String id = doc.getIdentity().toString();
             String postId = command.getPost().getId();
-            String userId = command.getUser().getId();
+            String userId = command.getAccount().getId();
 
             String sql = "update " + id + " set post = " + postId;
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -49,7 +49,7 @@ public class PostMessageDaoImpl implements PostMessageDao {
             postMessage = new PostMessage();
             postMessage.setId(id);
             postMessage.setContent(command.getContent());
-            postMessage.setUser(command.getUser());
+            postMessage.setAccount(command.getAccount());
             postMessage.setPost(command.getPost());
         }
         finally {

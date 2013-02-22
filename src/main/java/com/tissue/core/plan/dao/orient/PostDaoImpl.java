@@ -38,7 +38,7 @@ public class PostDaoImpl implements PostDao {
             ODocument doc = PostMapper.convert(postCommand);
             db.save(doc);
             id = doc.getIdentity().toString();
-            String userId = postCommand.getUser().getId();
+            String userId = postCommand.getAccount().getId();
             String planId = postCommand.getPlan().getId();
 
             String sql = "update " + id + " set plan = " + planId;

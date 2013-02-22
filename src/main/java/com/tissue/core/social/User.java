@@ -12,24 +12,9 @@ import java.util.HashSet;
 public class User implements Serializable {
 
     private String id;
-    private String username;
-    private String email;
     private String displayName;
     private String headline;
     private String resume;
-
-    /**
-    private Date createTime;
-    private Date updateTime;
-    private boolean verified = false;
-
-    private List<Impression> impressions;
-    private List<Invitation> invitationsReceived;
-    private List<Invitation> invitationsSent;
-    private List<User> declinedUsers;
-    private List<User> friends;
-    private List<Plan> plans;
-    */
 
     public void setId(String id) {
         this.id = id;
@@ -37,22 +22,6 @@ public class User implements Serializable {
 
     public String getId() {
         return id;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getEmail() {
-        return email;
     }
 
     public void setDisplayName(String displayName) {
@@ -78,133 +47,5 @@ public class User implements Serializable {
     public String getResume() {
         return resume;
     }
-
-    /**
-    public void setImpressions(List<Impression> impressions) {
-        this.impressions = impressions;
-    }
-
-    public List<Impression> getImpressions() {
-        return impressions;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setVerified(Boolean verified) {
-        this.verified = verified;
-    }
-
-    public Boolean isVerified() {
-        return verified;
-    }
-
-    public boolean isSelf(String userId) {
-        return id.equals(userId);
-    }
-
-    public void addFriend(User user) {
-        if(friends == null) {
-            friends = new ArrayList();
-        }
-        friends.add(user);
-    }
-
-    public void setFriends(List<User> friends) {
-        this.friends = friends;
-    }
-
-    public List<User> getFriends() {
-        return friends;
-    }
-
-    public void addDeclinedUser(User user) {
-        if(declinedUsers == null) {
-            declinedUsers = new ArrayList();
-        }
-        declinedUsers.add(user);
-    }
-
-    public void setDeclinedUsers(List<User> declinedUsers) {
-        this.declinedUsers = declinedUsers;
-    }
-
-    public void addInvitationReceived(Invitation invitation) {
-        invitationsReceived.add(invitation);
-    }
-
-    public void setInvitationsReceived(List<Invitation> invitationsReceived) {
-        this.invitationsReceived = invitationsReceived;
-    }
-
-    public List<Invitation> getInvitationsReceived() {
-        return invitationsReceived;
-    }
-
-    public void addInvitationSent(Invitation invitation) {
-        invitationsSent.add(invitation);
-    }
-
-    public void setInvitationsSent(List<Invitation> invitatonsSent) {
-        this.invitationsSent = invitationsSent;
-    }
-
-    public List<Invitation> getInvitationsSent() {
-        return invitationsSent;
-    }
-
-    public boolean isFriend(String userId) {
-        for(User user : friends) {
-            if(userId.equals(user.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void addPlan(Plan plan) {
-        if(plans == null) {
-            plans = new ArrayList();
-        }
-        plans.add(plan);
-    }
-
-    public List<Plan> getOwnedPlans() {
-        List<Plan> ownedPlans = new ArrayList();
-        if(plans != null) {
-            for(Plan plan : plans) {
-                if(plan.isActive()) {
-                    ownedPlans.add(plan);
-                }
-            }
-        }
-        return ownedPlans;
-    }
-
-    public List<Plan> getArchivedPlans() {
-        List<Plan> archivedPlans = new ArrayList();
-        if(plans != null) {
-            for(Plan plan : plans) {
-                if(!plan.isActive()) {
-                    archivedPlans.add(plan);
-                }
-            }
-        }
-        return archivedPlans;
-    }
-    */
 
 }

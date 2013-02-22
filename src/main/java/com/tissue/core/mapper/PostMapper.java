@@ -1,7 +1,7 @@
 package com.tissue.core.mapper;
 
 import com.tissue.core.command.PostCommand;
-import com.tissue.core.social.User;
+import com.tissue.core.social.Account;
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.Cnt;
 import com.tissue.core.plan.PostMessage;
@@ -61,9 +61,9 @@ public class PostMapper {
         for(ODocument inEdgeDoc : inEdgesDoc) {
             String label = inEdgeDoc.field("label", String.class);
             if("concept".equals(label) || "note".equals(label) || "tutorial".equals(label) || "question".equals(label)) {
-                ODocument userDoc = inEdgeDoc.field("out");
-                User user = UserMapper.buildUserSelf(userDoc);
-                post.setUser(user);
+                ODocument accountDoc = inEdgeDoc.field("out");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                post.setAccount(account);
                 break;
             }
         }

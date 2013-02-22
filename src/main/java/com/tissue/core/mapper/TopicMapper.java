@@ -1,7 +1,7 @@
 package com.tissue.core.mapper;
 
 import com.tissue.core.command.TopicCommand;
-import com.tissue.core.social.User;
+import com.tissue.core.social.Account;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 
@@ -58,9 +58,9 @@ public class TopicMapper {
 
         Set<ODocument> inEdgesDoc = doc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
-            ODocument userDoc = inEdgeDoc.field("out");
-            User user = UserMapper.buildUserSelf(userDoc);
-            topic.setUser(user);
+            ODocument accountDoc = inEdgeDoc.field("out");
+            Account account = AccountMapper.buildAccount(accountDoc);
+            topic.setAccount(account);
         }
         return topic;
     }

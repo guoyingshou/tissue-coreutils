@@ -1,12 +1,12 @@
-package com.tissue.core.social.command;
+package com.tissue.core.command;
 
 public interface UserCommand {
 
     String getId();
     String getUsername();
     String getPassword();
-    String getDisplayName();
     String getEmail();
+    String getDisplayName();
     String getHeadline();
 
 }

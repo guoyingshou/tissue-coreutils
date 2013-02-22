@@ -31,7 +31,7 @@ public class AnswerCommentDaoImpl implements AnswerCommentDao {
             db.save(doc);
 
             String id = doc.getIdentity().toString();
-            String userId = command.getUser().getId();
+            String userId = command.getAccount().getId();
             String answerId = command.getAnswer().getId();
 
             String sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'answerComment', createTime = sysdate()";
@@ -45,7 +45,7 @@ public class AnswerCommentDaoImpl implements AnswerCommentDao {
             comment = new AnswerComment();
             comment.setId(id);
             comment.setContent(command.getContent());
-            comment.setUser(command.getUser());
+            comment.setAccount(command.getAccount());
             comment.setAnswer(command.getAnswer());
         }
         finally {

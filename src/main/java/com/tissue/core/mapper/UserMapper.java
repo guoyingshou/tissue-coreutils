@@ -1,8 +1,6 @@
 package com.tissue.core.mapper;
 
-//import com.tissue.core.util.OrientIdentityUtil;
-
-import com.tissue.core.social.command.UserCommand;
+import com.tissue.core.command.UserCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.social.Invitation;
 import com.tissue.core.social.Impression;
@@ -20,11 +18,11 @@ public class UserMapper {
 
     public static ODocument convertUser(UserCommand userCommand) {
         ODocument doc = new ODocument("User");
-        doc.field("username", userCommand.getUsername());
-        doc.field("password", userCommand.getPassword());
+        //doc.field("username", userCommand.getUsername());
+        //doc.field("password", userCommand.getPassword());
+        //doc.field("email", userCommand.getEmail());
         doc.field("displayName", userCommand.getDisplayName());
         doc.field("headline", userCommand.getHeadline());
-        doc.field("email", userCommand.getEmail());
         doc.field("createTime", new Date());
         doc.field("inviteLimit", 32);
         return doc;
@@ -41,9 +39,10 @@ public class UserMapper {
         String headline = userDoc.field("headline", String.class);
         user.setHeadline(headline);
 
+        /**
         String email = userDoc.field("email", String.class);
         user.setEmail(email);
-
+        */
         String resume = userDoc.field("resume", String.class);
         user.setResume(resume);
 

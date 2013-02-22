@@ -1,9 +1,13 @@
 package com.tissue.core.social.dao;
 
+import com.tissue.core.command.UserCommand;
+import com.tissue.core.command.ProfileCommand;
+import com.tissue.core.command.EmailCommand;
+import com.tissue.core.command.PasswordCommand;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Post;
-import com.tissue.core.social.command.UserCommand;
+import com.tissue.core.social.Account;
 import com.tissue.core.social.User;
 import com.tissue.core.social.Impression;
 import com.tissue.core.social.Invitation;
@@ -13,13 +17,13 @@ public interface UserDao {
 
     String create(UserCommand userCommand);
 
-    void update(UserCommand userCommand);
+    void updateProfile(ProfileCommand ProfileCommand);
 
-    User getUser(String userId);
+    void updateEmail(EmailCommand command);
 
-    void updateEmail(UserCommand userCommand);
+    void updatePassword(PasswordCommand command);
 
-    void changePassword(UserCommand userCommand);
+    Account getUserAccount(String accountId);
 
     boolean isUsernameExist(String username);
 

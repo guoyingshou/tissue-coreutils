@@ -1,6 +1,6 @@
 package com.tissue.core.plan;
 
-import com.tissue.core.social.User;
+import com.tissue.core.social.Account;
 import java.util.List;
 import java.util.Date;
 
@@ -28,8 +28,8 @@ public class PostWrapper extends Post {
     }
 
     @Override
-    public User getUser() {
-        return post.getUser();
+    public Account getAccount() {
+        return post.getAccount();
     }
 
     @Override

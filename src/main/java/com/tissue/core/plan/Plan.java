@@ -1,6 +1,6 @@
 package com.tissue.core.plan;
 
-import com.tissue.core.social.User;
+import com.tissue.core.social.Account;
 import com.tissue.core.util.TimeFormat;
 
 import org.joda.time.DateTime;
@@ -14,7 +14,7 @@ public class Plan extends Parent {
     private Integer duration;
 
     private Topic topic;
-    private List<User> members;
+    private List<Account> members;
 
     public void setDuration(Integer duration) {
         this.duration = duration;
@@ -24,18 +24,18 @@ public class Plan extends Parent {
         return duration;
     }
 
-    public void addMember(User member) {
+    public void addMember(Account member) {
         if(members == null) {
             members = new ArrayList();
         }
         members.add(member);
     }
 
-    public void setMembers(List<User> members) {
+    public void setMembers(List<Account> members) {
         this.members = members;
     }
 
-    public List<User> getMembers() {
+    public List<Account> getMembers() {
         if(members == null) {
             members = new ArrayList();
         }
@@ -51,8 +51,12 @@ public class Plan extends Parent {
     }
 
     public Boolean isMember(String userId) {
+        System.out.println("------------------");
+        System.out.println(userId);
+        System.out.println("------------------");
+
         if((members != null) && (userId != null)) {
-            for(User user : members) {
+            for(Account user : members) {
                 if(userId.equals(user.getId())) {
                     return true;
                 }
