@@ -115,7 +115,66 @@ public class UserDaoImpl implements UserDao {
      * @param id user id
      * @return a user with basic info plus plans he created or joined
      */
-    public Account getUserAccount(String accountId) {
+    public User getUser(String userId) {
+        User user = null;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            String sql = "select from " + userId;
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                user = UserMapper.buildUser(doc);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return user;
+    }
+
+    /**
+     * @param id user id
+     * @return a user with basic info plus plans he created or joined
+     */
+    public User getUserByAccount(String accountId) {
+        User user = null;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            String sql = "select from user where accounts in " + accountId;
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                user = UserMapper.buildUser(doc);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return user;
+    }
+
+    public String getUserIdByAccount(String accountId) {
+        String userId = null;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            String sql = "select from user where accounts in " + accountId;
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                userId = doc.getIdentity().toString();
+            }
+        }
+        finally {
+            db.close();
+        }
+        return userId;
+    }
+
+    /**
+     * @param id user id
+     * @return a user with basic info plus plans he created or joined
+     */
+    public Account getAccount(String accountId) {
         Account account = null;
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -144,8 +203,8 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
-    public void inviteFriend(String fromId, String toId, String content) {
-        String sql = "create edge EdgeFriend from " + fromId + " to " + toId + " set label = 'invite', createTime = sysdate(), content = '" + content + "'";
+    public void inviteFriend(String fromAccountId, String toUserId, String content) {
+        String sql = "create edge EdgeFriend from " + fromAccountId + " to " + toUserId + " set label = 'invite', createTime = sysdate(), content = '" + content + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -159,19 +218,34 @@ public class UserDaoImpl implements UserDao {
 
     public List<Invitation> getInvitationsReceived(String userId) {
         List<Invitation> invitations = new ArrayList();
-        String sql = "select @this as invitation, out as user from EdgeFriend where label = 'invite' and in in " + userId;
+        //String sql = "select @this as invitation, out as user from EdgeFriend where label = 'invite' and in in " + userId;
+        String sql = "select from EdgeFriend where label = 'invite' and in in " + userId;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                ODocument invDoc = doc.field("invitation");
-                Invitation invitation = UserMapper.buildInvitationSelf(invDoc);
+                //Invitation invitation = UserMapper.buildInvitationSelf(doc);
 
-                ODocument userDoc = doc.field("user");
-                User user = UserMapper.buildUserSelf(userDoc);
-                invitation.setInvitor(user);
-                
+                //"out" is an account
+                ODocument fromDoc = doc.field("out");
+                ODocument fromUserDoc = fromDoc.field("user");
+                User invitor = UserMapper.buildUserSelf(fromUserDoc);
+
+                //"in" is a user
+                ODocument toUserDoc = doc.field("in");
+                User invitee = UserMapper.buildUserSelf(toUserDoc);
+
+                String content = doc.field("content", String.class);
+                Date createTime = doc.field("createTime", Date.class);
+
+                Invitation invitation = new Invitation();
+                invitation.setId(doc.getIdentity().toString());
+                invitation.setInvitor(invitor);
+                invitation.setInvitee(invitee);
+                invitation.setContent(content);
+                invitation.setCreateTime(createTime);
+
                 invitations.add(invitation);
             }
         }
@@ -222,14 +296,30 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
-    public void acceptInvitation(String id) {
-        String sql = "update " + id + " set label = 'friend', updateTime = sysdate()";
+    public void acceptInvitation(String invitationId) {
+        String sql = "select from " + invitationId;
         OGraphDatabase db = dataSource.getDB();
         try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            int result = db.command(cmd).execute();
-            if(result != 1) {
-                throw new NoRecordFoundException(id);
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+
+                //"out" refer to an accout
+                ODocument fromDoc = doc.field("out");
+                ODocument fromUserDoc = fromDoc.field("user");
+                String fromUserId = fromUserDoc.getIdentity().toString();
+
+                //"in" refer to an user
+                ODocument toUserDoc = doc.field("in");
+                String toUserId = toUserDoc.getIdentity().toString();
+
+                sql = "update " + invitationId + " set label = 'accepted', updateTime = sysdate()";
+                OCommandSQL cmd = new OCommandSQL(sql);
+                db.command(cmd).execute();
+ 
+                sql = "create edge EdgeFriend from " + fromUserId + " to " + toUserId + " set label = 'friend', updateTime = sysdate()";
+                cmd = new OCommandSQL(sql);
+                db.command(cmd).execute();
             }
         }
         finally {
@@ -412,7 +502,24 @@ public class UserDaoImpl implements UserDao {
      */
     public List<Plan> getPlans(String userId) {
         List<Plan> plans = new ArrayList();
-        String sql = "select from plan where in.out in " + userId;
+        String sql = "select from plan where in.out.user in " + userId;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            for(ODocument doc : docs) {
+                Plan plan = PlanMapper.buildPlan(doc);
+                plans.add(plan);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return plans;
+    }
+
+    public List<Plan> getPlansByAccount(String accountId) {
+        List<Plan> plans = new ArrayList();
+        String sql = "select from plan where in.out in " + accountId;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -432,7 +539,7 @@ public class UserDaoImpl implements UserDao {
      */
     public long getPostsCount(String userId) {
         long count = 0;
-        String sql = "select count(*) from Post where deleted is null and in.out in " + userId;
+        String sql = "select count(*) from Post where deleted is null and in.out.user in " + userId;
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -450,7 +557,7 @@ public class UserDaoImpl implements UserDao {
 
     public List<Post> getPagedPosts(String userId, int page, int size) {
         List<Post> posts = new ArrayList();
-        String sql = "select from Post where deleted is null and in.out in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select from Post where deleted is null and in.out.user in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
 
         OGraphDatabase db = dataSource.getDB();
         try {

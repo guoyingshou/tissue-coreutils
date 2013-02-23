@@ -45,8 +45,8 @@ public class Parent implements Serializable {
         return account;
     }
 
-    public boolean isOwner(String viewerId) {
-        if((viewerId != null) && viewerId.equals(account.getId())) {
+    public boolean isOwner(String viewerAccountId) {
+        if((viewerAccountId != null) && viewerAccountId.equals(account.getId())) {
             return true;
         }
         return false;

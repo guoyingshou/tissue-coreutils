@@ -23,7 +23,13 @@ public interface UserDao {
 
     void updatePassword(PasswordCommand command);
 
-    Account getUserAccount(String accountId);
+    User getUser(String userId);
+
+    User getUserByAccount(String accountId);
+
+    String getUserIdByAccount(String accountId);
+
+    Account getAccount(String accountId);
 
     boolean isUsernameExist(String username);
 
@@ -62,6 +68,8 @@ public interface UserDao {
      * plan
      */
     List<Plan> getPlans(String userId);
+
+    List<Plan> getPlansByAccount(String accountId);
 
     /**
      * post

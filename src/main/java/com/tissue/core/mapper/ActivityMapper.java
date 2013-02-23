@@ -32,9 +32,8 @@ public class ActivityMapper {
         ActivityObject who = new ActivityObject();
         activity.setWho(who);
         ODocument accountDoc = doc.field("out");
-        who.setId(accountDoc.getIdentity().toString());
-
         ODocument userDoc = accountDoc.field("user");
+        who.setId(userDoc.getIdentity().toString());
         String displayName = userDoc.field("displayName", String.class);
         who.setDisplayName(displayName);
         who.setObjectType("person");

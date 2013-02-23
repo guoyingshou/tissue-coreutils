@@ -50,14 +50,10 @@ public class Plan extends Parent {
         return topic;
     }
 
-    public Boolean isMember(String userId) {
-        System.out.println("------------------");
-        System.out.println(userId);
-        System.out.println("------------------");
-
-        if((members != null) && (userId != null)) {
-            for(Account user : members) {
-                if(userId.equals(user.getId())) {
+    public Boolean isMember(String userAccountId) {
+        if((members != null) && (userAccountId != null)) {
+            for(Account account : members) {
+                if(userAccountId.equals(account.getId())) {
                     return true;
                 }
             }
