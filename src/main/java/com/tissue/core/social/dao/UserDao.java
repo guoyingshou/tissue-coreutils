@@ -11,6 +11,7 @@ import com.tissue.core.social.Account;
 import com.tissue.core.social.User;
 import com.tissue.core.social.Impression;
 import com.tissue.core.social.Invitation;
+import com.tissue.core.social.Activity;
 import java.util.List;
 
 public interface UserDao {
@@ -55,7 +56,22 @@ public interface UserDao {
 
     List<User> getFriends(String userId);
 
-    boolean isInvitable(String userId1, String userId2);
+    Boolean isFriend(String userId1, String userId2);
+
+    /**
+     * activities
+     */
+    List<Activity> getWatchedActivities(String userId, int num);
+ 
+    List<Activity> getUserActivities(String userId, int num);
+
+    List<Activity> getActivitiesForNewUser(int num);
+
+    List<Activity> getActivities(int num);
+
+    /**
+     */
+    Boolean isInvitable(String userId1, String userId2);
 
     List<User> getNewUsers(String excludingUserId, int limit);
 

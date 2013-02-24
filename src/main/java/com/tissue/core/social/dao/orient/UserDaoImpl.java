@@ -11,6 +11,7 @@ import com.tissue.core.mapper.PlanMapper;
 import com.tissue.core.mapper.PostMapper;
 import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.mapper.AccountMapper;
+import com.tissue.core.mapper.ActivityMapper;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Post;
@@ -18,6 +19,7 @@ import com.tissue.core.social.Account;
 import com.tissue.core.social.User;
 import com.tissue.core.social.Impression;
 import com.tissue.core.social.Invitation;
+import com.tissue.core.social.Activity;
 import com.tissue.core.social.dao.UserDao;
 
 import java.util.Date;
@@ -35,8 +37,14 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 public class UserDaoImpl implements UserDao {
+
+    private static Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
+
     @Autowired
     protected OrientDataSource dataSource;
 
@@ -100,9 +108,6 @@ public class UserDaoImpl implements UserDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(command.getUser().getId()));
-            if(doc == null) {
-                throw new NoRecordFoundException(command.getUser().getId());
-            }
             doc.field("password", command.getPassword());
             db.save(doc);
         }
@@ -137,10 +142,12 @@ public class UserDaoImpl implements UserDao {
      * @return a user with basic info plus plans he created or joined
      */
     public User getUserByAccount(String accountId) {
+        String sql = "select from user where accounts in " + accountId;
+        logger.debug(sql);
+
         User user = null;
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "select from user where accounts in " + accountId;
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
@@ -366,10 +373,12 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<User> getFriends(String userId) {
+        String sql = "select union(in[label='friend'].out, out[label='friend'].in) as friends from " + userId;
+        logger.debug(sql);
+
         List<User> friends = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "select union(in[label='friends'].out, out[label='friends'].in) as friends from " + userId;
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
@@ -386,6 +395,88 @@ public class UserDaoImpl implements UserDao {
         return friends;
     }
 
+    public List<Activity> getWatchedActivities(String userId, int num) {
+        List<Activity> activities = new ArrayList();
+
+        String sql = "select from EdgeAction where (out in (select union(in[label='friend'].out, out[label='friend'].in) from " + userId + ") and (label in ['topic', 'host', 'join', 'concept', 'note', 'tutorial', 'question'])) or ( in.plan.in.out.user in " + userId + " and out.user not in " + userId + ") order by createTime desc limit " + num;
+
+        logger.debug(sql);
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            for(ODocument doc : docs) {
+                Activity activity = ActivityMapper.buildActivity(doc);
+                activities.add(activity);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return activities;
+    }
+
+    public List<Activity> getUserActivities(String userId, int num) {
+        String sql = "select from EdgeAction where out.user in " + userId + " order by createTime desc";
+        logger.debug(sql);
+
+        List<Activity> activities = new ArrayList();
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            for(ODocument doc : docs) {
+                Activity act = ActivityMapper.buildActivity(doc);
+                activities.add(act);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return activities;
+    }
+
+    public List<Activity> getActivitiesForNewUser(int num) {
+        String sql = "select from EdgeAction where label in ['topic', 'host', 'join', 'member', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
+        logger.debug(sql);
+
+        List<Activity> activities = new ArrayList();
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            for(ODocument doc : docs) {
+                Activity act = ActivityMapper.buildActivity(doc);
+                activities.add(act);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return activities;
+    }
+
+    public List<Activity> getActivities(int num) {
+        String sql = "select from EdgeAction where label in ['friend', 'topic', 'host', 'join', 'member', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
+        logger.debug(sql);
+
+        List<Activity> activities = new ArrayList();
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            for(ODocument doc : docs) {
+                Activity act = ActivityMapper.buildActivity(doc);
+                activities.add(act);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return activities;
+    }
+
+
+    /**
+     * -----------------
+     */
     public List<User> getNewUsers(String excludingUserId, int limit) {
         List<User> users = new ArrayList();
         String sql = "select from user order by createTime desc limit " + limit;
@@ -407,9 +498,36 @@ public class UserDaoImpl implements UserDao {
         return users;
     }
 
-    public boolean isInvitable(String userId1, String userId2) {
-        boolean invitable = true;
-        String sql = "select from EdgeFriend where (label contains ['friends', 'invite']) and ((in in " + userId1 + " and out in " + userId2 + ") or (in in " + userId2 + " and out in " + userId1 + "))";
+    public Boolean isFriend(String userId1, String userId2) {
+        String sql = "select from EdgeFriend where label in 'friend' and ((out in " + userId1 + " and in in " + userId2 + ") or (out in " + userId2 + " and in in " + userId1 + "))";
+        logger.debug(sql);
+
+        Boolean friend = false;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(docs.size() > 0) {
+               friend = true;
+            }
+        }
+        finally {
+            db.close();
+        }
+        return friend;
+    }
+
+    /**
+     * Determine whether or not userId1 and userId2 can invite each other.
+     * If userId1 had invited userId2 or userId2 had invited userId1 no matter
+     * the invitation is accepted or denied, they cann't invite again.
+     *
+     * The invitation's out property is a link to an account while in property
+     * is a link to a user.
+     */
+    public Boolean isInvitable(String userId1, String userId2) {
+        Boolean invitable = true;
+        String sql = "select from EdgeFriend where (label in ['invite', 'accepted', 'declined']) and ((out.user in " + userId1 + " and in in " + userId2 + ") or (out.user in " + userId2 + " and in in " + userId1 + "))";
+        logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
         try {

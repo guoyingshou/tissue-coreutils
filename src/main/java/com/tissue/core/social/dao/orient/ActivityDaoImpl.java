@@ -31,6 +31,7 @@ public class ActivityDaoImpl implements ActivityDao {
     @Autowired
     protected OrientDataSource dataSource;
 
+    /**
     public List<Activity> getWatchedActivities(String userId, int num) {
         List<Activity> activities = new ArrayList();
 
@@ -68,6 +69,7 @@ public class ActivityDaoImpl implements ActivityDao {
         }
         return activities;
     }
+    */
 
     public List<Activity> getActivitiesForNewUser(int num) {
         List<Activity> activities = new ArrayList();

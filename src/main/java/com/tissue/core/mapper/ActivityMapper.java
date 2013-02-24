@@ -17,7 +17,13 @@ import java.util.Map;
 public class ActivityMapper {
 
     /**
-     * @params doc out edge from user node
+     * Construct an Activity object from EdgeAction document.
+     * Except for label='friend' type of EdgeAction, the 'out' property of EdgeAction is an Account while 'in' property
+     * may represent different things: User, Topic, Plan, Concept, Note, Tutorial, Question, etc.
+     *
+     * The out property of EdgeAction with label = 'friend' is a link to a User instance.
+     *
+     * @params doc an EdgeAction instance
      */
     public static Activity buildActivity(ODocument doc) {
 
@@ -31,10 +37,18 @@ public class ActivityMapper {
 
         ActivityObject who = new ActivityObject();
         activity.setWho(who);
-        ODocument accountDoc = doc.field("out");
-        ODocument userDoc = accountDoc.field("user");
-        who.setId(userDoc.getIdentity().toString());
+
+        ODocument userDoc = null;
+        if("friend".equals(label)) {
+            userDoc = doc.field("out");
+        }
+        else {
+            ODocument accountDoc = doc.field("out");
+            userDoc = accountDoc.field("user");
+        }
         String displayName = userDoc.field("displayName", String.class);
+
+        who.setId(userDoc.getIdentity().toString());
         who.setDisplayName(displayName);
         who.setObjectType("person");
 
@@ -54,9 +68,7 @@ public class ActivityMapper {
             String topicTitle = whatDoc.field("title");
             what.setDisplayName(topicTitle);
         }
-        if("host".equals(label) || "member".equals(label)) {
-            //what.setDisplayName("plan");
-
+        if("hostGroup".equals(label) || "joinGroup".equals(label)) {
             ODocument whereDoc = whatDoc.field("topic");
             String topicTitle = whereDoc.field("title");
             where.setId(whereDoc.getIdentity().toString());
