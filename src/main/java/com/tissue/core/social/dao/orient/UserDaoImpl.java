@@ -122,10 +122,12 @@ public class UserDaoImpl implements UserDao {
      * @return a user with basic info plus plans he created or joined
      */
     public User getUser(String userId) {
+        String sql = "select from " + userId;
+        logger.debug(sql);
+
         User user = null;
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "select from " + userId;
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
@@ -162,10 +164,12 @@ public class UserDaoImpl implements UserDao {
     }
 
     public String getUserIdByAccount(String accountId) {
+        String sql = "select from user where accounts in " + accountId;
+        logger.debug(sql);
+
         String userId = null;
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "select from user where accounts in " + accountId;
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
@@ -183,10 +187,12 @@ public class UserDaoImpl implements UserDao {
      * @return a user with basic info plus plans he created or joined
      */
     public Account getAccount(String accountId) {
+        String sql = "select from " + accountId;
+        logger.debug(sql);
+
         Account account = null;
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "select from " + accountId;
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
@@ -201,6 +207,8 @@ public class UserDaoImpl implements UserDao {
 
     public void addResume(String userId, String content) {
         String sql = "update " + userId + " set resume = '" + content + "'";
+        logger.debug(sql);
+
         OGraphDatabase db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -213,6 +221,7 @@ public class UserDaoImpl implements UserDao {
 
     public void inviteFriend(String fromAccountId, String toUserId, String content) {
         String sql = "create edge EdgeFriend from " + fromAccountId + " to " + toUserId + " set label = 'invite', createTime = sysdate(), content = '" + content + "'";
+        logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -225,10 +234,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<Invitation> getInvitationsReceived(String userId) {
-        List<Invitation> invitations = new ArrayList();
-        //String sql = "select @this as invitation, out as user from EdgeFriend where label = 'invite' and in in " + userId;
         String sql = "select from EdgeFriend where label = 'invite' and in in " + userId;
+        logger.debug(sql);
 
+        List<Invitation> invitations = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -293,6 +302,7 @@ public class UserDaoImpl implements UserDao {
      */
     public void declineInvitation(String id) {
         String sql = "update " + id + " set label = 'declined', updateTime = sysdate()";
+        logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -306,6 +316,8 @@ public class UserDaoImpl implements UserDao {
 
     public void acceptInvitation(String invitationId) {
         String sql = "select from " + invitationId;
+        logger.debug(sql);
+
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -322,10 +334,14 @@ public class UserDaoImpl implements UserDao {
                 String toUserId = toUserDoc.getIdentity().toString();
 
                 sql = "update " + invitationId + " set label = 'accepted', updateTime = sysdate()";
+                logger.debug(sql);
+
                 OCommandSQL cmd = new OCommandSQL(sql);
                 db.command(cmd).execute();
  
                 sql = "create edge EdgeFriend from " + fromUserId + " to " + toUserId + " set label = 'friend', updateTime = sysdate()";
+                logger.debug(sql);
+
                 cmd = new OCommandSQL(sql);
                 db.command(cmd).execute();
             }
@@ -339,6 +355,7 @@ public class UserDaoImpl implements UserDao {
         String fromId = impression.getFrom().getId();
         String toId = impression.getTo().getId();
         String sql = "create edge EdgeImpression from " + fromId + " to " + toId + " set label = 'impression', createTime = sysdate(), content = '" + impression.getContent() + "'";
+        logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -351,8 +368,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<Impression> getImpressions(String userId) {
-        List<Impression> impressions = new ArrayList();
         String sql = "select @this as impression, out as user from EdgeImpression where in in " + userId;
+        logger.debug(sql);
+
+        List<Impression> impressions = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -400,7 +419,6 @@ public class UserDaoImpl implements UserDao {
         List<Activity> activities = new ArrayList();
 
         String sql = "select from EdgeAction where (out in (select union(in[label='friend'].out, out[label='friend'].in) from " + userId + ") and (label in ['topic', 'host', 'join', 'concept', 'note', 'tutorial', 'question'])) or ( in.plan.in.out.user in " + userId + " and out.user not in " + userId + ") order by createTime desc limit " + num;
-
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
@@ -479,12 +497,13 @@ public class UserDaoImpl implements UserDao {
      * -----------------
      */
     public List<User> getNewUsers(String excludingUserId, int limit) {
-        List<User> users = new ArrayList();
         String sql = "select from user order by createTime desc limit " + limit;
         if(excludingUserId != null) {
             sql = "select from user where @this not in " + excludingUserId + " order by createTime desc limit " + limit;
         }
+        logger.debug(sql);
 
+        List<User> users = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -544,8 +563,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     public boolean isUsernameExist(String username) {
-        boolean exist = false;
         String sql = "select from user where username = '" + username + "'";
+        logger.debug(sql);
+
+        boolean exist = false;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -560,8 +581,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     public boolean isEmailExist(String email) {
-        boolean exist = false;
         String sql = "select from user where email = '" + email + "'";
+        logger.debug(sql);
+
+        boolean exist = false;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -576,8 +599,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     public boolean isEmailExist(String excludingUserId, String email) {
-        boolean exist = false;
         String sql = "select from user where email = '" + email + "' and @rid <> " + excludingUserId;
+        logger.debug(sql);
+
+        boolean exist = false;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -595,13 +620,13 @@ public class UserDaoImpl implements UserDao {
      * topic
      */
     public List<Topic> getNewTopics(String excludingUserId, int limit) {
-        List<Topic> topics = new ArrayList();
-
         String sql = "select from topic where deleted is null order by createTime desc limit " + limit;
         if(excludingUserId != null) {
             sql = "select from topic where deleted is null and in.out not in " + excludingUserId + " and plans.in.out not in " + excludingUserId + " order by createTime desc limit " + limit;
         }
+        logger.debug(sql);
 
+        List<Topic> topics = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -620,8 +645,10 @@ public class UserDaoImpl implements UserDao {
      * plan
      */
     public List<Plan> getPlans(String userId) {
-        List<Plan> plans = new ArrayList();
         String sql = "select from plan where in.out.user in " + userId;
+        logger.debug(sql);
+
+        List<Plan> plans = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -637,8 +664,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<Plan> getPlansByAccount(String accountId) {
-        List<Plan> plans = new ArrayList();
         String sql = "select from plan where in.out in " + accountId;
+        logger.debug(sql);
+
+        List<Plan> plans = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -657,9 +686,10 @@ public class UserDaoImpl implements UserDao {
      * post
      */
     public long getPostsCount(String userId) {
-        long count = 0;
         String sql = "select count(*) from Post where deleted is null and in.out.user in " + userId;
+        logger.debug(sql);
 
+        long count = 0;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -675,9 +705,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<Post> getPagedPosts(String userId, int page, int size) {
-        List<Post> posts = new ArrayList();
         String sql = "select from Post where deleted is null and in.out.user in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        logger.debug(sql);
 
+        List<Post> posts = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -701,6 +732,7 @@ public class UserDaoImpl implements UserDao {
 
             id = doc.getIdentity().toString();
             String sql = "create edge EdgePost from " + about.getUser().getId() + " to " + id + " set label = 'praise', createTime = sysdate()";
+            logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
@@ -712,9 +744,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<About> getAbouts() {
-        List<About> abouts = new ArrayList();
-
         String sql = "select in.out as user, content, createTime from about";
+        logger.debug(sql);
+
+        List<About> abouts = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
