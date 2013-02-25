@@ -4,6 +4,7 @@ import com.tissue.core.command.UserCommand;
 import com.tissue.core.social.User;
 import com.tissue.core.social.Invitation;
 import com.tissue.core.social.Impression;
+import com.tissue.core.social.About;
 import com.tissue.core.plan.Plan;
 
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -18,13 +19,16 @@ public class UserMapper {
 
     public static ODocument convertUser(UserCommand userCommand) {
         ODocument doc = new ODocument("User");
-        //doc.field("username", userCommand.getUsername());
-        //doc.field("password", userCommand.getPassword());
-        //doc.field("email", userCommand.getEmail());
         doc.field("displayName", userCommand.getDisplayName());
         doc.field("headline", userCommand.getHeadline());
         doc.field("createTime", new Date());
         doc.field("inviteLimit", 32);
+        return doc;
+    }
+
+    public static ODocument convertAbout(About about) {
+        ODocument doc = new ODocument("About");
+        doc.field("content", about.getContent());
         return doc;
     }
 
@@ -39,10 +43,6 @@ public class UserMapper {
         String headline = userDoc.field("headline", String.class);
         user.setHeadline(headline);
 
-        /**
-        String email = userDoc.field("email", String.class);
-        user.setEmail(email);
-        */
         String resume = userDoc.field("resume", String.class);
         user.setResume(resume);
 
@@ -56,7 +56,7 @@ public class UserMapper {
         if(outEdgesDoc != null) {
             for(ODocument outEdgeDoc : outEdgesDoc) {
                 String label = outEdgeDoc.field("label", String.class);
-                if("host".equals(label) || "member".equals(label)) {
+                if("hostGroup".equals(label) || "joinGroup".equals(label)) {
                     ODocument planDoc = outEdgeDoc.field("in");
                     Plan plan = PlanMapper.buildPlanSelf(planDoc);
                 }
@@ -80,8 +80,6 @@ public class UserMapper {
     }
 
     public static Invitation buildInvitationSelf(ODocument doc) {
-        System.out.println("in user mapper: " + doc); 
-
         Invitation invitation = new Invitation();
         invitation.setId(doc.getIdentity().toString());
 
@@ -93,4 +91,28 @@ public class UserMapper {
 
         return invitation;
     }
+
+    public static List<About> buildAbouts(List<ODocument> docs) {
+        List<About> abouts = new ArrayList();
+        for(ODocument doc : docs) {
+            abouts.add(buildAbout(doc));
+        }
+        return abouts;
+    }
+
+    public static About buildAbout(ODocument doc) {
+        About about = new About();
+        about.setId(doc.getIdentity().toString());
+
+        String content = doc.field("content", String.class);
+        about.setContent(content);
+
+        List<ODocument> docs = doc.field("user");
+        ODocument userDoc = docs.get(0);
+        User user = UserMapper.buildUserSelf(userDoc);
+        about.setUser(user);
+
+        return about;
+    }
+
 }

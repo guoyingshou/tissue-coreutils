@@ -57,6 +57,10 @@ public class PostMapper {
     public static Post buildPost(ODocument postDoc) {
         Post post = buildPostSelf(postDoc);
 
+        ODocument planDoc = postDoc.field("plan");
+        Plan plan = PlanMapper.buildPlan(planDoc);
+        post.setPlan(plan);
+ 
         Set<ODocument> inEdgesDoc = postDoc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
             String label = inEdgeDoc.field("label", String.class);
@@ -73,9 +77,11 @@ public class PostMapper {
     public static Post buildPostDetails(ODocument postDoc) {
         Post post = buildPost(postDoc);
 
+        /**
         ODocument planDoc = postDoc.field("plan");
         Plan plan = PlanMapper.buildPlanDetails(planDoc);
         post.setPlan(plan);
+        */
 
         if("question".equals(post.getType())) {
             Question q = new Question(post);

@@ -12,11 +12,20 @@ import com.tissue.core.social.User;
 import com.tissue.core.social.Impression;
 import com.tissue.core.social.Invitation;
 import com.tissue.core.social.Activity;
+import com.tissue.core.social.About;
 import java.util.List;
 
 public interface UserDao {
 
+    boolean isUsernameExist(String username);
+
+    boolean isEmailExist(String email);
+
+    boolean isEmailExist(String excludingUserId, String email);
+
     String create(UserCommand userCommand);
+
+    void addResume(String userId, String content);
 
     void updateProfile(ProfileCommand ProfileCommand);
 
@@ -32,13 +41,10 @@ public interface UserDao {
 
     Account getAccount(String accountId);
 
-    boolean isUsernameExist(String username);
-
-    boolean isEmailExist(String email);
-
-    boolean isEmailExist(String excludingUserId, String email);
-
-    void addResume(String userId, String content);
+    /**
+     * invitations
+     */
+    Boolean isInvitable(String userId1, String userId2);
 
     void inviteFriend(String fromId, String toId, String content);
 
@@ -50,13 +56,19 @@ public interface UserDao {
 
     void declineInvitation(String invitationId);
 
-    void addImpression(Impression impression);
-
-    List<Impression> getImpressions(String userId);
-
+    /**
+     * friends
+     */
     List<User> getFriends(String userId);
 
     Boolean isFriend(String userId1, String userId2);
+
+    /**
+     * impression
+     */
+    void addImpression(Impression impression);
+
+    List<Impression> getImpressions(String userId);
 
     /**
      * activities
@@ -68,10 +80,6 @@ public interface UserDao {
     List<Activity> getActivitiesForNewUser(int num);
 
     List<Activity> getActivities(int num);
-
-    /**
-     */
-    Boolean isInvitable(String userId1, String userId2);
 
     List<User> getNewUsers(String excludingUserId, int limit);
 
@@ -93,5 +101,12 @@ public interface UserDao {
     long getPostsCount(String userId);
 
     List<Post> getPagedPosts(String userId, int page, int size);
+
+    /**
+     * about
+     */
+    String addAbout(About about);
+
+    List<About> getAbouts();
 
 }

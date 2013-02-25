@@ -20,6 +20,7 @@ import com.tissue.core.social.User;
 import com.tissue.core.social.Impression;
 import com.tissue.core.social.Invitation;
 import com.tissue.core.social.Activity;
+import com.tissue.core.social.About;
 import com.tissue.core.social.dao.UserDao;
 
 import java.util.Date;
@@ -689,6 +690,40 @@ public class UserDaoImpl implements UserDao {
             db.close();
         }
         return posts;
+    }
+
+    public String addAbout(About about) {
+        String id = null;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = UserMapper.convertAbout(about);
+            doc.save();
+
+            id = doc.getIdentity().toString();
+            String sql = "create edge EdgePost from " + about.getUser().getId() + " to " + id + " set label = 'praise', createTime = sysdate()";
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+        }
+        finally {
+            db.close();
+        }
+        return id;
+    }
+
+    public List<About> getAbouts() {
+        List<About> abouts = new ArrayList();
+
+        String sql = "select in.out as user, content, createTime from about";
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            abouts = UserMapper.buildAbouts(docs);
+        }
+        finally {
+            db.close();
+        }
+        return abouts;
     }
 
 }
