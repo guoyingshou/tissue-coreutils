@@ -11,14 +11,12 @@ import java.io.Serializable;
 
 public class Activity implements Serializable {
 
-    //friends
-    //topic, plan, members, concept, note, tutorial, question, 
-    //postMessage, messageComment, questionComment, answer, answerComment
     protected String label;
     protected Date createTime;
 
     protected ActivityObject who;
     protected ActivityObject what;
+
     protected ActivityObject to;
     protected ActivityObject where;
 
@@ -79,14 +77,16 @@ public class Activity implements Serializable {
             args.add(what.getDisplayName());
         }
 
+        /**
         if(to != null && to.getId() != null) {
             args.add(to.getId().replace("#", ""));
             args.add(to.getDisplayName());
         }
+        */
 
         if(where != null && where.getId() != null) {
             args.add(where.getId().replace("#", ""));
-            args.add(where.getDisplayName());
+            //args.add(where.getDisplayName());
         }
 
         return args;

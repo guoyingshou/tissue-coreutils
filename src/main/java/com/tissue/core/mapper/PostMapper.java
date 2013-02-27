@@ -58,7 +58,7 @@ public class PostMapper {
         Post post = buildPostSelf(postDoc);
 
         ODocument planDoc = postDoc.field("plan");
-        Plan plan = PlanMapper.buildPlan(planDoc);
+        Plan plan = PlanMapper.buildPlanDetails(planDoc);
         post.setPlan(plan);
  
         Set<ODocument> inEdgesDoc = postDoc.field("in");
@@ -76,12 +76,6 @@ public class PostMapper {
 
     public static Post buildPostDetails(ODocument postDoc) {
         Post post = buildPost(postDoc);
-
-        /**
-        ODocument planDoc = postDoc.field("plan");
-        Plan plan = PlanMapper.buildPlanDetails(planDoc);
-        post.setPlan(plan);
-        */
 
         if("question".equals(post.getType())) {
             Question q = new Question(post);

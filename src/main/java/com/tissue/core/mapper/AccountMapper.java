@@ -30,9 +30,6 @@ public class AccountMapper {
         String username = doc.field("username", String.class);
         account.setUsername(username);
 
-        //String password = doc.field("password", String.class);
-        //account.setPassword(password);
-
         String email = doc.field("email", String.class);
         account.setEmail(email);
 

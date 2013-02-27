@@ -11,7 +11,7 @@ import com.tissue.core.mapper.PlanMapper;
 import com.tissue.core.mapper.PostMapper;
 import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.mapper.AccountMapper;
-import com.tissue.core.mapper.ActivityMapper;
+import com.tissue.core.mapper.ActivityStreamMapper;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Post;
@@ -418,16 +418,14 @@ public class UserDaoImpl implements UserDao {
     public List<Activity> getWatchedActivities(String userId, int num) {
         List<Activity> activities = new ArrayList();
 
-        String sql = "select from EdgeAction where (out in (select union(in[label='friend'].out, out[label='friend'].in) from " + userId + ") and (label in ['topic', 'host', 'join', 'concept', 'note', 'tutorial', 'question'])) or ( in.plan.in.out.user in " + userId + " and out.user not in " + userId + ") order by createTime desc limit " + num;
+        String sql = "select from EdgeAction where (label in ['topic', 'hostGrup', 'joinGroup', 'concept', 'note', 'tutorial', 'question', 'postMessage', 'postMessageComment', 'questionComment', 'answer', 'answerComment']) and (out in (select union(in[label='friend'].out, out[label='friend'].in) from " + userId + ") or ((( " + userId + " in in.plan.in.out.user ) or (" + userId + " in in.question.plan.in.out.user ) or (" + userId + " in in.post.plan.in.out.user) or (" + userId + " in in.answer.question.plan.in.out.user)) and (" + userId + " not in out.user ))) order by createTime desc limit " + num;
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            for(ODocument doc : docs) {
-                Activity activity = ActivityMapper.buildActivity(doc);
-                activities.add(activity);
-            }
+            ActivityStreamMapper mapper = new ActivityStreamMapper();
+            activities = mapper.process(docs);
         }
         finally {
             db.close();
@@ -443,10 +441,8 @@ public class UserDaoImpl implements UserDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            for(ODocument doc : docs) {
-                Activity act = ActivityMapper.buildActivity(doc);
-                activities.add(act);
-            }
+            ActivityStreamMapper mapper = new ActivityStreamMapper();
+            activities = mapper.process(docs);
         }
         finally {
             db.close();
@@ -455,17 +451,15 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<Activity> getActivitiesForNewUser(int num) {
-        String sql = "select from EdgeAction where label in ['topic', 'host', 'join', 'member', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
+        String sql = "select from EdgeAction where label in ['topic', 'hostGroup', 'joinGroup', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
         logger.debug(sql);
 
         List<Activity> activities = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            for(ODocument doc : docs) {
-                Activity act = ActivityMapper.buildActivity(doc);
-                activities.add(act);
-            }
+            ActivityStreamMapper mapper = new ActivityStreamMapper();
+            activities = mapper.process(docs);
         }
         finally {
             db.close();
@@ -474,24 +468,21 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<Activity> getActivities(int num) {
-        String sql = "select from EdgeAction where label in ['friend', 'topic', 'host', 'join', 'member', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
+        String sql = "select from EdgeAction where label in ['friend', 'topic', 'hostGroup', 'joinGroup', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
         logger.debug(sql);
 
         List<Activity> activities = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            for(ODocument doc : docs) {
-                Activity act = ActivityMapper.buildActivity(doc);
-                activities.add(act);
-            }
+            ActivityStreamMapper mapper = new ActivityStreamMapper();
+            activities = mapper.process(docs);
         }
         finally {
             db.close();
         }
         return activities;
     }
-
 
     /**
      * -----------------

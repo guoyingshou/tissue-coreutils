@@ -25,6 +25,11 @@
     </dependency>
 
     <dependency>
+        <groupId>com.tinkerpop</groupId>
+        <artifactId>pipes</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>javax</groupId>
       <artifactId>javaee-web-api</artifactId>
       <scope>provided</scope>

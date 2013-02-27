@@ -39,6 +39,7 @@ public class UserMapper {
 
         String displayName = userDoc.field("displayName", String.class);
         user.setDisplayName(displayName);
+        System.out.println(">>>displayName: " + displayName);
 
         String headline = userDoc.field("headline", String.class);
         user.setHeadline(headline);
