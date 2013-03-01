@@ -4,6 +4,7 @@ import com.tissue.core.command.UserCommand;
 import com.tissue.core.command.ProfileCommand;
 import com.tissue.core.command.EmailCommand;
 import com.tissue.core.command.PasswordCommand;
+import com.tissue.core.command.InvitationCommand;
 import com.tissue.core.exceptions.NoRecordFoundException;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.TopicMapper;
@@ -215,8 +216,8 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
-    public void inviteFriend(String fromAccountId, String toUserId, String content) {
-        String sql = "create edge EdgeFriend from " + fromAccountId + " to " + toUserId + " set label = 'invite', createTime = sysdate(), content = '" + content + "'";
+    public void inviteFriend(InvitationCommand command) {
+        String sql = "create edge EdgeFriend from " + command.getAccount().getId() + " to " + command.getUserId() + " set label = 'invite', createTime = sysdate(), content = '" + command.getLetter() + "'";
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
