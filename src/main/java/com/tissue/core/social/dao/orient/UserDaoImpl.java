@@ -23,11 +23,6 @@ import com.tissue.core.social.Activity;
 import com.tissue.core.social.About;
 import com.tissue.core.social.dao.UserDao;
 
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -40,6 +35,13 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.nio.charset.Charset;
+import com.google.common.hash.Hashing;
 
 @Component
 public class UserDaoImpl implements UserDao {
@@ -77,10 +79,7 @@ public class UserDaoImpl implements UserDao {
     public void updateProfile(ProfileCommand command) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = db.load(new ORecordId(command.getUser().getId()));
-            if(doc == null) {
-                throw new NoRecordFoundException(command.getUser().getId());
-            }
+            ODocument doc = db.load(new ORecordId(command.getAccount().getUser().getId()));
             doc.field("displayName", command.getDisplayName());
             doc.field("headline", command.getHeadline());
             db.save(doc);
@@ -93,10 +92,7 @@ public class UserDaoImpl implements UserDao {
     public void updateEmail(EmailCommand command) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = db.load(new ORecordId(command.getUser().getId()));
-            if(doc == null) {
-                throw new NoRecordFoundException(command.getUser().getId());
-            }
+            ODocument doc = db.load(new ORecordId(command.getAccount().getId()));
             doc.field("email", command.getEmail());
             db.save(doc);
         }
@@ -108,8 +104,8 @@ public class UserDaoImpl implements UserDao {
     public void updatePassword(PasswordCommand command) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = db.load(new ORecordId(command.getUser().getId()));
-            doc.field("password", command.getPassword());
+            ODocument doc = db.load(new ORecordId(command.getAccount().getId()));
+            doc.field("password", Hashing.md5().hashString(command.getPassword(), Charset.forName("utf-8")).toString());
             db.save(doc);
         }
         finally {
@@ -554,7 +550,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     public boolean isUsernameExist(String username) {
-        String sql = "select from user where username = '" + username + "'";
+        String sql = "select from account where username = '" + username + "'";
         logger.debug(sql);
 
         boolean exist = false;
@@ -572,7 +568,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     public boolean isEmailExist(String email) {
-        String sql = "select from user where email = '" + email + "'";
+        String sql = "select from account where email = '" + email + "'";
         logger.debug(sql);
 
         boolean exist = false;
@@ -590,7 +586,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     public boolean isEmailExist(String excludingUserId, String email) {
-        String sql = "select from user where email = '" + email + "' and @rid <> " + excludingUserId;
+        String sql = "select from account where email = '" + email + "' and @rid <> " + excludingUserId;
         logger.debug(sql);
 
         boolean exist = false;

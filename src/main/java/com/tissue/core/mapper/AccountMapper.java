@@ -11,13 +11,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.nio.charset.Charset;
+import com.google.common.hash.Hashing;
 
 public class AccountMapper {
 
     public static ODocument convertAccount(UserCommand userCommand) {
         ODocument doc = new ODocument("Account");
         doc.field("username", userCommand.getUsername());
-        doc.field("password", userCommand.getPassword());
+        doc.field("password", Hashing.md5().hashString(userCommand.getPassword(), Charset.forName("utf-8")).toString());
         doc.field("email", userCommand.getEmail());
         return doc;
     }

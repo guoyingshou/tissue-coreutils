@@ -1,10 +1,11 @@
 package com.tissue.core.command;
 
-import com.tissue.core.social.User;
+import com.tissue.core.social.Account;
 
 public interface ProfileCommand {
+
     String getDisplayName();
     String getHeadline();
 
-    User getUser();
+    Account getAccount();
 }
