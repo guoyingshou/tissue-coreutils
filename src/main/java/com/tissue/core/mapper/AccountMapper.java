@@ -16,11 +16,11 @@ import com.google.common.hash.Hashing;
 
 public class AccountMapper {
 
-    public static ODocument convertAccount(UserCommand userCommand) {
+    public static ODocument convertAccount(UserCommand command) {
         ODocument doc = new ODocument("Account");
-        doc.field("username", userCommand.getUsername());
-        doc.field("password", Hashing.md5().hashString(userCommand.getPassword(), Charset.forName("utf-8")).toString());
-        doc.field("email", userCommand.getEmail());
+        doc.field("username", command.getUsername());
+        doc.field("password", Hashing.md5().hashString(command.getPassword(), Charset.forName("utf-8")).toString());
+        doc.field("email", command.getEmail());
         return doc;
     }
 

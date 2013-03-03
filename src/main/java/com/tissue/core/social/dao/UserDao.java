@@ -5,6 +5,7 @@ import com.tissue.core.command.ProfileCommand;
 import com.tissue.core.command.EmailCommand;
 import com.tissue.core.command.PasswordCommand;
 import com.tissue.core.command.InvitationCommand;
+import com.tissue.core.command.ImpressionCommand;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Post;
@@ -26,7 +27,7 @@ public interface UserDao {
 
     String create(UserCommand userCommand);
 
-    void addResume(String userId, String content);
+    //void addResume(String userId, String content);
 
     void updateProfile(ProfileCommand ProfileCommand);
 
@@ -42,21 +43,7 @@ public interface UserDao {
 
     Account getAccount(String accountId);
 
-    /**
-     * invitations
-     */
-    Boolean isInvitable(String userId1, String userId2);
-
-    //void inviteFriend(String fromId, String toId, String content);
-    void inviteFriend(InvitationCommand command);
-
-    List<Invitation> getInvitationsReceived(String userId);
-
-    List<Invitation> getInvitationsSent(String userId);
-
-    void acceptInvitation(String invitationId);
-
-    void declineInvitation(String invitationId);
+    List<User> getNewUsers(String excludingUserId, int limit);
 
     /**
      * friends
@@ -66,25 +53,10 @@ public interface UserDao {
     Boolean isFriend(String userId1, String userId2);
 
     /**
-     * impression
-     */
-    void addImpression(Impression impression);
-
-    List<Impression> getImpressions(String userId);
-
-    /**
      * activities
      */
-    List<Activity> getWatchedActivities(String userId, int num);
+    List<Activity> getActivities(String userId, int num);
  
-    List<Activity> getUserActivities(String userId, int num);
-
-    List<Activity> getActivitiesForNewUser(int num);
-
-    List<Activity> getActivities(int num);
-
-    List<User> getNewUsers(String excludingUserId, int limit);
-
     /**
      * topic
      */
@@ -103,12 +75,5 @@ public interface UserDao {
     long getPostsCount(String userId);
 
     List<Post> getPagedPosts(String userId, int page, int size);
-
-    /**
-     * about
-     */
-    String addAbout(About about);
-
-    List<About> getAbouts();
 
 }

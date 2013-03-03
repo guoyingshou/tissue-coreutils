@@ -17,18 +17,12 @@ import java.util.Set;
 
 public class UserMapper {
 
-    public static ODocument convertUser(UserCommand userCommand) {
+    public static ODocument convertUser(UserCommand user) {
         ODocument doc = new ODocument("User");
-        doc.field("displayName", userCommand.getDisplayName());
-        doc.field("headline", userCommand.getHeadline());
+        doc.field("displayName", user.getDisplayName());
+        doc.field("headline", user.getHeadline());
         doc.field("createTime", new Date());
         doc.field("inviteLimit", 32);
-        return doc;
-    }
-
-    public static ODocument convertAbout(About about) {
-        ODocument doc = new ODocument("About");
-        doc.field("content", about.getContent());
         return doc;
     }
 
@@ -39,7 +33,6 @@ public class UserMapper {
 
         String displayName = userDoc.field("displayName", String.class);
         user.setDisplayName(displayName);
-        System.out.println(">>>displayName: " + displayName);
 
         String headline = userDoc.field("headline", String.class);
         user.setHeadline(headline);
@@ -81,6 +74,27 @@ public class UserMapper {
     }
 
     public static Invitation buildInvitationSelf(ODocument doc) {
+        ODocument fromDoc = doc.field("out");
+        ODocument fromUserDoc = fromDoc.field("user");
+        User invitor = UserMapper.buildUserSelf(fromUserDoc);
+
+        //"in" is a user
+        ODocument toUserDoc = doc.field("in");
+        User invitee = UserMapper.buildUserSelf(toUserDoc);
+
+        String content = doc.field("content", String.class);
+        Date createTime = doc.field("createTime", Date.class);
+
+        Invitation invitation = new Invitation();
+        invitation.setId(doc.getIdentity().toString());
+        invitation.setInvitor(invitor);
+        invitation.setInvitee(invitee);
+        invitation.setContent(content);
+        invitation.setCreateTime(createTime);
+
+        return invitation;
+
+        /**
         Invitation invitation = new Invitation();
         invitation.setId(doc.getIdentity().toString());
 
@@ -91,29 +105,7 @@ public class UserMapper {
         invitation.setCreateTime(createTime);
 
         return invitation;
-    }
-
-    public static List<About> buildAbouts(List<ODocument> docs) {
-        List<About> abouts = new ArrayList();
-        for(ODocument doc : docs) {
-            abouts.add(buildAbout(doc));
-        }
-        return abouts;
-    }
-
-    public static About buildAbout(ODocument doc) {
-        About about = new About();
-        about.setId(doc.getIdentity().toString());
-
-        String content = doc.field("content", String.class);
-        about.setContent(content);
-
-        List<ODocument> docs = doc.field("user");
-        ODocument userDoc = docs.get(0);
-        User user = UserMapper.buildUserSelf(userDoc);
-        about.setUser(user);
-
-        return about;
+        */
     }
 
 }

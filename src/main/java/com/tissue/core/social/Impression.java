@@ -1,6 +1,7 @@
 package com.tissue.core.social;
 
-//import com.tissue.core.util.OrientIdentityUtil;
+import com.tissue.core.social.User;
+import com.tissue.core.social.Account;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -10,8 +11,8 @@ public class Impression implements Serializable {
     private String content;
     private Date createTime;
 
-    private User from;
-    private User to;
+    private User user;
+    private Account account;
 
     public void setId(String id) {
         this.id = id;
@@ -37,20 +38,20 @@ public class Impression implements Serializable {
         return createTime;
     }
 
-    public void setFrom(User from) {
-        this.from = from;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public User getFrom() {
-        return from;
+    public User getUser() {
+        return user;
     }
 
-    public void setTo(User to) {
-        this.to = to;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
-    public User getTo() {
-        return to;
+    public Account getAccount() {
+        return account;
     }
     
 }

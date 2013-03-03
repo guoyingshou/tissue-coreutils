@@ -4,7 +4,6 @@ import com.tissue.core.command.UserCommand;
 import com.tissue.core.command.ProfileCommand;
 import com.tissue.core.command.EmailCommand;
 import com.tissue.core.command.PasswordCommand;
-import com.tissue.core.command.InvitationCommand;
 import com.tissue.core.exceptions.NoRecordFoundException;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.TopicMapper;
@@ -18,10 +17,7 @@ import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Post;
 import com.tissue.core.social.Account;
 import com.tissue.core.social.User;
-import com.tissue.core.social.Impression;
-import com.tissue.core.social.Invitation;
 import com.tissue.core.social.Activity;
-import com.tissue.core.social.About;
 import com.tissue.core.social.dao.UserDao;
 
 import org.springframework.stereotype.Component;
@@ -216,179 +212,6 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
-    public void inviteFriend(InvitationCommand command) {
-        String sql = "create edge EdgeFriend from " + command.getAccount().getId() + " to " + command.getUserId() + " set label = 'invite', createTime = sysdate(), content = '" + command.getLetter() + "'";
-        logger.debug(sql);
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-        }
-        finally {
-            db.close();
-        }
-    }
-
-    public List<Invitation> getInvitationsReceived(String userId) {
-        String sql = "select from EdgeFriend where label = 'invite' and in in " + userId;
-        logger.debug(sql);
-
-        List<Invitation> invitations = new ArrayList();
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            for(ODocument doc : docs) {
-                //Invitation invitation = UserMapper.buildInvitationSelf(doc);
-
-                //"out" is an account
-                ODocument fromDoc = doc.field("out");
-                ODocument fromUserDoc = fromDoc.field("user");
-                User invitor = UserMapper.buildUserSelf(fromUserDoc);
-
-                //"in" is a user
-                ODocument toUserDoc = doc.field("in");
-                User invitee = UserMapper.buildUserSelf(toUserDoc);
-
-                String content = doc.field("content", String.class);
-                Date createTime = doc.field("createTime", Date.class);
-
-                Invitation invitation = new Invitation();
-                invitation.setId(doc.getIdentity().toString());
-                invitation.setInvitor(invitor);
-                invitation.setInvitee(invitee);
-                invitation.setContent(content);
-                invitation.setCreateTime(createTime);
-
-                invitations.add(invitation);
-            }
-        }
-        finally {
-            db.close();
-        }
-        return invitations;
-    }
-
-    public List<Invitation> getInvitationsSent(String userId) {
-        List<Invitation> invitations = new ArrayList();
-
-        String sql = "select @this as invitation, in as user from EdgeFriend where label = 'invite' and out in " + userId;
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            for(ODocument doc : docs) {
-                ODocument invDoc = doc.field("invitation");
-                Invitation invitation = UserMapper.buildInvitationSelf(invDoc);
-
-                ODocument userDoc = doc.field("user");
-                User user = UserMapper.buildUserSelf(userDoc);
-                invitation.setInvitee(user);
-
-                invitations.add(invitation);
-            }
-        }
-        finally {
-            db.close();
-        }
-        return invitations;
-    }
-
-    /**
-     * @param id id of an ographedge instance
-     */
-    public void declineInvitation(String id) {
-        String sql = "update " + id + " set label = 'declined', updateTime = sysdate()";
-        logger.debug(sql);
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-         }
-        finally {
-            db.close();
-        }
-    }
-
-    public void acceptInvitation(String invitationId) {
-        String sql = "select from " + invitationId;
-        logger.debug(sql);
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-
-                //"out" refer to an accout
-                ODocument fromDoc = doc.field("out");
-                ODocument fromUserDoc = fromDoc.field("user");
-                String fromUserId = fromUserDoc.getIdentity().toString();
-
-                //"in" refer to an user
-                ODocument toUserDoc = doc.field("in");
-                String toUserId = toUserDoc.getIdentity().toString();
-
-                sql = "update " + invitationId + " set label = 'accepted', updateTime = sysdate()";
-                logger.debug(sql);
-
-                OCommandSQL cmd = new OCommandSQL(sql);
-                db.command(cmd).execute();
- 
-                sql = "create edge EdgeFriend from " + fromUserId + " to " + toUserId + " set label = 'friend', updateTime = sysdate()";
-                logger.debug(sql);
-
-                cmd = new OCommandSQL(sql);
-                db.command(cmd).execute();
-            }
-        }
-        finally {
-            db.close();
-        }
-    }
-
-    public void addImpression(Impression impression) {
-        String fromId = impression.getFrom().getId();
-        String toId = impression.getTo().getId();
-        String sql = "create edge EdgeImpression from " + fromId + " to " + toId + " set label = 'impression', createTime = sysdate(), content = '" + impression.getContent() + "'";
-        logger.debug(sql);
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-         }
-        finally {
-            db.close();
-        }
-    }
-
-    public List<Impression> getImpressions(String userId) {
-        String sql = "select @this as impression, out as user from EdgeImpression where in in " + userId;
-        logger.debug(sql);
-
-        List<Impression> impressions = new ArrayList();
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            for(ODocument doc : docs) {
-                ODocument impDoc = doc.field("impression");
-                Impression impression = UserMapper.buildImpressionSelf(impDoc);
-
-                ODocument userDoc = doc.field("user");
-                User user = UserMapper.buildUserSelf(userDoc);
-                impression.setFrom(user);
-
-                impressions.add(impression);
-            }
-        }
-        finally {
-            db.close();
-        }
-        return impressions;
-    }
-
     public List<User> getFriends(String userId) {
         String sql = "select union(in[label='friend'].out, out[label='friend'].in) as friends from " + userId;
         logger.debug(sql);
@@ -412,63 +235,12 @@ public class UserDaoImpl implements UserDao {
         return friends;
     }
 
-    public List<Activity> getWatchedActivities(String userId, int num) {
+    public List<Activity> getActivities(String userId, int num) {
         List<Activity> activities = new ArrayList();
 
-        String sql = "select from EdgeAction where (label in ['topic', 'hostGrup', 'joinGroup', 'concept', 'note', 'tutorial', 'question', 'postMessage', 'postMessageComment', 'questionComment', 'answer', 'answerComment']) and (out in (select union(in[label='friend'].out, out[label='friend'].in) from " + userId + ") or ((( " + userId + " in in.plan.in.out.user ) or (" + userId + " in in.question.plan.in.out.user ) or (" + userId + " in in.post.plan.in.out.user) or (" + userId + " in in.answer.question.plan.in.out.user)) and (" + userId + " not in out.user ))) order by createTime desc limit " + num;
+        String sql = "select from EdgeAction where out.user in (select union(in[label='friend'].out, out[label='friend'].in) from " + userId + ") or (out in (select in.out from (select from plan where in.out.user in " + userId + ")) and out.user not in " + userId + ") order by createTime desc limit " + num;
         logger.debug(sql);
 
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            ActivityStreamMapper mapper = new ActivityStreamMapper();
-            activities = mapper.process(docs);
-        }
-        finally {
-            db.close();
-        }
-        return activities;
-    }
-
-    public List<Activity> getUserActivities(String userId, int num) {
-        String sql = "select from EdgeAction where out.user in " + userId + " order by createTime desc";
-        logger.debug(sql);
-
-        List<Activity> activities = new ArrayList();
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            ActivityStreamMapper mapper = new ActivityStreamMapper();
-            activities = mapper.process(docs);
-        }
-        finally {
-            db.close();
-        }
-        return activities;
-    }
-
-    public List<Activity> getActivitiesForNewUser(int num) {
-        String sql = "select from EdgeAction where label in ['topic', 'hostGroup', 'joinGroup', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
-        logger.debug(sql);
-
-        List<Activity> activities = new ArrayList();
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            ActivityStreamMapper mapper = new ActivityStreamMapper();
-            activities = mapper.process(docs);
-        }
-        finally {
-            db.close();
-        }
-        return activities;
-    }
-
-    public List<Activity> getActivities(int num) {
-        String sql = "select from EdgeAction where label in ['friend', 'topic', 'hostGroup', 'joinGroup', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
-        logger.debug(sql);
-
-        List<Activity> activities = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -522,32 +294,6 @@ public class UserDaoImpl implements UserDao {
             db.close();
         }
         return friend;
-    }
-
-    /**
-     * Determine whether or not userId1 and userId2 can invite each other.
-     * If userId1 had invited userId2 or userId2 had invited userId1 no matter
-     * the invitation is accepted or denied, they cann't invite again.
-     *
-     * The invitation's out property is a link to an account while in property
-     * is a link to a user.
-     */
-    public Boolean isInvitable(String userId1, String userId2) {
-        Boolean invitable = true;
-        String sql = "select from EdgeFriend where (label in ['invite', 'accepted', 'declined']) and ((out.user in " + userId1 + " and in in " + userId2 + ") or (out.user in " + userId2 + " and in in " + userId1 + "))";
-        logger.debug(sql);
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(docs.size() > 0) {
-               invitable = false;
-            }
-        }
-        finally {
-            db.close();
-        }
-        return invitable;
     }
 
     public boolean isUsernameExist(String username) {
@@ -710,41 +456,4 @@ public class UserDaoImpl implements UserDao {
         }
         return posts;
     }
-
-    public String addAbout(About about) {
-        String id = null;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = UserMapper.convertAbout(about);
-            doc.save();
-
-            id = doc.getIdentity().toString();
-            String sql = "create edge EdgePost from " + about.getUser().getId() + " to " + id + " set label = 'praise', createTime = sysdate()";
-            logger.debug(sql);
-
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-        }
-        finally {
-            db.close();
-        }
-        return id;
-    }
-
-    public List<About> getAbouts() {
-        String sql = "select in.out as user, content, createTime from about";
-        logger.debug(sql);
-
-        List<About> abouts = new ArrayList();
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            abouts = UserMapper.buildAbouts(docs);
-        }
-        finally {
-            db.close();
-        }
-        return abouts;
-    }
-
 }
