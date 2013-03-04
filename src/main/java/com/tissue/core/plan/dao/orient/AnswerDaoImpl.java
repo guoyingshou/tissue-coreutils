@@ -69,6 +69,7 @@ public class AnswerDaoImpl implements AnswerDao {
         }
     }
 
+    /**
     public void delete(String answerId) {
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -80,5 +81,6 @@ public class AnswerDaoImpl implements AnswerDao {
             db.close();
         }
     }
+    */
 
 }

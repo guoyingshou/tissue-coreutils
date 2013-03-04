@@ -16,7 +16,6 @@ public interface CommonDao {
      */
     boolean isMemberOrOwner(String userId, String postId);
 
-    //void delete(String rid);
-    void delete(ItemCommand command);
+    void delete(String rid);
 
 }

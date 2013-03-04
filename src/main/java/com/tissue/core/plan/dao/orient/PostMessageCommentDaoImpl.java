@@ -74,6 +74,7 @@ public class PostMessageCommentDaoImpl implements PostMessageCommentDao {
         }
     }
 
+    /**
     public void delete(String commentId) {
         //String ridComment = OrientIdentityUtil.decode(commentId);
         String sql = "update " + commentId + " set status = 'deleted'";
@@ -89,4 +90,5 @@ public class PostMessageCommentDaoImpl implements PostMessageCommentDao {
             db.close();
         }
     }
+    */
 }

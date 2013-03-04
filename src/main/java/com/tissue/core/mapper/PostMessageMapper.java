@@ -56,8 +56,8 @@ public class PostMessageMapper {
         List<ODocument> commentsDoc = messageDoc.field("comments");
         if(commentsDoc != null) {
             for(ODocument commentDoc : commentsDoc) {
-                String status = commentDoc.field("status", String.class);
-                if(status == null) {
+                String deleted = commentDoc.field("deleted", String.class);
+                if(deleted == null) {
                     PostMessageComment comment = PostMessageCommentMapper.buildPostMessageComment(commentDoc);
                     message.addComment(comment);
                 }

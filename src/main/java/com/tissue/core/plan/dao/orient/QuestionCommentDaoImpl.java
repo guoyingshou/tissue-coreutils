@@ -66,6 +66,7 @@ public class QuestionCommentDaoImpl implements QuestionCommentDao {
         }
     }
 
+    /**
     public void delete(String commentId) {
         String sql = "update " + commentId + " set status = 'deleted'";
 
@@ -78,5 +79,6 @@ public class QuestionCommentDaoImpl implements QuestionCommentDao {
             db.close();
         }
     }
+    */
 
 }

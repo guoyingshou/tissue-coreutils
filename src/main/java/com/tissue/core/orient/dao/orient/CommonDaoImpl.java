@@ -14,8 +14,14 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 public class CommonDaoImpl implements CommonDao {
+
+    private static Logger logger = LoggerFactory.getLogger(CommonDaoImpl.class);
+
     @Autowired
     protected OrientDataSource dataSource;
 
@@ -68,8 +74,9 @@ public class CommonDaoImpl implements CommonDao {
         return memberOrOwner;
     }
 
-    public void delete(ItemCommand command) {
-        String sql = "update " + command.getId() + " set deleted = true, reason = '" + command.getContent() + "', editor = " + command.getAccount().getId();
+    public void delete(String rid) {
+        String sql = "update " + rid + " set deleted = true";
+        logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
         try {

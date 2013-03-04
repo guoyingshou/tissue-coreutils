@@ -13,5 +13,4 @@ public interface PostMessageCommentDao {
 
     void update(PostMessageCommentCommand command);
  
-    void delete(String commentId);
 }

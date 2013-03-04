@@ -74,13 +74,12 @@ public class PostMessageDaoImpl implements PostMessageDao {
         }
     }
 
+    /**
     public void delete(String messageId) {
-        //String ridMessage = OrientIdentityUtil.decode(messageId);
         String sql = "update " + messageId + " set status = 'deleted'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
@@ -89,4 +88,5 @@ public class PostMessageDaoImpl implements PostMessageDao {
             db.close();
         }
     }
+    */
 }

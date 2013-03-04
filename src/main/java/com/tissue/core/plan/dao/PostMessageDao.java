@@ -13,6 +13,5 @@ public interface PostMessageDao {
 
     void update(PostMessageCommand command);
 
-    void delete(String messageId);
 
 }

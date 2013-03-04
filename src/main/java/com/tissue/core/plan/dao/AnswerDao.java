@@ -14,6 +14,5 @@ public interface AnswerDao {
 
     void update(AnswerCommand command);
 
-    void delete(String answerId);
 
 }

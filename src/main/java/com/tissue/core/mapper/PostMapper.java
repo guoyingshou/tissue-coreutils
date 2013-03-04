@@ -82,8 +82,8 @@ public class PostMapper {
             List<ODocument> questionCommentsDoc = postDoc.field("comments");
             if(questionCommentsDoc != null) {
                 for(ODocument commentDoc : questionCommentsDoc) {
-                    String status = commentDoc.field("status", String.class);
-                    if(status == null) {
+                    String deleted = commentDoc.field("deleted", String.class);
+                    if(deleted == null) {
                         QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
                         q.addComment(comment);
                     }
@@ -92,8 +92,8 @@ public class PostMapper {
             List<ODocument> answersDoc = postDoc.field("answers");
             if(answersDoc != null) {
                 for(ODocument answerDoc : answersDoc) {
-                    String status = answerDoc.field("status", String.class);
-                    if(status == null) {
+                    String deleted = answerDoc.field("deleted", String.class);
+                    if(deleted == null) {
                         Answer answer = AnswerMapper.buildAnswerDetails(answerDoc);
                         q.addAnswer(answer);
                     }
@@ -106,8 +106,8 @@ public class PostMapper {
             List<ODocument> messagesDoc = postDoc.field("messages");
             if(messagesDoc != null) {
                 for(ODocument messageDoc : messagesDoc) {
-                    String status = messageDoc.field("status", String.class);
-                    if(status == null) {
+                    String deleted = messageDoc.field("deleted", String.class);
+                    if(deleted == null) {
                         PostMessage postMessage = PostMessageMapper.buildPostMessageDetails(messageDoc);
                         cnt.addPostMessage(postMessage);
                     }

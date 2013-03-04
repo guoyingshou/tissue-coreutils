@@ -67,6 +67,7 @@ public class AnswerCommentDaoImpl implements AnswerCommentDao {
         }
     }
 
+    /**
     public void delete(String commentId) {
         OGraphDatabase db = dataSource.getDB();
 
@@ -79,5 +80,6 @@ public class AnswerCommentDaoImpl implements AnswerCommentDao {
             db.close();
         }
     }
+    */
 
 }
