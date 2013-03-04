@@ -55,4 +55,21 @@ public class Account implements Serializable {
     public User getUser() {
         return user;
     }
+
+    public boolean equals(Object obj) {
+        if(this == obj) {
+            return true;
+        }
+        if(obj == null || (obj.getClass() != this.getClass())) {
+            return false;
+        }
+        Account that = (Account)obj;
+        return username.equals(that.username);
+    }
+
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + username.hashCode();
+        return hash;
+    }
 }

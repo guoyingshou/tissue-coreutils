@@ -13,7 +13,6 @@ public class Command implements ItemCommand, Serializable {
 
     private String id;
 
-    @NotNull
     @NotEmpty
     private String content;
 
