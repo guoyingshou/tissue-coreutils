@@ -19,9 +19,13 @@ import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 public class UserDetailsDaoImpl implements UserDetailsDao {
 
+    private Logger logger = LoggerFactory.getLogger(UserDetailsDaoImpl.class);
 
     @Autowired
     private OrientDataSource dataSource;
@@ -31,12 +35,13 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
     }
 
     public UserDetailsImpl getUserByUsername(String username) {
-        UserDetailsImpl userDetails = null;
+        String sql = "select from Account where username = '" + username + "' or email = '" + username + "'";
+        logger.debug(sql);
 
+        UserDetailsImpl userDetails = null;
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sqlUsername = "select from Account where username = ?";
-            OSQLSynchQuery<ODocument> query = new OSQLSynchQuery(sqlUsername);
+            OSQLSynchQuery<ODocument> query = new OSQLSynchQuery(sql);
             List<ODocument> result = db.command(query).execute(username);
             if(!result.isEmpty()) {
                 ODocument doc = result.get(0);
