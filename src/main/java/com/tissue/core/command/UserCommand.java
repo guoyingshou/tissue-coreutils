@@ -13,8 +13,4 @@ public interface UserCommand {
     String getDisplayName();
     String getHeadline();
 
-    /**
-    User getUser();
-    Account getAccount();
-    */
 }

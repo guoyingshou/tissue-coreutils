@@ -49,7 +49,7 @@ public class UserDaoImpl implements UserDao {
     protected OrientDataSource dataSource;
 
     public String create(UserCommand userCommand) {
-        String userId;
+        String accountId;
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -65,12 +65,12 @@ public class UserDaoImpl implements UserDao {
             accountDoc.field("user", userDoc.getIdentity());
             accountDoc.save();
 
-            userId = userDoc.getIdentity().toString();
+            accountId = accountDoc.getIdentity().toString();
         }
         finally {
            db.close();
         }
-        return userId;
+        return accountId;
     }
 
     public void updateProfile(ProfileCommand command) {
