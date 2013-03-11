@@ -198,6 +198,7 @@ public class UserDaoImpl implements UserDao {
         return account;
     }
 
+    /**
     public void addResume(String userId, String content) {
         String sql = "update " + userId + " set resume = '" + content + "'";
         logger.debug(sql);
@@ -211,6 +212,7 @@ public class UserDaoImpl implements UserDao {
             db.close();
         }
     }
+    */
 
     public List<User> getFriends(String userId) {
         String sql = "select union(in[label='friend'].out, out[label='friend'].in) as friends from " + userId;

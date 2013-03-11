@@ -27,8 +27,6 @@ public interface UserDao {
 
     String create(UserCommand userCommand);
 
-    //void addResume(String userId, String content);
-
     void updateProfile(ProfileCommand ProfileCommand);
 
     void updateEmail(EmailCommand command);
