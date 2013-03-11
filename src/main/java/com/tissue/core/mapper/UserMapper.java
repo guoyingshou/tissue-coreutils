@@ -73,6 +73,7 @@ public class UserMapper {
         return impression;
     }
 
+    /**
     public static Invitation buildInvitationSelf(ODocument doc) {
         ODocument fromDoc = doc.field("out");
         ODocument fromUserDoc = fromDoc.field("user");
@@ -93,19 +94,7 @@ public class UserMapper {
         invitation.setCreateTime(createTime);
 
         return invitation;
-
-        /**
-        Invitation invitation = new Invitation();
-        invitation.setId(doc.getIdentity().toString());
-
-        String content = doc.field("content", String.class);
-        invitation.setContent(content);
-
-        Date createTime = doc.field("createTime", Date.class);
-        invitation.setCreateTime(createTime);
-
-        return invitation;
-        */
     }
+    */
 
 }

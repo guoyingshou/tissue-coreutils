@@ -19,18 +19,18 @@ import java.util.List;
 
 public interface InvitationDao {
 
-    Boolean isInvitable(String userId1, String userId2);
+    Boolean isInvitable(String ownerId, Account viewerAccount);
 
-    void inviteFriend(InvitationCommand command);
+    String create(InvitationCommand command);
 
     Invitation getInvitation(String invitationId);
 
     List<Invitation> getInvitationsReceived(String userId);
 
-    List<Invitation> getInvitationsSent(String userId);
-
-    void acceptInvitation(Invitation invitation);
+    //List<Invitation> getInvitationsSent(String userId);
 
     void declineInvitation(Invitation invitation);
+
+    void acceptInvitation(Invitation invitation);
 
 }

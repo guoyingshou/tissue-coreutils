@@ -13,6 +13,7 @@ import com.tissue.core.mapper.PlanMapper;
 import com.tissue.core.mapper.PostMapper;
 import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.mapper.AccountMapper;
+import com.tissue.core.mapper.InvitationMapper;
 import com.tissue.core.mapper.ActivityStreamMapper;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
@@ -53,52 +54,16 @@ public class InvitationDaoImpl implements InvitationDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public void inviteFriend(InvitationCommand command) {
-        String sql = "create edge EdgeFriend from " + command.getAccount().getId() + " to " + command.getUserId() + " set label = 'invite', createTime = sysdate(), content = '" + command.getLetter() + "'";
+    public String create(InvitationCommand command) {
+        String sql = "create edge EdgeInvitation from " + command.getFrom().getId() + " to " + command.getTo().getId() + " set label = 'invite', createTime = sysdate(), content = '" + command.getContent() + "'";
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-        }
-        finally {
-            db.close();
-        }
-    }
+            Object obj = db.command(cmd).execute();
 
-    /**
-     * @param invitation
-     */
-    public void declineInvitation(Invitation invitation) {
-        String sql = "update " + invitation.getId() + " set label = 'declined', updateTime = sysdate()";
-        logger.debug(sql);
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-         }
-        finally {
-            db.close();
-        }
-    }
-
-    public void acceptInvitation(Invitation invitation) {
-
-        String sql = "update " + invitation.getId() + " set label = 'accepted', updateTime = sysdate()";
-        logger.debug(sql);
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
- 
-            sql = "create edge EdgeFriend from " + invitation.getInvitee().getId() + " to " + invitation.getInvitor().getId() + " set label = 'friend', updateTime = sysdate()";
-            logger.debug(sql);
-
-            cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
+            return obj.toString();
         }
         finally {
             db.close();
@@ -115,7 +80,7 @@ public class InvitationDaoImpl implements InvitationDao {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
-                invitation = UserMapper.buildInvitationSelf(doc);
+                invitation = InvitationMapper.buildInvitation(doc);
             }
         }
         finally {
@@ -125,7 +90,7 @@ public class InvitationDaoImpl implements InvitationDao {
     }
 
     public List<Invitation> getInvitationsReceived(String userId) {
-        String sql = "select from EdgeFriend where label = 'invite' and in in " + userId;
+        String sql = "select from EdgeInvitation where label = 'invite' and in in " + userId;
         logger.debug(sql);
 
         List<Invitation> invitations = new ArrayList();
@@ -133,7 +98,7 @@ public class InvitationDaoImpl implements InvitationDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                Invitation invitation = UserMapper.buildInvitationSelf(doc);
+                Invitation invitation = InvitationMapper.buildInvitation(doc);
                 invitations.add(invitation);
             }
         }
@@ -143,6 +108,7 @@ public class InvitationDaoImpl implements InvitationDao {
         return invitations;
     }
 
+    /**
     public List<Invitation> getInvitationsSent(String userId) {
         List<Invitation> invitations = new ArrayList();
 
@@ -167,18 +133,50 @@ public class InvitationDaoImpl implements InvitationDao {
         }
         return invitations;
     }
+    */
+
+    public void declineInvitation(Invitation invitation) {
+        String sql = "update " + invitation.getId() + " set label = 'declined', updateTime = sysdate()";
+        logger.debug(sql);
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+         }
+        finally {
+            db.close();
+        }
+    }
+
+    public void acceptInvitation(Invitation invitation) {
+
+        String sql = "update " + invitation.getId() + " set label = 'accepted', updateTime = sysdate()";
+        logger.debug(sql);
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+ 
+            sql = "create edge EdgeFriend from " + invitation.getTo().getId() + " to " + invitation.getFrom().getUser().getId() + " set label = 'friend', updateTime = sysdate()";
+            logger.debug(sql);
+
+            cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+        }
+        finally {
+            db.close();
+        }
+    }
 
     /**
-     * Determine whether or not userId1 and userId2 can invite each other.
-     * If userId1 had invited userId2 or userId2 had invited userId1 no matter
-     * the invitation is accepted or denied, they cann't invite again.
-     *
      * The invitation's out property is a link to an account while in property
      * is a link to a user.
      */
-    public Boolean isInvitable(String userId1, String userId2) {
+    public Boolean isInvitable(String ownerId, Account viewerAccount) {
         Boolean invitable = true;
-        String sql = "select from EdgeFriend where (label in ['invite', 'accepted', 'declined']) and ((out.user in " + userId1 + " and in in " + userId2 + ") or (out.user in " + userId2 + " and in in " + userId1 + "))";
+        String sql = "select from EdgeInvitation where (out in " + viewerAccount.getId() + " and in in " + ownerId + ") or (out.user in " + ownerId  + " and in.accounts contains " + viewerAccount.getId();
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();

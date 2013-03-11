@@ -198,36 +198,26 @@ public class UserDaoImpl implements UserDao {
         return account;
     }
 
-    /**
-    public void addResume(String userId, String content) {
-        String sql = "update " + userId + " set resume = '" + content + "'";
-        logger.debug(sql);
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-        }
-        finally {
-            db.close();
-        }
-    }
-    */
-
     public List<User> getFriends(String userId) {
-        String sql = "select union(in[label='friend'].out, out[label='friend'].in) as friends from " + userId;
+        String sql = "select in[label='friend'].out, out[label='friend'].in from " + userId;
         logger.debug(sql);
 
         List<User> friends = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                List<ODocument> friendsDoc = doc.field("friends");
-                for(ODocument friendDoc : friendsDoc) {
-                    User friend = UserMapper.buildUserSelf(friendDoc);
-                    friends.add(friend);
+            for(ODocument doc : docs) {
+
+                ODocument inDoc = doc.field("in");
+                if(inDoc != null) {
+                    User user = UserMapper.buildUserSelf(inDoc);
+                    friends.add(user);
+                }
+
+                ODocument outDoc = doc.field("out");
+                if(outDoc != null) {
+                    User user = UserMapper.buildUserSelf(outDoc);
+                    friends.add(user);
                 }
             }
         }
@@ -240,7 +230,7 @@ public class UserDaoImpl implements UserDao {
     public List<Activity> getActivities(String userId, int num) {
         List<Activity> activities = new ArrayList();
 
-        String sql = "select from EdgeAction where out.user in (select union(in[label='friend'].out, out[label='friend'].in) from " + userId + ") or (out in (select in.out from (select from plan where in.out.user in " + userId + ")) and out.user not in " + userId + ") order by createTime desc limit " + num;
+        String sql = "select from EdgeAction where out.user in (select in[label='friend'].out from " + userId + ") or out.user in (select out[label='friend'].in from " + userId + ") or (out in (select in.out from (select from plan where in.out.user in " + userId + ")) and out.user not in " + userId + ") order by createTime desc limit " + num;
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
