@@ -4,6 +4,7 @@ import com.tissue.core.command.TopicCommand;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Post;
+import com.tissue.core.plan.Question;
 import java.util.List;
 
 public interface TopicDao {
@@ -38,6 +39,14 @@ public interface TopicDao {
     long getPostsCountByType(String topicId, String type);
 
     List<Post> getPagedPostsByType(String topicId, String type, int page, int size);
+
+    /**
+     * questions
+     */
+    long getQuestionsCount(String topicId);
+
+    List<Question> getPagedQuestions(String topicId, int page, int size);
+
 
 
 }

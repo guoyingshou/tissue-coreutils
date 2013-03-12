@@ -1,6 +1,6 @@
 package com.tissue.core.social;
 
-import com.tissue.core.util.TimeFormat;
+import com.tissue.core.TimeFormat;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -93,44 +93,8 @@ public class Activity implements Serializable {
     }
 
     public TimeFormat getTimeBefore() {
-        return new TimeFormat() {
-            public int getYears() {
-                return getPeriod().getYears();
-            }
+        return new TimeFormat(new DateTime(createTime), new DateTime());
 
-            public int getMonths() {
-                return getPeriod().getMonths();
-            }
-
-            public int getWeeks() {
-                return getPeriod().getWeeks();
-            }
-
-            public int getDays() {
-                return getPeriod().getDays();
-            }
-
-            public int getHours() {
-                return getPeriod().getHours();
-            }
-
-            public int getMinutes() {
-                return getPeriod().getMinutes();
-            }
-
-            public int getSeconds() {
-                return getPeriod().getSeconds();
-            }
-        };
     }
-
-    private Period getPeriod() {
-        DateTime now = new DateTime();
-        DateTime end = new DateTime(createTime);
-
-        Period p = new Period(end, now);
-        return p;
-    }
-
 
 }

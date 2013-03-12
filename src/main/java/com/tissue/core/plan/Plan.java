@@ -1,7 +1,8 @@
 package com.tissue.core.plan;
 
 import com.tissue.core.social.Account;
-import com.tissue.core.util.TimeFormat;
+import com.tissue.core.TimeFormat;
+import com.tissue.core.social.Account;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -9,12 +10,56 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Plan extends Parent {
+public class Plan {
 
+    protected String id;
     private Integer duration;
 
+    protected Date createTime;
+    private boolean deleted = false;
+
+    protected Account account;
     private Topic topic;
     private List<Account> members;
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public boolean isOwner(String viewerAccountId) {
+        if((viewerAccountId != null) && viewerAccountId.equals(account.getId())) {
+            return true;
+        }
+        return false;
+    }
 
     public void setDuration(Integer duration) {
         this.duration = duration;
@@ -75,44 +120,29 @@ public class Plan extends Parent {
     }
 
     public TimeFormat getTimeRemaining() {
-        return new TimeFormat() {
-            public int getYears() {
-                return getPeriod().getYears();
-            }
-
-            public int getMonths() {
-                return getPeriod().getMonths();
-            }
-
-            public int getWeeks() {
-                return getPeriod().getWeeks();
-            }
-
-            public int getDays() {
-                return getPeriod().getDays();
-            }
-
-            public int getHours() {
-                return getPeriod().getHours();
-            }
-
-            public int getMinutes() {
-                return getPeriod().getMinutes();
-            }
-
-            public int getSeconds() {
-                return getPeriod().getSeconds();
-            }
-
-        };
+        return new TimeFormat(new DateTime(), new DateTime(createTime).plusMonths(duration));
     }
 
+    public TimeFormat getTimeBefore() {
+        return new TimeFormat(new DateTime(getCreateTime()), new DateTime());
+    }
+
+    /**
     private Period getPeriod() {
+        DateTime start = new DateTime(getCreateTime());
+        DateTime now = new DateTime();
+
+        Period p = new Period(start, now);
+        return p;
+    }
+
+    private Period getEndPeriod() {
         DateTime now = new DateTime();
         DateTime end = new DateTime(createTime).plusMonths(duration);
 
         Period p = new Period(now, end);
         return p;
     }
+    */
 
 }

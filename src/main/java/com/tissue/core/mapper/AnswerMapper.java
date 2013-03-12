@@ -4,7 +4,7 @@ import com.tissue.core.command.AnswerCommand;
 import com.tissue.core.social.Account;
 import com.tissue.core.plan.Answer;
 import com.tissue.core.plan.AnswerComment;
-import com.tissue.core.plan.Post;
+import com.tissue.core.plan.Question;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
@@ -41,9 +41,9 @@ public class AnswerMapper {
                 break;
             }
         }
-        ODocument postDoc = answerDoc.field("question");
-        Post post = PostMapper.buildPost(postDoc);
-        answer.setQuestion(post);
+        ODocument qDoc = answerDoc.field("question");
+        Question question = QuestionMapper.buildQuestion(qDoc);
+        answer.setQuestion(question);
         return answer;
     }
 

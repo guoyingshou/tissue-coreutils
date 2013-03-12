@@ -3,7 +3,6 @@ package com.tissue.core.mapper;
 import com.tissue.core.command.PostCommand;
 import com.tissue.core.social.Account;
 import com.tissue.core.plan.Post;
-import com.tissue.core.plan.Cnt;
 import com.tissue.core.plan.PostMessage;
 import com.tissue.core.plan.Question;
 import com.tissue.core.plan.QuestionComment;
@@ -21,11 +20,11 @@ import java.util.Set;
 
 public class PostMapper {
 
-    public static ODocument convert(PostCommand postCommand) {
-        ODocument doc = new ODocument(postCommand.getType());
-        doc.field("title", postCommand.getTitle());
-        doc.field("content", postCommand.getContent());
-        doc.field("type", postCommand.getType());
+    public static ODocument convert(PostCommand command) {
+        ODocument doc = new ODocument("Post");
+        doc.field("title", command.getTitle());
+        doc.field("content", command.getContent());
+        doc.field("type", command.getType());
         doc.field("createTime", new Date());
         return doc;
     }
@@ -64,7 +63,7 @@ public class PostMapper {
         Set<ODocument> inEdgesDoc = postDoc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
             String label = inEdgeDoc.field("label", String.class);
-            if("concept".equals(label) || "note".equals(label) || "tutorial".equals(label) || "question".equals(label)) {
+            if("concept".equals(label) || "note".equals(label) || "tutorial".equals(label)) {
                 ODocument accountDoc = inEdgeDoc.field("out");
                 Account account = AccountMapper.buildAccount(accountDoc);
                 post.setAccount(account);
@@ -77,44 +76,16 @@ public class PostMapper {
     public static Post buildPostDetails(ODocument postDoc) {
         Post post = buildPost(postDoc);
 
-        if("question".equals(post.getType())) {
-            Question q = new Question(post);
-            List<ODocument> questionCommentsDoc = postDoc.field("comments");
-            if(questionCommentsDoc != null) {
-                for(ODocument commentDoc : questionCommentsDoc) {
-                    String deleted = commentDoc.field("deleted", String.class);
-                    if(deleted == null) {
-                        QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
-                        q.addComment(comment);
-                    }
+        List<ODocument> messagesDoc = postDoc.field("messages");
+        if(messagesDoc != null) {
+            for(ODocument messageDoc : messagesDoc) {
+                String deleted = messageDoc.field("deleted", String.class);
+                if(deleted == null) {
+                    PostMessage postMessage = PostMessageMapper.buildPostMessageDetails(messageDoc);
+                    post.addPostMessage(postMessage);
                 }
             }
-            List<ODocument> answersDoc = postDoc.field("answers");
-            if(answersDoc != null) {
-                for(ODocument answerDoc : answersDoc) {
-                    String deleted = answerDoc.field("deleted", String.class);
-                    if(deleted == null) {
-                        Answer answer = AnswerMapper.buildAnswerDetails(answerDoc);
-                        q.addAnswer(answer);
-                    }
-                }
-            }
-            return q;
         }
-        else {
-            Cnt cnt = new Cnt(post);
-            List<ODocument> messagesDoc = postDoc.field("messages");
-            if(messagesDoc != null) {
-                for(ODocument messageDoc : messagesDoc) {
-                    String deleted = messageDoc.field("deleted", String.class);
-                    if(deleted == null) {
-                        PostMessage postMessage = PostMessageMapper.buildPostMessageDetails(messageDoc);
-                        cnt.addPostMessage(postMessage);
-                    }
-                }
-            }
-            return cnt;
-        }
+        return post;
     }
-
 }

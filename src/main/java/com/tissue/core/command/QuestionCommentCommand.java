@@ -1,7 +1,7 @@
 package com.tissue.core.command;
 
-import com.tissue.core.plan.Post;
+import com.tissue.core.plan.Question;
 
 public interface QuestionCommentCommand extends ItemCommand {
-    Post getQuestion();
+    Question getQuestion();
 }

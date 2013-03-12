@@ -7,10 +7,12 @@ import com.tissue.core.social.User;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Post;
+import com.tissue.core.plan.Question;
 import com.tissue.core.plan.dao.TopicDao;
 import com.tissue.core.mapper.TopicMapper;
 import com.tissue.core.mapper.PlanMapper;
 import com.tissue.core.mapper.PostMapper;
+import com.tissue.core.mapper.QuestionMapper;
 import com.tissue.core.mapper.UserMapper;
 
 import java.util.List;
@@ -308,6 +310,47 @@ public class TopicDaoImpl implements TopicDao {
             db.close();
         }
         return posts;
+    }
+
+    /**
+     * Questions
+     */
+    public long getQuestionsCount(String topicId) {
+        long count = 0;
+        String sql = "select count(*) from Question where deleted is null and plan.topic in " + topicId;
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                count = doc.field("count", long.class);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return count;
+    }
+
+    public List<Question> getPagedQuestions(String topicId, int page, int size) {
+        List<Question> questions = new ArrayList();
+
+        String sql = "select from Question where deleted is null and plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            for(ODocument doc : docs) {
+                Question question = QuestionMapper.buildQuestion(doc);
+                questions.add(question);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return questions;
     }
 
 
