@@ -11,21 +11,23 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Topic {
+public class Topic extends Post {
 
+    /**
     protected String id;
     protected String title;
     protected String content;
     protected Date createTime;
     protected Date updateTime;
-
     private boolean deleted = false;
-
     protected Account account;
+    */
+
     private Set<String> tags;
     private List<Plan> plans;
     private List<Post> posts;
  
+    /**
     public void setId(String id) {
         this.id = id;
     }
@@ -88,6 +90,7 @@ public class Topic {
     public Account getAccount() {
         return account;
     }
+    */
 
     public void setTags(Set<String> tags) {
         this.tags = tags;
@@ -135,6 +138,7 @@ public class Topic {
         return result;
     }
 
+    /**
     public void setPosts(List<Post> posts) {
         this.posts = posts;
     }
@@ -150,5 +154,6 @@ public class Topic {
     public TimeFormat getTimeBefore() {
         return new TimeFormat(new DateTime(getCreateTime()), new DateTime());
     }
+    */
 
 }

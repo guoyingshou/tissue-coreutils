@@ -126,23 +126,4 @@ public class Plan {
     public TimeFormat getTimeBefore() {
         return new TimeFormat(new DateTime(getCreateTime()), new DateTime());
     }
-
-    /**
-    private Period getPeriod() {
-        DateTime start = new DateTime(getCreateTime());
-        DateTime now = new DateTime();
-
-        Period p = new Period(start, now);
-        return p;
-    }
-
-    private Period getEndPeriod() {
-        DateTime now = new DateTime();
-        DateTime end = new DateTime(createTime).plusMonths(duration);
-
-        Period p = new Period(now, end);
-        return p;
-    }
-    */
-
 }

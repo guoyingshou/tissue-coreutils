@@ -1,6 +1,6 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.command.QuestionCommand;
+import com.tissue.core.command.PostCommand;
 import com.tissue.core.social.Account;
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.Question;
@@ -19,11 +19,11 @@ import java.util.Set;
 
 public class QuestionMapper {
 
-    public static ODocument convert(QuestionCommand command) {
+    public static ODocument convert(PostCommand command) {
         ODocument doc = new ODocument("Question");
         doc.field("title", command.getTitle());
         doc.field("content", command.getContent());
-        //doc.field("type", command.getType());
+        doc.field("type", command.getType());
         doc.field("createTime", new Date());
         return doc;
     }
@@ -38,10 +38,8 @@ public class QuestionMapper {
         String content = doc.field("content", String.class);
         q.setContent(content);
 
-        /**
-        String postType = doc.field("type", String.class);
-        post.setType(postType);
-        */
+        String type = doc.field("type", String.class);
+        q.setType(type);
 
         Date createTime = doc.field("createTime", Date.class);
         q.setCreateTime(createTime);
@@ -57,10 +55,6 @@ public class QuestionMapper {
     public static Question buildQuestion(ODocument doc) {
         Question q = buildQuestionSelf(doc);
 
-        ODocument planDoc = doc.field("plan");
-        Plan plan = PlanMapper.buildPlanDetails(planDoc);
-        q.setPlan(plan);
- 
         Set<ODocument> inEdgesDoc = doc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
             ODocument accountDoc = inEdgeDoc.field("out");
@@ -73,6 +67,10 @@ public class QuestionMapper {
     public static Question buildQuestionDetails(ODocument doc) {
         Question q = buildQuestion(doc);
 
+        ODocument planDoc = doc.field("plan");
+        Plan plan = PlanMapper.buildPlanDetails(planDoc);
+        q.setPlan(plan);
+ 
         List<ODocument> questionCommentsDoc = doc.field("comments");
         if(questionCommentsDoc != null) {
             for(ODocument commentDoc : questionCommentsDoc) {

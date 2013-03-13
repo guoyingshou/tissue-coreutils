@@ -7,8 +7,11 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import java.util.Date;
 
-public class AnswerComment {
+public class AnswerComment extends Comment {
 
+    private Answer answer;
+
+    /**
     private String id;
     protected String title;
     protected String content;
@@ -16,7 +19,6 @@ public class AnswerComment {
     protected Date updateTime;
 
     protected Account account;
-    private Answer answer;
    
     private boolean deleted = false;
 
@@ -86,6 +88,7 @@ public class AnswerComment {
     public Date getUpdateTime() {
         return updateTime;
     }
+    */
 
     public void setAnswer(Answer answer) {
         this.answer = answer;

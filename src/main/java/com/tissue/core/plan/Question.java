@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Question {
+public class Question extends Post {
 
+    /**
     protected String id;
     protected String title;
     protected String content;
@@ -20,12 +21,13 @@ public class Question {
     protected Date updateTime;
     private String type;
     private boolean deleted = false;
-
     protected Account account;
+    */
     private Plan plan;
     private List<QuestionComment> comments;
     private List<Answer> answers;
 
+    /**
     public void setId(String id) {
         this.id = id;
     }
@@ -100,6 +102,7 @@ public class Question {
     public TimeFormat getTimeBefore() {
         return new TimeFormat(new DateTime(getCreateTime()), new DateTime());
     }
+    */
 
     public void setPlan(Plan plan) {
         this.plan = plan;

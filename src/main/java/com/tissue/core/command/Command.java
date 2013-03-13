@@ -16,6 +16,8 @@ public class Command implements ItemCommand, Serializable {
     @NotEmpty
     private String content;
 
+    private String type;
+
     private Account account;
 
     public void setId(String id) {
@@ -32,6 +34,14 @@ public class Command implements ItemCommand, Serializable {
 
     public String getContent() {
         return content;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public void setAccount(Account account) {

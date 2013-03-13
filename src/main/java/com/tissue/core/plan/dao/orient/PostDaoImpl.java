@@ -47,19 +47,21 @@ public class PostDaoImpl implements PostDao {
 
             postId = doc.getIdentity().toString();
             String accountId = postCommand.getAccount().getId();
-            String planId = postCommand.getPlan().getId();
-
-            String sql = "update " + postId + " set plan = " + planId;
+ 
+            String sql = "create edge EdgePost from " + accountId + " to " + postId + " set createTime = sysdate(), label = '" + postCommand.getType() + "'";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
- 
-            sql = "create edge EdgePost from " + accountId + " to " + postId + " set createTime = sysdate(), label = '" + postCommand.getType() + "'";
-            logger.debug(sql);
 
-            cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
+            if(postCommand.getPlan() != null) {
+                String planId = postCommand.getPlan().getId();
+                sql = "update " + postId + " set plan = " + planId;
+                logger.debug(sql);
+
+                cmd = new OCommandSQL(sql);
+                db.command(cmd).execute();
+            }
         }
         finally {
             db.close();
@@ -80,7 +82,8 @@ public class PostDaoImpl implements PostDao {
         }
     }
 
-    public Post getPost(String id) {
+    /**
+    public Post getConcept(String id) {
         Post post = null;
         String sql = "select from " + id;
         OGraphDatabase db = dataSource.getDB();
@@ -96,13 +99,14 @@ public class PostDaoImpl implements PostDao {
         }
         return post;
     }
+    */
 
     public List<Post> getLatestPosts(int limit) {
         List<Post> posts = new ArrayList();
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "select from Post where deleted is null and plan.topic.deleted is null order by createTime desc limit " + limit;
+            String sql = "select from Post where deleted is null and plan.topic.deleted is null and type contains ['concept', 'note', 'tutorial'] order by createTime desc limit " + limit;
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Post post = PostMapper.buildPost(doc);

@@ -142,7 +142,7 @@ public class PlanDaoImpl implements PlanDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                Post post = PostMapper.buildPost(doc);
+                Post post = PostMapper.buildPostSelf(doc);
                 posts.add(post);
             }
         }

@@ -3,10 +3,8 @@ package com.tissue.core.mapper;
 import com.tissue.core.command.PostCommand;
 import com.tissue.core.social.Account;
 import com.tissue.core.plan.Post;
+import com.tissue.core.plan.Article;
 import com.tissue.core.plan.PostMessage;
-import com.tissue.core.plan.Question;
-import com.tissue.core.plan.QuestionComment;
-import com.tissue.core.plan.Answer;
 import com.tissue.core.plan.Plan;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -21,7 +19,7 @@ import java.util.Set;
 public class PostMapper {
 
     public static ODocument convert(PostCommand command) {
-        ODocument doc = new ODocument("Post");
+        ODocument doc = new ODocument(command.getType());
         doc.field("title", command.getTitle());
         doc.field("content", command.getContent());
         doc.field("type", command.getType());
@@ -53,26 +51,20 @@ public class PostMapper {
         return post;
     }
 
-    public static Post buildPost(ODocument postDoc) {
-        Post post = buildPostSelf(postDoc);
+    public static Post buildPost(ODocument doc) {
+        Post post = buildPostSelf(doc);
 
-        ODocument planDoc = postDoc.field("plan");
-        Plan plan = PlanMapper.buildPlanDetails(planDoc);
-        post.setPlan(plan);
- 
-        Set<ODocument> inEdgesDoc = postDoc.field("in");
+        Set<ODocument> inEdgesDoc = doc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
-            String label = inEdgeDoc.field("label", String.class);
-            if("concept".equals(label) || "note".equals(label) || "tutorial".equals(label)) {
-                ODocument accountDoc = inEdgeDoc.field("out");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                post.setAccount(account);
-                break;
-            }
+            ODocument accountDoc = inEdgeDoc.field("out");
+            Account account = AccountMapper.buildAccount(accountDoc);
+            post.setAccount(account);
+            break;
         }
         return post;
     }
 
+    /**
     public static Post buildPostDetails(ODocument postDoc) {
         Post post = buildPost(postDoc);
 
@@ -88,4 +80,5 @@ public class PostMapper {
         }
         return post;
     }
+    */
 }

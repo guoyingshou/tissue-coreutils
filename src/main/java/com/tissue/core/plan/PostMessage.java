@@ -11,15 +11,17 @@ import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 
-public class PostMessage {
+public class PostMessage extends Comment {
 
+    private Post post;
+    private List<PostMessageComment> comments;
+
+    /**
     protected String id;
     protected String title;
     protected String content;
     protected Date createTime;
     protected Date updateTime;
-    private Post post;
-    private List<PostMessageComment> comments;
     protected Account account;
    
     private boolean deleted = false;
@@ -90,6 +92,7 @@ public class PostMessage {
     public Date getUpdateTime() {
         return updateTime;
     }
+    */
 
     public void setPost(Post post) {
         this.post = post;

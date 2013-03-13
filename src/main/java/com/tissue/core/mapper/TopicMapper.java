@@ -18,7 +18,6 @@ import com.google.common.collect.Sets;
 public class TopicMapper {
 
     public static ODocument convertTopic(TopicCommand command) {
-
         ODocument doc = new ODocument("Topic");
         doc.field("title", command.getTitle());
         doc.field("content", command.getContent());

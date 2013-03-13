@@ -35,9 +35,6 @@ public class TopicDaoImpl implements TopicDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    /**
-     * Add a topic.
-     */
     public String create(TopicCommand command) {
         String id = null;
         OGraphDatabase db = dataSource.getDB();
@@ -58,9 +55,6 @@ public class TopicDaoImpl implements TopicDao {
         return id;
     }
 
-    /**
-     * Update a topic.
-     */
     public void update(TopicCommand command) {
         OGraphDatabase db = dataSource.getDB();
         try {

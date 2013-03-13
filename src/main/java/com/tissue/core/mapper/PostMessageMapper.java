@@ -43,7 +43,7 @@ public class PostMessageMapper {
             }
         }
         ODocument postDoc = messageDoc.field("post");
-        Post post = PostMapper.buildPost(postDoc);
+        Post post = PostMapper.buildPostSelf(postDoc);
         message.setPost(post);
 
         return message;

@@ -22,8 +22,11 @@ public class Post {
     private boolean deleted = false;
 
     protected Account account;
+
+    /**
     private Plan plan;
     private List<PostMessage> messages;
+    */
 
     public void setId(String id) {
         this.id = id;
@@ -101,15 +104,6 @@ public class Post {
     }
 
     /**
-    private Period getPeriod() {
-        DateTime start = new DateTime(getCreateTime());
-        DateTime now = new DateTime();
-
-        Period p = new Period(start, now);
-        return p;
-    }
-    */
-
     public void setPlan(Plan plan) {
         this.plan = plan;
     }
@@ -132,5 +126,6 @@ public class Post {
     public List<PostMessage> getMessages() {
         return messages;
     }
+    */
 
 }

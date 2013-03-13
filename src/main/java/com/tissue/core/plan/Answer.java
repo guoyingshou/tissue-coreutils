@@ -12,16 +12,18 @@ import java.util.List;
 import java.util.ArrayList;
 
 
-public class Answer {
+public class Answer extends Comment {
 
+    private Question question;
+    List<AnswerComment> comments;
+
+    /**
     protected String id;
     protected String title;
     protected String content;
     protected Date createTime;
     protected Date updateTime;
 
-    private Question question;
-    List<AnswerComment> comments;
     protected Account account;
    
     private boolean deleted = false;
@@ -70,7 +72,6 @@ public class Answer {
         
     }
 
-    /**
     private Period getPeriod() {
         DateTime start = new DateTime(getCreateTime());
         DateTime now = new DateTime();
@@ -78,7 +79,6 @@ public class Answer {
         Period p = new Period(start, now);
         return p;
     }
-    */
 
     public void setTitle(String title) {
         this.title = title;
@@ -103,6 +103,7 @@ public class Answer {
     public Date getUpdateTime() {
         return updateTime;
     }
+    */
 
     public void setQuestion(Question question) {
         this.question = question;

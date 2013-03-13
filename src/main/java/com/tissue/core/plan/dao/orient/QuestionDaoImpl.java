@@ -1,7 +1,8 @@
 package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.command.QuestionCommand;
+//import com.tissue.core.command.QuestionCommand;
+import com.tissue.core.command.PostCommand;
 
 import com.tissue.core.mapper.QuestionMapper;
 import com.tissue.core.mapper.TopicMapper;
@@ -35,7 +36,7 @@ public class QuestionDaoImpl implements QuestionDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public String create(QuestionCommand command) {
+    public String create(PostCommand command) {
         String id = null;
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -65,7 +66,7 @@ public class QuestionDaoImpl implements QuestionDao {
         return id;
     }
 
-    public void update(QuestionCommand command) {
+    public void update(PostCommand command) {
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(command.getId()));

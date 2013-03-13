@@ -11,7 +11,7 @@ public interface PostDao {
 
     void update(PostCommand post);
 
-    Post getPost(String id);
+    //Post getConcept(String id);
 
     List<Post> getLatestPosts(int limit);
 
