@@ -12,7 +12,9 @@ public interface PlanDao {
 
     Plan getPlan(String planId);
 
-    void addMember(String planId, String userId);
+    void addMember(String planId, String accountId);
+
+    Boolean isMember(String planId, String accountId);
 
     /**
      * topic

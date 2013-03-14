@@ -6,11 +6,7 @@ import java.util.List;
 
 public interface AnswerDao {
 
-    /**
-     * Add an answer to the specific question.
-     */
-
-    Answer create(AnswerCommand command);
+    String create(AnswerCommand command);
 
     void update(AnswerCommand command);
 

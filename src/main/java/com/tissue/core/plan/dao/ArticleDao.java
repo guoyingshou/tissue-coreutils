@@ -1,13 +1,16 @@
 package com.tissue.core.plan.dao;
 
+import com.tissue.core.command.ArticleCommand;
 import com.tissue.core.plan.Article;
 import com.tissue.core.plan.Topic;
-import java.util.List;
+//import java.util.List;
 
 public interface ArticleDao {
 
-    Article getArticle(String id);
+    String create(ArticleCommand command);
 
-    //List<? extends Post> getLatestPosts(int limit);
+    Article getArticle(String articleId);
+
+    Topic getTopic(String articleId);
     
 }

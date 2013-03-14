@@ -1,6 +1,6 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.command.AboutCommand;
+import com.tissue.core.command.CommentCommand;
 import com.tissue.core.social.About;
 import com.tissue.core.social.User;
 
@@ -14,14 +14,14 @@ import java.util.Set;
 
 public class AboutMapper {
 
-    public static ODocument convertAbout(AboutCommand about) {
+    public static ODocument convertAbout(CommentCommand about) {
         ODocument doc = new ODocument("About");
         doc.field("content", about.getContent());
         return doc;
     }
 
     public static List<About> buildAbouts(List<ODocument> docs) {
-        List<About> abouts = new ArrayList();
+        List<About> abouts = new ArrayList<About>();
         for(ODocument doc : docs) {
             abouts.add(buildAbout(doc));
         }

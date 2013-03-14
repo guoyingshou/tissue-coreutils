@@ -36,6 +36,7 @@ public class PostDaoImpl implements PostDao {
     @Autowired
     protected OrientDataSource dataSource;
 
+    /**
     public String create(PostCommand postCommand) {
 
         String postId = null;
@@ -82,7 +83,6 @@ public class PostDaoImpl implements PostDao {
         }
     }
 
-    /**
     public Post getConcept(String id) {
         Post post = null;
         String sql = "select from " + id;
@@ -104,9 +104,11 @@ public class PostDaoImpl implements PostDao {
     public List<Post> getLatestPosts(int limit) {
         List<Post> posts = new ArrayList();
 
+        String sql = "select from Post where deleted is null and plan.topic.deleted is null and type contains ['concept', 'note', 'tutorial'] order by createTime desc limit " + limit;
+        logger.debug(sql);
+
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "select from Post where deleted is null and plan.topic.deleted is null and type contains ['concept', 'note', 'tutorial'] order by createTime desc limit " + limit;
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 Post post = PostMapper.buildPost(doc);

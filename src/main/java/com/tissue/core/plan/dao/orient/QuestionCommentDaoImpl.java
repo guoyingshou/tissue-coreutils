@@ -21,15 +21,15 @@ public class QuestionCommentDaoImpl implements QuestionCommentDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public QuestionComment create(QuestionCommentCommand command) {
-        QuestionComment comment = null;
+    public String create(QuestionCommentCommand command) {
+        String id = null;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = QuestionCommentMapper.convertQuestionComment(command);
             db.save(doc);
         
-            String id = doc.getIdentity().toString();
+            id = doc.getIdentity().toString();
             String userId = command.getAccount().getId();
             String qId = command.getQuestion().getId();
 
@@ -41,16 +41,11 @@ public class QuestionCommentDaoImpl implements QuestionCommentDao {
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            comment = new QuestionComment();
-            comment.setId(id);
-            comment.setContent(command.getContent());
-            comment.setAccount(command.getAccount());
-            comment.setQuestion(command.getQuestion());
         }
         finally {
             db.close();
         }
-        return comment;
+        return id;
     }
 
     public void update(QuestionCommentCommand command) {
@@ -65,20 +60,4 @@ public class QuestionCommentDaoImpl implements QuestionCommentDao {
             db.close();
         }
     }
-
-    /**
-    public void delete(String commentId) {
-        String sql = "update " + commentId + " set status = 'deleted'";
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-        }
-        finally {
-            db.close();
-        }
-    }
-    */
-
 }

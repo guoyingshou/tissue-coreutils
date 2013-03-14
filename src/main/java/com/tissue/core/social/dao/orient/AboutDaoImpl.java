@@ -1,6 +1,6 @@
 package com.tissue.core.social.dao.orient;
 
-import com.tissue.core.command.AboutCommand;
+import com.tissue.core.command.CommentCommand;
 import com.tissue.core.exceptions.NoRecordFoundException;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.AboutMapper;
@@ -35,7 +35,7 @@ public class AboutDaoImpl implements AboutDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public String addAbout(AboutCommand command) {
+    public String addAbout(CommentCommand command) {
         String id = null;
         OGraphDatabase db = dataSource.getDB();
         try {

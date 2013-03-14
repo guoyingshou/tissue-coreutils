@@ -1,7 +1,6 @@
 package com.tissue.core.social.dao.orient;
 
 import com.tissue.core.command.ImpressionCommand;
-import com.tissue.core.exceptions.NoRecordFoundException;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.TopicMapper;
 import com.tissue.core.mapper.PlanMapper;
@@ -49,7 +48,7 @@ public class ImpressionDaoImpl implements ImpressionDao {
     protected OrientDataSource dataSource;
 
     public void addImpression(ImpressionCommand command) {
-        String sql = "create edge EdgeImpression from " + command.getAccount().getId() + " to " + command.getUserId() + " set label = 'impression', createTime = sysdate(), content = '" + command.getContent() + "'";
+        String sql = "create edge EdgeImpression from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set label = 'impression', createTime = sysdate(), content = '" + command.getContent() + "'";
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();

@@ -23,11 +23,6 @@ public class Post {
 
     protected Account account;
 
-    /**
-    private Plan plan;
-    private List<PostMessage> messages;
-    */
-
     public void setId(String id) {
         this.id = id;
     }
@@ -102,30 +97,5 @@ public class Post {
     public TimeFormat getTimeBefore() {
         return new TimeFormat(new DateTime(getCreateTime()), new DateTime());
     }
-
-    /**
-    public void setPlan(Plan plan) {
-        this.plan = plan;
-    }
-
-    public Plan getPlan() {
-        return plan;
-    }
-
-    public void addPostMessage(PostMessage message) {
-        if(messages == null) {
-            messages = new ArrayList();
-        }
-        messages.add(message);
-    }
-
-    public void setMessages(List<PostMessage> messages) {
-        this.messages = messages;
-    }
-
-    public List<PostMessage> getMessages() {
-        return messages;
-    }
-    */
 
 }

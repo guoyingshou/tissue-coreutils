@@ -4,7 +4,7 @@ import com.tissue.core.command.PostCommand;
 import com.tissue.core.social.Account;
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.Article;
-import com.tissue.core.plan.PostMessage;
+import com.tissue.core.plan.Message;
 import com.tissue.core.plan.Plan;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;

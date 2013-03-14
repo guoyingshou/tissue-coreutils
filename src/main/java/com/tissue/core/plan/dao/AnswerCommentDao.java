@@ -5,10 +5,7 @@ import com.tissue.core.plan.AnswerComment;
 
 public interface AnswerCommentDao {
 
-    /**
-     * Add a comment to the specific post message.
-     */
-    AnswerComment create(AnswerCommentCommand command);
+    String create(AnswerCommentCommand command);
 
     void update(AnswerCommentCommand command);
 

@@ -70,7 +70,7 @@ public class Activity implements Serializable {
 
     public List<String> getMessageArgs() {
 
-        List<String> args = new ArrayList();
+        List<String> args = new ArrayList<String>();
 
         if(what != null && what.getId() != null) {
             args.add(what.getId().replace("#", ""));

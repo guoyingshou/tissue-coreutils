@@ -1,6 +1,6 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.command.PostCommand;
+import com.tissue.core.command.QuestionCommand;
 import com.tissue.core.social.Account;
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.Question;
@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class QuestionMapper {
 
-    public static ODocument convert(PostCommand command) {
+    public static ODocument convertQuestion(QuestionCommand command) {
         ODocument doc = new ODocument("Question");
         doc.field("title", command.getTitle());
         doc.field("content", command.getContent());

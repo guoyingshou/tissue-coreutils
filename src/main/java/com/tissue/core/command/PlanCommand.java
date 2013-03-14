@@ -5,6 +5,6 @@ import com.tissue.core.social.Account;
 
 public interface PlanCommand {
     int getDuration();
-    Account getAccount();
     Topic getTopic();
+    Account getAccount();
 }

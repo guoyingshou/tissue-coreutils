@@ -49,21 +49,38 @@ public class TopicMapper {
             topic.setDeleted(deleted); 
         }
 
-        return topic;
-    }
-
-    public static Topic buildTopic(ODocument doc) {
-        Topic topic = buildTopicSelf(doc);
-
         Set<ODocument> inEdgesDoc = doc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
             ODocument accountDoc = inEdgeDoc.field("out");
             Account account = AccountMapper.buildAccount(accountDoc);
             topic.setAccount(account);
+            break;
         }
+ 
         return topic;
     }
 
+    /**
+     * No members of plans are included.
+     */
+    public static Topic buildTopic(ODocument doc) {
+        Topic topic = buildTopicSelf(doc);
+
+        List<ODocument> plansDoc = doc.field("plans", List.class);
+        if(plansDoc != null) {
+            for(ODocument planDoc : plansDoc) {
+                Plan plan = PlanMapper.buildPlanSelf(planDoc);
+                plan.setTopic(topic);
+                topic.addPlan(plan);
+            }
+        }
+ 
+        return topic;
+    }
+
+    /**
+     * Members of plans are included.
+     */
     public static Topic buildTopicDetails(ODocument doc) {
 
         Topic topic = buildTopic(doc);

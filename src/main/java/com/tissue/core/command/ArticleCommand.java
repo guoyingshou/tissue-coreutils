@@ -2,6 +2,6 @@ package com.tissue.core.command;
 
 import com.tissue.core.plan.Plan;
 
-public interface QuestionCommand extends PostCommand {
+public interface ArticleCommand extends PostCommand {
     Plan getPlan();
 }

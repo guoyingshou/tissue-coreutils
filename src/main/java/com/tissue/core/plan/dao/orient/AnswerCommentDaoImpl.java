@@ -16,49 +16,54 @@ import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 public class AnswerCommentDaoImpl implements AnswerCommentDao {
+
+    private static Logger logger = LoggerFactory.getLogger(AnswerCommentDaoImpl.class);
 
     @Autowired
     protected OrientDataSource dataSource;
 
-    public AnswerComment create(AnswerCommentCommand command) {
-        AnswerComment comment = null;
+    public String create(AnswerCommentCommand command) {
+        String id = null;
 
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = AnswerCommentMapper.convertAnswerComment(command);
             db.save(doc);
 
-            String id = doc.getIdentity().toString();
+            id = doc.getIdentity().toString();
             String userId = command.getAccount().getId();
             String answerId = command.getAnswer().getId();
 
             String sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'answerComment', createTime = sysdate()";
+            logger.debug(sql);
+
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
             sql = "update " + answerId + " add comments = " + id;
+            logger.debug(sql);
+
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
- 
-            comment = new AnswerComment();
-            comment.setId(id);
-            comment.setContent(command.getContent());
-            comment.setAccount(command.getAccount());
-            comment.setAnswer(command.getAnswer());
         }
         finally {
              db.close();
         }
 
-        return comment;
+        return id;
     }
 
     public void update(AnswerCommentCommand command) {
+        String sql = "update " + command.getId() + " set content = '" + command.getContent() + "'";
+        logger.debug(sql);
+
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "update " + command.getId() + " set content = '" + command.getContent() + "'";
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
          }
@@ -66,20 +71,5 @@ public class AnswerCommentDaoImpl implements AnswerCommentDao {
             db.close();
         }
     }
-
-    /**
-    public void delete(String commentId) {
-        OGraphDatabase db = dataSource.getDB();
-
-        try {
-            String sql = "update " + commentId + " set status = 'deleted'";
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-         }
-        finally {
-            db.close();
-        }
-    }
-    */
 
 }

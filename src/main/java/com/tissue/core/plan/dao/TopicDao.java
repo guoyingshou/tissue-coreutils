@@ -47,6 +47,4 @@ public interface TopicDao {
 
     List<Question> getPagedQuestions(String topicId, int page, int size);
 
-
-
 }

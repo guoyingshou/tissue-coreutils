@@ -379,7 +379,7 @@ public class UserDaoImpl implements UserDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                Plan plan = PlanMapper.buildPlan(doc);
+                Plan plan = PlanMapper.buildPlanSelf(doc);
                 plans.add(plan);
             }
         }
@@ -398,7 +398,7 @@ public class UserDaoImpl implements UserDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                Plan plan = PlanMapper.buildPlan(doc);
+                Plan plan = PlanMapper.buildPlanSelf(doc);
                 plans.add(plan);
             }
         }
@@ -412,7 +412,7 @@ public class UserDaoImpl implements UserDao {
      * post
      */
     public long getPostsCount(String userId) {
-        String sql = "select count(*) from Post where deleted is null and in.out.user in " + userId;
+        String sql = "select count(*) from Post where deleted is null and type in ['concept', 'note', 'tutorial', 'question'] and in.out.user in " + userId;
         logger.debug(sql);
 
         long count = 0;
@@ -431,7 +431,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<Post> getPagedPosts(String userId, int page, int size) {
-        String sql = "select from Post where deleted is null and in.out.user in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select from Post where deleted is null and type in ['concept', 'note', 'tutorial', 'question'] and in.out.user in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
         logger.debug(sql);
 
         List<Post> posts = new ArrayList();

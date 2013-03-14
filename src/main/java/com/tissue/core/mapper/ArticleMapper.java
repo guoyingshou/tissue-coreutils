@@ -1,9 +1,9 @@
 package com.tissue.core.mapper;
 
+import com.tissue.core.command.ArticleCommand;
 import com.tissue.core.social.Account;
-//import com.tissue.core.plan.Post;
 import com.tissue.core.plan.Article;
-import com.tissue.core.plan.PostMessage;
+import com.tissue.core.plan.Message;
 import com.tissue.core.plan.Plan;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -16,6 +16,16 @@ import java.util.Arrays;
 import java.util.Set;
 
 public class ArticleMapper {
+
+    public static ODocument convertArticle(ArticleCommand command) {
+        ODocument doc = new ODocument("Article");
+        doc.field("title", command.getTitle());
+        doc.field("content", command.getContent());
+        doc.field("type", command.getType());
+        doc.field("createTime", new Date());
+        return doc;
+    }
+
 
     public static Article buildArticleSelf(ODocument doc) {
         Article article = new Article();
@@ -65,8 +75,8 @@ public class ArticleMapper {
             for(ODocument messageDoc : messagesDoc) {
                 String deleted = messageDoc.field("deleted", String.class);
                 if(deleted == null) {
-                    PostMessage postMessage = PostMessageMapper.buildPostMessageDetails(messageDoc);
-                    article.addPostMessage(postMessage);
+                    Message message = MessageMapper.buildMessageDetails(messageDoc);
+                    article.addMessage(message);
                 }
             }
         }

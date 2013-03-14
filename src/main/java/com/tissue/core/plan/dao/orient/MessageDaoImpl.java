@@ -1,13 +1,13 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.command.PostMessageCommand;
+import com.tissue.core.command.MessageCommand;
 import com.tissue.core.util.OrientDataSource;
 
-import com.tissue.core.mapper.PostMessageMapper;
+import com.tissue.core.mapper.MessageMapper;
 import com.tissue.core.social.User;
 import com.tissue.core.plan.Post;
-import com.tissue.core.plan.PostMessage;
-import com.tissue.core.plan.dao.PostMessageDao;
+import com.tissue.core.plan.Message;
+import com.tissue.core.plan.dao.MessageDao;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,21 +17,20 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 @Component
-public class PostMessageDaoImpl implements PostMessageDao {
+public class MessageDaoImpl implements MessageDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public PostMessage create(PostMessageCommand command) {
-
-        PostMessage postMessage = null;
+    public String create(MessageCommand command) {
+        String id = null;
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = PostMessageMapper.convertPostMessage(command);
+            ODocument doc = MessageMapper.convertMessage(command);
             db.save(doc);
 
-            String id = doc.getIdentity().toString();
-            String postId = command.getPost().getId();
+            id = doc.getIdentity().toString();
+            String postId = command.getArticle().getId();
             String userId = command.getAccount().getId();
 
             String sql = "update " + id + " set post = " + postId;
@@ -45,27 +44,19 @@ public class PostMessageDaoImpl implements PostMessageDao {
             sql = "update " + postId + " add messages = " + id;
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
-
-            postMessage = new PostMessage();
-            postMessage.setId(id);
-            postMessage.setContent(command.getContent());
-            postMessage.setAccount(command.getAccount());
-            postMessage.setPost(command.getPost());
         }
         finally {
             db.close();
         }
-        return postMessage;
+        return id;
     }
 
-    public void update(PostMessageCommand message) {
+    public void update(MessageCommand command) {
 
-        //String ridMessage = OrientIdentityUtil.decode(message.getId());
-        String sql = "update " + message.getId() + " set content = '" + message.getContent() + "'";
+        String sql = "update " + command.getId() + " set content = '" + command.getContent() + "'";
 
         OGraphDatabase db = dataSource.getDB();
         try {
-            //executeCommand(db, sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
          }
@@ -73,20 +64,4 @@ public class PostMessageDaoImpl implements PostMessageDao {
             db.close();
         }
     }
-
-    /**
-    public void delete(String messageId) {
-        String sql = "update " + messageId + " set status = 'deleted'";
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
- 
-        }
-        finally {
-            db.close();
-        }
-    }
-    */
 }

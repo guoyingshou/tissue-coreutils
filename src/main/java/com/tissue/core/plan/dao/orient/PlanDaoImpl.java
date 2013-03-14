@@ -22,13 +22,21 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 public class PlanDaoImpl implements PlanDao {
+    private static Logger logger = LoggerFactory.getLogger(PlanDaoImpl.class);
     
     @Autowired
     protected OrientDataSource dataSource;
 
     public String create(PlanCommand plan) {
+
+        String userId = plan.getAccount().getId();
+        String topicId = plan.getTopic().getId();
+
         String id = null;
         
         OGraphDatabase db = dataSource.getDB();
@@ -37,18 +45,21 @@ public class PlanDaoImpl implements PlanDao {
             db.save(doc);
 
             id = doc.getIdentity().toString();
-            String userId = plan.getAccount().getId();
-            String topicId = plan.getTopic().getId();
-
             String sql = "create edge EdgeTopic from " + userId + " to " + id + " set label = 'hostGroup', createTime = sysdate()";
+            logger.debug(sql);
+
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
             sql = "update " + id + " set topic = " + topicId;
+            logger.debug(sql);
+
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
             sql = "update " + topicId + " add plans = " + id;
+            logger.debug(sql);
+
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
@@ -75,10 +86,10 @@ public class PlanDaoImpl implements PlanDao {
         return plan;
     }
 
-    public void addMember(String planId, String userId) {
+    public void addMember(String planId, String accountId) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "create edge EdgeTopic from " + userId + " to " + planId + " set label='joinGroup', createTime=sysdate()";
+            String sql = "create edge EdgeTopic from " + accountId + " to " + planId + " set label='joinGroup', createTime=sysdate()";
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
@@ -89,6 +100,24 @@ public class PlanDaoImpl implements PlanDao {
         finally {
             db.close();
         }
+    }
+
+    public Boolean isMember(String planId, String accountId) {
+        String sql = "select from " + planId + " where in[label='joinGroup'].out in " + accountId;
+        logger.debug(sql);
+
+        Boolean isMember = false;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql));
+            if(!docs.isEmpty()) {
+                isMember = true;
+            }
+        }
+        finally {
+            db.close();
+        }
+        return isMember;
     }
 
     /**

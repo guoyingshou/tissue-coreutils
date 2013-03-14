@@ -33,18 +33,6 @@ public class PlanMapper {
         Date createTime = doc.field("createTime", Date.class);
         plan.setCreateTime(createTime);
  
-        ODocument topicDoc = doc.field("topic");
-        Topic topic = TopicMapper.buildTopic(topicDoc);
-        plan.setTopic(topic);
-
-        return plan;
-    }
-
-    /**
-     */
-    public static Plan buildPlan(ODocument doc) {
-        Plan plan = buildPlanSelf(doc);
-
         Set<ODocument> inEdgesDoc = doc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
             String label = inEdgeDoc.field("label");
@@ -59,8 +47,20 @@ public class PlanMapper {
         return plan;
     }
 
+    /**
+    public static Plan buildPlan(ODocument doc) {
+        Plan plan = buildPlanSelf(doc);
+
+        ODocument topicDoc = doc.field("topic");
+        Topic topic = TopicMapper.buildTopic(topicDoc);
+        plan.setTopic(topic);
+
+        return plan;
+    }
+     */
+
     public static Plan buildPlanDetails(ODocument doc) {
-        Plan plan = buildPlan(doc);
+        Plan plan = buildPlanSelf(doc);
         if(plan.isActive()) { 
             Set<ODocument> inEdgesDoc = doc.field("in");
             if(inEdgesDoc != null) {
