@@ -95,4 +95,24 @@ public class QuestionDaoImpl implements QuestionDao {
         return question;
     }
 
+    public Topic getTopic(String questionId) {
+        String sql = "select plan.topic as topic from " + questionId;
+        logger.debug(sql);
+
+        Topic topic = null;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                ODocument topicDoc = doc.field("topic");
+                topic = TopicMapper.buildTopic(topicDoc);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return topic;
+    }
+
 }

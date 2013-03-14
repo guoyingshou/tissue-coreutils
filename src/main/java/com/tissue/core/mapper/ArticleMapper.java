@@ -26,8 +26,7 @@ public class ArticleMapper {
         return doc;
     }
 
-
-    public static Article buildArticleSelf(ODocument doc) {
+    public static Article buildArticle(ODocument doc) {
         Article article = new Article();
         article.setId(doc.getIdentity().toString());
 
@@ -48,22 +47,14 @@ public class ArticleMapper {
             article.setDeleted(deleted);
         }
  
-        return article;
-    }
-
-    public static Article buildArticle(ODocument doc) {
-        Article article = buildArticleSelf(doc);
-
-        ODocument planDoc = doc.field("plan");
-        Plan plan = PlanMapper.buildPlanDetails(planDoc);
-        article.setPlan(plan);
- 
+        //creator
         Set<ODocument> inEdgesDoc = doc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
             ODocument accountDoc = inEdgeDoc.field("out");
             Account account = AccountMapper.buildAccount(accountDoc);
             article.setAccount(account);
         }
+
         return article;
     }
 

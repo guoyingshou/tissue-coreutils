@@ -49,6 +49,7 @@ public class TopicMapper {
             topic.setDeleted(deleted); 
         }
 
+        /**
         Set<ODocument> inEdgesDoc = doc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
             ODocument accountDoc = inEdgeDoc.field("out");
@@ -57,42 +58,58 @@ public class TopicMapper {
             break;
         }
  
-        return topic;
-    }
-
-    /**
-     * No members of plans are included.
-     */
-    public static Topic buildTopic(ODocument doc) {
-        Topic topic = buildTopicSelf(doc);
-
         List<ODocument> plansDoc = doc.field("plans", List.class);
         if(plansDoc != null) {
             for(ODocument planDoc : plansDoc) {
-                Plan plan = PlanMapper.buildPlanSelf(planDoc);
+                Plan plan = PlanMapper.buildPlan(planDoc);
+                plan.setTopic(topic);
+                topic.addPlan(plan);
+            }
+        }
+        */
+ 
+        return topic;
+    }
+
+
+    public static Topic buildTopic(ODocument doc) {
+        Topic topic = new Topic();
+        topic.setId(doc.getIdentity().toString());
+
+        String title = doc.field("title", String.class);
+        topic.setTitle(title);
+
+        String content = doc.field("content", String.class);
+        topic.setContent(content);
+
+        Set<String> tags = doc.field("tags", Set.class);
+        topic.setTags(tags);
+
+        Date createTime = doc.field("createTime", Date.class);
+        topic.setCreateTime(createTime);
+
+        Boolean deleted = doc.field("deleted", Boolean.class);
+        if(deleted != null) {
+            topic.setDeleted(deleted); 
+        }
+
+        Set<ODocument> inEdgesDoc = doc.field("in");
+        for(ODocument inEdgeDoc : inEdgesDoc) {
+            ODocument accountDoc = inEdgeDoc.field("out");
+            Account account = AccountMapper.buildAccount(accountDoc);
+            topic.setAccount(account);
+            break;
+        }
+ 
+        List<ODocument> plansDoc = doc.field("plans", List.class);
+        if(plansDoc != null) {
+            for(ODocument planDoc : plansDoc) {
+                Plan plan = PlanMapper.buildPlan(planDoc);
                 plan.setTopic(topic);
                 topic.addPlan(plan);
             }
         }
  
-        return topic;
-    }
-
-    /**
-     * Members of plans are included.
-     */
-    public static Topic buildTopicDetails(ODocument doc) {
-
-        Topic topic = buildTopic(doc);
-
-        List<ODocument> plansDoc = doc.field("plans", List.class);
-        if(plansDoc != null) {
-            for(ODocument planDoc : plansDoc) {
-                Plan plan = PlanMapper.buildPlanDetails(planDoc);
-                plan.setTopic(topic);
-                topic.addPlan(plan);
-            }
-        }
         return topic;
     }
 

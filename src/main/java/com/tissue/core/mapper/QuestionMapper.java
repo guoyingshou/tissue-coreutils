@@ -28,7 +28,7 @@ public class QuestionMapper {
         return doc;
     }
 
-    public static Question buildQuestionSelf(ODocument doc) {
+    public static Question buildQuestion(ODocument doc) {
         Question q = new Question();
         q.setId(doc.getIdentity().toString());
 
@@ -49,12 +49,6 @@ public class QuestionMapper {
             q.setDeleted(deleted);
         }
  
-        return q;
-    }
-
-    public static Question buildQuestion(ODocument doc) {
-        Question q = buildQuestionSelf(doc);
-
         Set<ODocument> inEdgesDoc = doc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
             ODocument accountDoc = inEdgeDoc.field("out");
@@ -68,7 +62,7 @@ public class QuestionMapper {
         Question q = buildQuestion(doc);
 
         ODocument planDoc = doc.field("plan");
-        Plan plan = PlanMapper.buildPlanDetails(planDoc);
+        Plan plan = PlanMapper.buildPlan(planDoc);
         q.setPlan(plan);
  
         List<ODocument> questionCommentsDoc = doc.field("comments");

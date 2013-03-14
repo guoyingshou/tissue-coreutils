@@ -52,7 +52,7 @@ public class UserMapper {
                 String label = outEdgeDoc.field("label", String.class);
                 if("hostGroup".equals(label) || "joinGroup".equals(label)) {
                     ODocument planDoc = outEdgeDoc.field("in");
-                    Plan plan = PlanMapper.buildPlanSelf(planDoc);
+                    Plan plan = PlanMapper.buildPlan(planDoc);
                 }
              }
         }

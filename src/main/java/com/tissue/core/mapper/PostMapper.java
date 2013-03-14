@@ -18,16 +18,7 @@ import java.util.Set;
 
 public class PostMapper {
 
-    public static ODocument convert(PostCommand command) {
-        ODocument doc = new ODocument(command.getType());
-        doc.field("title", command.getTitle());
-        doc.field("content", command.getContent());
-        doc.field("type", command.getType());
-        doc.field("createTime", new Date());
-        return doc;
-    }
-
-    public static Post buildPostSelf(ODocument doc) {
+    public static Post buildPost(ODocument doc) {
         Post post = new Post();
         post.setId(doc.getIdentity().toString());
 
@@ -48,12 +39,7 @@ public class PostMapper {
             post.setDeleted(deleted);
         }
  
-        return post;
-    }
-
-    public static Post buildPost(ODocument doc) {
-        Post post = buildPostSelf(doc);
-
+        //creator
         Set<ODocument> inEdgesDoc = doc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
             ODocument accountDoc = inEdgeDoc.field("out");
@@ -61,24 +47,8 @@ public class PostMapper {
             post.setAccount(account);
             break;
         }
+
         return post;
     }
 
-    /**
-    public static Post buildPostDetails(ODocument postDoc) {
-        Post post = buildPost(postDoc);
-
-        List<ODocument> messagesDoc = postDoc.field("messages");
-        if(messagesDoc != null) {
-            for(ODocument messageDoc : messagesDoc) {
-                String deleted = messageDoc.field("deleted", String.class);
-                if(deleted == null) {
-                    PostMessage postMessage = PostMessageMapper.buildPostMessageDetails(messageDoc);
-                    post.addPostMessage(postMessage);
-                }
-            }
-        }
-        return post;
-    }
-    */
 }

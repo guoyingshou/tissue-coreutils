@@ -77,7 +77,7 @@ public class PlanDaoImpl implements PlanDao {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
-                plan = PlanMapper.buildPlanDetails(doc);
+                plan = PlanMapper.buildPlan(doc);
             }
         }
         finally {
@@ -103,7 +103,8 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public Boolean isMember(String planId, String accountId) {
-        String sql = "select from " + planId + " where in[label='joinGroup'].out in " + accountId;
+        //String sql = "select from " + planId + " where in[label='joinGroup'].out in " + accountId;
+        String sql = "select from " + planId + " where in.out in " + accountId;
         logger.debug(sql);
 
         Boolean isMember = false;
@@ -132,7 +133,7 @@ public class PlanDaoImpl implements PlanDao {
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 ODocument topicDoc = doc.field("topic");
-                topic = TopicMapper.buildTopicDetails(topicDoc);
+                topic = TopicMapper.buildTopic(topicDoc);
             }
         }
         finally {
@@ -171,7 +172,7 @@ public class PlanDaoImpl implements PlanDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                Post post = PostMapper.buildPostSelf(doc);
+                Post post = PostMapper.buildPost(doc);
                 posts.add(post);
             }
         }

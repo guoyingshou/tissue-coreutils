@@ -105,24 +105,4 @@ public class ArticleDaoImpl implements ArticleDao {
         return topic;
     }
 
-    /**
-    public List<Post> getLatestPosts(int limit) {
-        List<Post> posts = new ArrayList();
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            String sql = "select from Post where deleted is null and plan.topic.deleted is null and type contains ['concept', 'note', 'tutorial'] order by createTime desc limit " + limit;
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            for(ODocument doc : docs) {
-                Post post = PostMapper.buildPostSelf(doc);
-                posts.add(post);
-            }
-        }
-        finally {
-            db.close();
-        }
-        return posts;
-    }
-    */
-
 }

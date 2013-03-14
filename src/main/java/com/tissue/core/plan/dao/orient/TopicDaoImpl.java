@@ -82,7 +82,7 @@ public class TopicDaoImpl implements TopicDao {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
-                topic = TopicMapper.buildTopicDetails(doc);
+                topic = TopicMapper.buildTopic(doc);
             }
         }
         finally {

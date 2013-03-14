@@ -379,7 +379,7 @@ public class UserDaoImpl implements UserDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                Plan plan = PlanMapper.buildPlanSelf(doc);
+                Plan plan = PlanMapper.buildPlan(doc);
                 plans.add(plan);
             }
         }
@@ -398,7 +398,7 @@ public class UserDaoImpl implements UserDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                Plan plan = PlanMapper.buildPlanSelf(doc);
+                Plan plan = PlanMapper.buildPlan(doc);
                 plans.add(plan);
             }
         }

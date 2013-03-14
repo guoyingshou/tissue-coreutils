@@ -22,7 +22,7 @@ public class PlanMapper {
         return doc;
     }
 
-    public static Plan buildPlanSelf(ODocument doc) {
+    public static Plan buildPlan(ODocument doc) {
 
         Plan plan = new Plan();
         plan.setId(doc.getIdentity().toString());
@@ -44,37 +44,11 @@ public class PlanMapper {
             }
         }
 
-        return plan;
-    }
-
-    /**
-    public static Plan buildPlan(ODocument doc) {
-        Plan plan = buildPlanSelf(doc);
-
         ODocument topicDoc = doc.field("topic");
-        Topic topic = TopicMapper.buildTopic(topicDoc);
+        Topic topic = TopicMapper.buildTopicSelf(topicDoc);
         plan.setTopic(topic);
 
         return plan;
     }
-     */
-
-    public static Plan buildPlanDetails(ODocument doc) {
-        Plan plan = buildPlanSelf(doc);
-        if(plan.isActive()) { 
-            Set<ODocument> inEdgesDoc = doc.field("in");
-            if(inEdgesDoc != null) {
-                for(ODocument inEdgeDoc : inEdgesDoc) {
-                    String label = inEdgeDoc.field("label");
-                    if("joinGroup".equals(label)) {
-                        ODocument memberDoc = inEdgeDoc.field("out");
-                        Account member = AccountMapper.buildAccount(memberDoc);
-                        plan.addMember(member);
-                    }
-                }
-            }
-        }
-        return plan;
-     }
 
 }
