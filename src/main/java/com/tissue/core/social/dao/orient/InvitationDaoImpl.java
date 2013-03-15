@@ -1,29 +1,10 @@
 package com.tissue.core.social.dao.orient;
 
-import com.tissue.core.command.UserCommand;
-import com.tissue.core.command.ProfileCommand;
-import com.tissue.core.command.EmailCommand;
-import com.tissue.core.command.PasswordCommand;
-import com.tissue.core.command.InvitationCommand;
-import com.tissue.core.command.ImpressionCommand;
-import com.tissue.core.exceptions.NoRecordFoundException;
+import com.tissue.core.Account;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.mapper.TopicMapper;
-import com.tissue.core.mapper.PlanMapper;
-import com.tissue.core.mapper.PostMapper;
-import com.tissue.core.mapper.UserMapper;
-import com.tissue.core.mapper.AccountMapper;
+import com.tissue.core.command.InvitationCommand;
 import com.tissue.core.mapper.InvitationMapper;
-import com.tissue.core.mapper.ActivityStreamMapper;
-import com.tissue.core.plan.Topic;
-import com.tissue.core.plan.Plan;
-import com.tissue.core.plan.Post;
-import com.tissue.core.social.Account;
-import com.tissue.core.social.User;
-import com.tissue.core.social.Impression;
 import com.tissue.core.social.Invitation;
-import com.tissue.core.social.Activity;
-import com.tissue.core.social.About;
 import com.tissue.core.social.dao.InvitationDao;
 
 import org.springframework.stereotype.Component;
@@ -49,7 +30,7 @@ import com.google.common.hash.Hashing;
 @Component
 public class InvitationDaoImpl implements InvitationDao {
 
-    private static Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(InvitationDaoImpl.class);
 
     @Autowired
     protected OrientDataSource dataSource;

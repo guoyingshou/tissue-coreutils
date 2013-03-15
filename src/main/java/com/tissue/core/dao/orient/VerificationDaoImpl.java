@@ -1,8 +1,8 @@
-package com.tissue.core.social.dao.orient;
+package com.tissue.core.dao.orient;
 
+import com.tissue.core.dao.VerificationDao;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.command.VerificationCommand;
-import com.tissue.core.social.dao.VerificationDao;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;

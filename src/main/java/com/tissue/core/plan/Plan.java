@@ -1,8 +1,7 @@
 package com.tissue.core.plan;
 
-import com.tissue.core.social.Account;
 import com.tissue.core.TimeFormat;
-import com.tissue.core.social.Account;
+import com.tissue.core.Account;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;

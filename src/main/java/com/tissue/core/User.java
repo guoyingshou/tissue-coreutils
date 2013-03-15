@@ -1,4 +1,4 @@
-package com.tissue.core.social;
+package com.tissue.core;
 
 import com.tissue.core.plan.Plan;
 

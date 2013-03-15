@@ -1,6 +1,8 @@
 package com.tissue.core.plan;
 
-public class QuestionComment extends Comment {
+import com.tissue.core.UserGeneratedContent;
+
+public class QuestionComment extends UserGeneratedContent {
 
     private Question question;
     public void setQuestion(Question question) {

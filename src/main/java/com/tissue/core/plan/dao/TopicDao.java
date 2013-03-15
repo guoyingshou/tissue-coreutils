@@ -2,9 +2,6 @@ package com.tissue.core.plan.dao;
 
 import com.tissue.core.command.TopicCommand;
 import com.tissue.core.plan.Topic;
-import com.tissue.core.plan.Plan;
-import com.tissue.core.plan.Post;
-import com.tissue.core.plan.Question;
 import java.util.List;
 
 public interface TopicDao {
@@ -13,7 +10,9 @@ public interface TopicDao {
 
     void update(TopicCommand command);
 
-    Topic getTopic(String id);
+    Topic getTopic(String topicId);
+
+    Topic getTopicByPlan(String planId);
 
     List<Topic> getTrendingTopics(int num);
 
@@ -29,22 +28,6 @@ public interface TopicDao {
 
     List<Topic> getPagedTopicsByTag(String tag, int page, int size);
 
-    /**
-     * posts
-     */
-    long getPostsCount(String topicId);
-
-    List<Post> getPagedPosts(String topicId, int page, int size);
-
-    long getPostsCountByType(String topicId, String type);
-
-    List<Post> getPagedPostsByType(String topicId, String type, int page, int size);
-
-    /**
-     * questions
-     */
-    long getQuestionsCount(String topicId);
-
-    List<Question> getPagedQuestions(String topicId, int page, int size);
+    List<Topic> getNewTopics(String excludingUserId, int limit);
 
 }

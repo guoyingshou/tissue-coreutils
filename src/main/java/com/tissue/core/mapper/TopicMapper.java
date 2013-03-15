@@ -1,7 +1,7 @@
 package com.tissue.core.mapper;
 
+import com.tissue.core.Account;
 import com.tissue.core.command.TopicCommand;
-import com.tissue.core.social.Account;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 

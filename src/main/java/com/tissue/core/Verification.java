@@ -1,11 +1,13 @@
-package com.tissue.core.social;
+package com.tissue.core;
 
 import java.io.Serializable;
 
 public class Verification implements Serializable {
+
     private String id;
     private String code;
-    private String accountId;
+
+    private Account account;
 
     public void setId(String id) {
         this.id = id;
@@ -23,11 +25,11 @@ public class Verification implements Serializable {
         return code;
     }
 
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
+    public void setAccount(Account account) {
+        this.account= account;
     }
 
-    public String getAccountId() {
-        return accountId;
+    public Account getAccount() {
+        return account;
     }
 }

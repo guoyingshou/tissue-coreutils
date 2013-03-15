@@ -1,18 +1,10 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.social.User;
-import com.tissue.core.social.Account;
+import com.tissue.core.User;
+import com.tissue.core.Account;
 import com.tissue.core.social.Invitation;
-
-//import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-
 import java.util.Date;
-/**
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-*/
 
 public class InvitationMapper {
 

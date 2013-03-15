@@ -1,4 +1,4 @@
-package com.tissue.core.social.dao;
+package com.tissue.core.dao;
 
 import com.tissue.core.command.ResetRequestCommand;
 import com.tissue.core.command.ResetPasswordCommand;

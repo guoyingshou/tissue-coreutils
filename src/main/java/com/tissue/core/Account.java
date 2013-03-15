@@ -1,4 +1,4 @@
-package com.tissue.core.social;
+package com.tissue.core;
 
 import java.io.Serializable;
 import java.util.Date;

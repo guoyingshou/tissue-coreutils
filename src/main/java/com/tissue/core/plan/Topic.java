@@ -1,10 +1,11 @@
 package com.tissue.core.plan;
 
+import com.tissue.core.UserGeneratedContent2;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Topic extends Post {
+public class Topic extends UserGeneratedContent2 {
 
     private Set<String> tags;
     private List<Plan> plans;

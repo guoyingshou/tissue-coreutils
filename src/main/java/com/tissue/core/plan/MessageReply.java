@@ -1,6 +1,8 @@
 package com.tissue.core.plan;
 
-public class MessageReply extends Comment {
+import com.tissue.core.UserGeneratedContent;
+
+public class MessageReply extends UserGeneratedContent {
 
     private Message message;
 

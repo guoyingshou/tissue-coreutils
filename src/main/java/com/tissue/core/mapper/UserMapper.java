@@ -1,10 +1,10 @@
 package com.tissue.core.mapper;
 
+import com.tissue.core.User;
+import com.tissue.core.About;
 import com.tissue.core.command.UserCommand;
-import com.tissue.core.social.User;
 import com.tissue.core.social.Invitation;
 import com.tissue.core.social.Impression;
-import com.tissue.core.social.About;
 import com.tissue.core.plan.Plan;
 
 import com.orientechnologies.orient.core.id.ORecordId;

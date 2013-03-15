@@ -1,11 +1,8 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.command.MessageReplyCommand;
 import com.tissue.core.util.OrientDataSource;
-
+import com.tissue.core.command.MessageReplyCommand;
 import com.tissue.core.mapper.MessageReplyMapper;
-import com.tissue.core.social.User;
-import com.tissue.core.plan.Message;
 import com.tissue.core.plan.MessageReply;
 import com.tissue.core.plan.dao.MessageReplyDao;
 

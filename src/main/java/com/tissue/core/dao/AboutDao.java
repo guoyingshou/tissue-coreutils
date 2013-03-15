@@ -1,7 +1,7 @@
-package com.tissue.core.social.dao;
+package com.tissue.core.dao;
 
+import com.tissue.core.About;
 import com.tissue.core.command.CommentCommand;
-import com.tissue.core.social.About;
 import java.util.List;
 
 public interface AboutDao {

@@ -1,6 +1,8 @@
 package com.tissue.core.plan;
 
-public class AnswerComment extends Comment {
+import com.tissue.core.UserGeneratedContent;
+
+public class AnswerComment extends UserGeneratedContent {
 
     private Answer answer;
 

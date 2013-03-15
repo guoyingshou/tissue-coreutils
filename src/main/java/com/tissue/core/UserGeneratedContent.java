@@ -1,27 +1,23 @@
-package com.tissue.core.plan;
-
-
-import com.tissue.core.TimeFormat;
-import com.tissue.core.social.Account;
+package com.tissue.core;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import java.io.Serializable;
-import java.util.Date;
+
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Date;
 
-public class Comment {
+public class UserGeneratedContent {
 
-    protected String id;
-    protected String content;
-    protected Date createTime;
-    protected Date updateTime;
-    protected Account account;
-   
+    private String id;
+    private String content;
     private String type;
+    private Date createTime;
+    private Date updateTime;
     private boolean deleted = false;
+
+    private Account account;
 
     public void setId(String id) {
         this.id = id;
@@ -37,6 +33,14 @@ public class Comment {
 
     public String getContent() {
         return content;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public void setCreateTime(Date createTime) {
@@ -63,12 +67,11 @@ public class Comment {
         return account;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getType() {
-        return type;
+    public boolean isOwner(String viewerAccountId) {
+        if((viewerAccountId != null) && viewerAccountId.equals(account.getId())) {
+            return true;
+        }
+        return false;
     }
 
     public void setDeleted(boolean deleted) {
@@ -81,13 +84,6 @@ public class Comment {
 
     public TimeFormat getTimeBefore() {
         return new TimeFormat(new DateTime(getCreateTime()), new DateTime());
-    }
-
-    public boolean isOwner(String viewerAccountId) {
-        if((viewerAccountId != null) && viewerAccountId.equals(account.getId())) {
-            return true;
-        }
-        return false;
     }
 
 }

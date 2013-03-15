@@ -5,17 +5,8 @@ import java.util.ArrayList;
 
 public class Question extends Post {
 
-    private Plan plan;
     private List<QuestionComment> comments;
     private List<Answer> answers;
-
-    public void setPlan(Plan plan) {
-        this.plan = plan;
-    }
-
-    public Plan getPlan() {
-        return plan;
-    }
 
     public void addComment(QuestionComment comment) {
         if(comments == null) {

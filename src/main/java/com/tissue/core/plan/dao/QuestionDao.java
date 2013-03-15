@@ -2,7 +2,6 @@ package com.tissue.core.plan.dao;
 
 import com.tissue.core.command.QuestionCommand;
 import com.tissue.core.plan.Question;
-import com.tissue.core.plan.Topic;
 import java.util.List;
 
 public interface QuestionDao {
@@ -13,6 +12,8 @@ public interface QuestionDao {
 
     Question getQuestion(String id);
 
-    Topic getTopic(String questionId);
+    long getQuestionsCountByTopic(String topicId);
+
+    List<Question> getPagedQuestionsByTopic(String topicId, int page, int size);
 
 }

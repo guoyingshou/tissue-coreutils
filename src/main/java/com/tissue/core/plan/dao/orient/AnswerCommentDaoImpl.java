@@ -1,10 +1,8 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.command.AnswerCommentCommand;
 import com.tissue.core.util.OrientDataSource;
-
+import com.tissue.core.command.AnswerCommentCommand;
 import com.tissue.core.mapper.AnswerCommentMapper;
-import com.tissue.core.social.User;
 import com.tissue.core.plan.Answer;
 import com.tissue.core.plan.AnswerComment;
 import com.tissue.core.plan.dao.AnswerCommentDao;

@@ -1,9 +1,11 @@
 package com.tissue.core.plan;
 
+import com.tissue.core.UserGeneratedContent;
+
 import java.util.List;
 import java.util.ArrayList;
 
-public class Answer extends Comment {
+public class Answer extends UserGeneratedContent {
 
     private Question question;
     List<AnswerComment> comments;

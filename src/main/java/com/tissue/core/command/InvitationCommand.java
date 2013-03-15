@@ -1,7 +1,7 @@
 package com.tissue.core.command;
 
-import com.tissue.core.social.User;
-import com.tissue.core.social.Account;
+import com.tissue.core.User;
+import com.tissue.core.Account;
 
 public interface InvitationCommand {
     String getId();

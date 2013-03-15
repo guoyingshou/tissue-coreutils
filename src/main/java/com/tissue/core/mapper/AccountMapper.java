@@ -1,8 +1,8 @@
 package com.tissue.core.mapper;
 
 import com.tissue.core.command.UserCommand;
-import com.tissue.core.social.Account;
-import com.tissue.core.social.User;
+import com.tissue.core.Account;
+import com.tissue.core.User;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;

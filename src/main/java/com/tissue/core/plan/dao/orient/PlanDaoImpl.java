@@ -1,15 +1,9 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.command.PlanCommand;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.mapper.UserMapper;
-import com.tissue.core.mapper.TopicMapper;
+import com.tissue.core.command.PlanCommand;
 import com.tissue.core.mapper.PlanMapper;
-import com.tissue.core.mapper.PostMapper;
-import com.tissue.core.social.User;
-import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
-import com.tissue.core.plan.Post;
 import com.tissue.core.plan.dao.PlanDao;
 
 import org.springframework.stereotype.Component;
@@ -121,65 +115,43 @@ public class PlanDaoImpl implements PlanDao {
         return isMember;
     }
 
-    /**
-     * Get a topic by plan id with all fields available.
-     */
-    public Topic getTopic(String planId) {
-        Topic topic = null;
-        String sql = "select topic from " + planId;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                ODocument topicDoc = doc.field("topic");
-                topic = TopicMapper.buildTopic(topicDoc);
-            }
-        }
-        finally {
-            db.close();
-        }
-        return topic;
-    }
+    public List<Plan> getPlansByUser(String userId) {
+        String sql = "select from plan where in.out.user in " + userId;
+        logger.debug(sql);
 
-    /**
-     * post
-     */
-    public long getPostsCount(String planId) {
-        long count = 0;
-
-        String sql = "select count(*) from Post where deleted is null and plan in " + planId;
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                count = doc.field("count", long.class);
-            }
-        }
-        finally {
-            db.close();
-        }
-        return count;
-    }
-
-    public List<Post> getPagedPosts(String planId, int page, int size) {
-        List<Post> posts = new ArrayList();
-        String sql = "select from Post where deleted is null and plan in " + planId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
-
+        List<Plan> plans = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                Post post = PostMapper.buildPost(doc);
-                posts.add(post);
+                Plan plan = PlanMapper.buildPlan(doc);
+                plans.add(plan);
             }
         }
         finally {
             db.close();
         }
-        return posts;
+        return plans;
     }
- 
+
+    public List<Plan> getPlansByAccount(String accountId) {
+        String sql = "select from plan where in.out in " + accountId;
+        logger.debug(sql);
+
+        List<Plan> plans = new ArrayList();
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            for(ODocument doc : docs) {
+                Plan plan = PlanMapper.buildPlan(doc);
+                plans.add(plan);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return plans;
+    }
+
+
 }

@@ -1,9 +1,7 @@
 package com.tissue.core.plan.dao;
 
 import com.tissue.core.command.PlanCommand;
-import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
-import com.tissue.core.plan.Post;
 import java.util.List;
 
 public interface PlanDao {
@@ -16,16 +14,8 @@ public interface PlanDao {
 
     Boolean isMember(String planId, String accountId);
 
-    /**
-     * topic
-     */
-    Topic getTopic(String planId);
+    List<Plan> getPlansByUser(String userId);
 
-    /**
-     * post
-     */
-    long getPostsCount(String planId);
-
-    List<Post> getPagedPosts(String planId, int page, int size);
+    List<Plan> getPlansByAccount(String accountId);
 
 }

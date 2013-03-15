@@ -1,7 +1,7 @@
 package com.tissue.core.social;
 
-import com.tissue.core.social.User;
-import com.tissue.core.social.Account;
+import com.tissue.core.User;
+import com.tissue.core.Account;
 import java.io.Serializable;
 import java.util.Date;
 

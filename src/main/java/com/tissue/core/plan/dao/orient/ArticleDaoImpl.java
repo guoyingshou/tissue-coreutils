@@ -1,14 +1,9 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.command.ArticleCommand;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.mapper.TopicMapper;
-//import com.tissue.core.mapper.UserMapper;
+import com.tissue.core.command.ArticleCommand;
 import com.tissue.core.mapper.ArticleMapper;
-import com.tissue.core.social.User;
 import com.tissue.core.plan.Article;
-//import com.tissue.core.plan.Plan;
-import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.dao.ArticleDao;
 
 import org.springframework.stereotype.Component;
@@ -85,6 +80,7 @@ public class ArticleDaoImpl implements ArticleDao {
         return article;
     }
 
+    /**
     public Topic getTopic(String articleId) {
         String sql = "select plan.topic as topic from " + articleId;
         logger.debug(sql);
@@ -104,5 +100,6 @@ public class ArticleDaoImpl implements ArticleDao {
         }
         return topic;
     }
+    */
 
 }
