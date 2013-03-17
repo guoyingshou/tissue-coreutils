@@ -73,10 +73,11 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
         Article article = null;
         OGraphDatabase db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:4"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 article = ArticleMapper.buildArticle(doc);
+
                 ODocument planDoc = doc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
                 article.setPlan(plan);
@@ -86,14 +87,18 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
                 plan.setTopic(topic);
 
                 List<ODocument> messagesDoc = doc.field("messages");
-                for(ODocument messageDoc : messagesDoc) {
-                    Message message = MessageMapper.buildMessage(messageDoc);
-                    article.addMessage(message);
+                if(messagesDoc != null) {
+                    for(ODocument messageDoc : messagesDoc) {
+                        Message message = MessageMapper.buildMessage(messageDoc);
+                        article.addMessage(message);
 
-                    List<ODocument> messageRepliesDoc = messageDoc.field("messageReplies");
-                    for(ODocument messageReplyDoc : messageRepliesDoc) {
-                        MessageReply messageReply = MessageReplyMapper.buildMessageReply(messageReplyDoc);
-                        message.addReply(messageReply);
+                        List<ODocument> messageRepliesDoc = messageDoc.field("messageReplies");
+                        if(messageRepliesDoc != null) {
+                            for(ODocument messageReplyDoc : messageRepliesDoc) {
+                                MessageReply messageReply = MessageReplyMapper.buildMessageReply(messageReplyDoc);
+                                message.addReply(messageReply);
+                            }
+                        }
                     }
                 }
             }

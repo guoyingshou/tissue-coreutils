@@ -97,19 +97,25 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                 plan.setTopic(topic);
 
                 List<ODocument> commentsDoc = doc.field("comments");
-                for(ODocument commentDoc : commentsDoc) {
-                    QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
-                    question.addComment(comment);
+                if(commentsDoc != null) {
+                    for(ODocument commentDoc : commentsDoc) {
+                        QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
+                        question.addComment(comment);
+                    }
                 }
 
                 List<ODocument> answersDoc = doc.field("answers");
-                for(ODocument answerDoc : answersDoc) {
-                    Answer answer = AnswerMapper.buildAnswer(answerDoc);
+                if(answersDoc != null) {
+                    for(ODocument answerDoc : answersDoc) {
+                        Answer answer = AnswerMapper.buildAnswer(answerDoc);
 
-                    List<ODocument> answerCommentsDoc = answerDoc.field("comments");
-                    for(ODocument answerCommentDoc : answerCommentsDoc) {
-                        AnswerComment answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
-                        answer.addComment(answerComment);
+                        List<ODocument> answerCommentsDoc = answerDoc.field("comments");
+                        if(answerCommentsDoc != null) {
+                            for(ODocument answerCommentDoc : answerCommentsDoc) {
+                                AnswerComment answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
+                                answer.addComment(answerComment);
+                            }
+                        }
                     }
                 }
             }
