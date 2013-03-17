@@ -73,28 +73,4 @@ public class UserMapper {
         return impression;
     }
 
-    /**
-    public static Invitation buildInvitationSelf(ODocument doc) {
-        ODocument fromDoc = doc.field("out");
-        ODocument fromUserDoc = fromDoc.field("user");
-        User invitor = UserMapper.buildUserSelf(fromUserDoc);
-
-        //"in" is a user
-        ODocument toUserDoc = doc.field("in");
-        User invitee = UserMapper.buildUserSelf(toUserDoc);
-
-        String content = doc.field("content", String.class);
-        Date createTime = doc.field("createTime", Date.class);
-
-        Invitation invitation = new Invitation();
-        invitation.setId(doc.getIdentity().toString());
-        invitation.setInvitor(invitor);
-        invitation.setInvitee(invitee);
-        invitation.setContent(content);
-        invitation.setCreateTime(createTime);
-
-        return invitation;
-    }
-    */
-
 }

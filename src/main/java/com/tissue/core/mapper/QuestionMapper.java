@@ -58,8 +58,9 @@ public class QuestionMapper {
         return q;
     }
 
-    public static Question buildQuestionDetails(ODocument doc) {
-        Question q = buildQuestion(doc);
+    /**
+    public static Question buildQuestion(ODocument doc) {
+        Question q = buildQuestionSelf(doc);
 
         ODocument planDoc = doc.field("plan");
         Plan plan = PlanMapper.buildPlan(planDoc);
@@ -87,5 +88,6 @@ public class QuestionMapper {
         }
         return q;
     }
+    */
 
 }

@@ -40,22 +40,9 @@ public class AnswerCommentMapper {
                 ODocument accountDoc = inEdge.field("out");
                 Account account = AccountMapper.buildAccount(accountDoc);
                 answerComment.setAccount(account);
-                //User user = UserMapper.buildUserSelf(userDoc);
-                //answerComment.setUser(user);
                 break;
             }
         }
-
-        return answerComment;
-    }
-
-    public static AnswerComment buildAnswerCommentDetails(ODocument commentDoc) {
-
-        AnswerComment answerComment = buildAnswerComment(commentDoc);
-
-        ODocument answerDoc = commentDoc.field("answer");
-        Answer answer = AnswerMapper.buildAnswer(answerDoc);
-        answerComment.setAnswer(answer);
 
         return answerComment;
     }

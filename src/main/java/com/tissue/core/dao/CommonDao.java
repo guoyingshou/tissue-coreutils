@@ -1,4 +1,4 @@
-package com.tissue.core.orient.dao;
+package com.tissue.core.dao;
 
 public interface CommonDao {
 

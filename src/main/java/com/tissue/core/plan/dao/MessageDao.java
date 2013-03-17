@@ -8,6 +8,8 @@ public interface MessageDao {
 
     String create(MessageCommand command);
 
+    Message getMessage(String messageId);
+
     void update(MessageCommand command);
 
 

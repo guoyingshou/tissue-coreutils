@@ -22,7 +22,6 @@ public class MessageMapper {
     }
 
     public static Message buildMessage(ODocument doc) {
-
         Message message = new Message();
         message.setId(doc.getIdentity().toString());
 
@@ -40,16 +39,19 @@ public class MessageMapper {
             break;
         }
 
+        /**
         ODocument articleDoc = doc.field("article");
         Article article = ArticleMapper.buildArticle(articleDoc);
         message.setArticle(article);
+        */
 
         return message;
     }
 
-    public static Message buildMessageDetails(ODocument doc) {
+    /**
+    public static Message buildMessage(ODocument doc) {
 
-        Message message = buildMessage(doc);
+        Message message = buildMessageSelf(doc);
 
         List<ODocument> commentsDoc = doc.field("comments");
         if(commentsDoc != null) {
@@ -63,4 +65,5 @@ public class MessageMapper {
         }
         return message;
     }
+    */
 }

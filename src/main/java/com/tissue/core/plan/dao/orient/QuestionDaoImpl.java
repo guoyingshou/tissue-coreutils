@@ -2,8 +2,18 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.command.QuestionCommand;
+import com.tissue.core.mapper.TopicMapper;
+import com.tissue.core.mapper.PlanMapper;
 import com.tissue.core.mapper.QuestionMapper;
+import com.tissue.core.mapper.QuestionCommentMapper;
+import com.tissue.core.mapper.AnswerMapper;
+import com.tissue.core.mapper.AnswerCommentMapper;
+import com.tissue.core.plan.Topic;
+import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Question;
+import com.tissue.core.plan.QuestionComment;
+import com.tissue.core.plan.Answer;
+import com.tissue.core.plan.AnswerComment;
 import com.tissue.core.plan.dao.QuestionDao;
 
 import org.springframework.stereotype.Component;
@@ -22,11 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component
-public class QuestionDaoImpl implements QuestionDao {
-    private static Logger logger = LoggerFactory.getLogger(QuestionDaoImpl.class);
+public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
 
-    @Autowired
-    protected OrientDataSource dataSource;
+    private static Logger logger = LoggerFactory.getLogger(QuestionDaoImpl.class);
 
     public String create(QuestionCommand command) {
         String id = null;
@@ -79,7 +87,31 @@ public class QuestionDaoImpl implements QuestionDao {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
-                question = QuestionMapper.buildQuestionDetails(doc);
+                question = QuestionMapper.buildQuestion(doc);
+                ODocument planDoc = doc.field("plan");
+                Plan plan = PlanMapper.buildPlan(planDoc);
+                question.setPlan(plan);
+
+                ODocument topicDoc = planDoc.field("topic");
+                Topic topic = TopicMapper.buildTopic(topicDoc);
+                plan.setTopic(topic);
+
+                List<ODocument> commentsDoc = doc.field("comments");
+                for(ODocument commentDoc : commentsDoc) {
+                    QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
+                    question.addComment(comment);
+                }
+
+                List<ODocument> answersDoc = doc.field("answers");
+                for(ODocument answerDoc : answersDoc) {
+                    Answer answer = AnswerMapper.buildAnswer(answerDoc);
+
+                    List<ODocument> answerCommentsDoc = answerDoc.field("comments");
+                    for(ODocument answerCommentDoc : answerCommentsDoc) {
+                        AnswerComment answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
+                        answer.addComment(answerComment);
+                    }
+                }
             }
         }
         finally {
@@ -87,28 +119,6 @@ public class QuestionDaoImpl implements QuestionDao {
         }
         return question;
     }
-
-    /**
-    public Topic getTopic(String questionId) {
-        String sql = "select plan.topic as topic from " + questionId;
-        logger.debug(sql);
-
-        Topic topic = null;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                ODocument topicDoc = doc.field("topic");
-                topic = TopicMapper.buildTopic(topicDoc);
-            }
-        }
-        finally {
-            db.close();
-        }
-        return topic;
-    }
-    */
 
     public long getQuestionsCountByTopic(String topicId) {
         long count = 0;

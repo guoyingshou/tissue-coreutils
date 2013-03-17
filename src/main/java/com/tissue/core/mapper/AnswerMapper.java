@@ -41,14 +41,17 @@ public class AnswerMapper {
                 break;
             }
         }
+        /**
         ODocument qDoc = answerDoc.field("question");
         Question question = QuestionMapper.buildQuestion(qDoc);
         answer.setQuestion(question);
+        */
         return answer;
     }
 
-    public static Answer buildAnswerDetails(ODocument answerDoc) {
-        Answer answer = buildAnswer(answerDoc);
+    /**
+    public static Answer buildAnswer(ODocument answerDoc) {
+        Answer answer = buildAnswerSelf(answerDoc);
         List<ODocument> commentsDoc = answerDoc.field("comments");
         if(commentsDoc != null) {
             for(ODocument commentDoc : commentsDoc) {
@@ -61,5 +64,6 @@ public class AnswerMapper {
         }
         return answer;
     }
+    */
 
 }

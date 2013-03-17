@@ -8,6 +8,8 @@ public interface AnswerDao {
 
     String create(AnswerCommand command);
 
+    Answer getAnswer(String answerId);
+
     void update(AnswerCommand command);
 
 

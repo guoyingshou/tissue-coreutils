@@ -7,6 +7,8 @@ public interface MessageReplyDao {
 
     String create(MessageReplyCommand command);
 
+    MessageReply getMessageReply(String messageReplyId);
+
     void update(MessageReplyCommand command);
  
 }

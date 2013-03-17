@@ -1,7 +1,7 @@
-package com.tissue.core.orient.dao.orient;
+package com.tissue.core.dao.orient;
 
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.orient.dao.CommonDao;
+import com.tissue.core.dao.CommonDao;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;

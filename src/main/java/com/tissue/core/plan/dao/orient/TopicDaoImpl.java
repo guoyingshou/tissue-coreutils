@@ -3,8 +3,10 @@ package com.tissue.core.plan.dao.orient;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.command.TopicCommand;
 import com.tissue.core.plan.Topic;
+import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.dao.TopicDao;
 import com.tissue.core.mapper.TopicMapper;
+import com.tissue.core.mapper.PlanMapper;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -82,6 +84,11 @@ public class TopicDaoImpl implements TopicDao {
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 topic = TopicMapper.buildTopic(doc);
+                List<ODocument> plansDoc = doc.field("plans");
+                for(ODocument planDoc :plansDoc) {
+                    Plan plan = PlanMapper.buildPlan(planDoc);
+                    topic.addPlan(plan);
+                }
             }
         }
         finally {
@@ -102,7 +109,37 @@ public class TopicDaoImpl implements TopicDao {
                 ODocument doc = docs.get(0);
                 ODocument topicDoc = doc.field("topic");
                 topic = TopicMapper.buildTopic(topicDoc);
+                List<ODocument> plansDoc = topicDoc.field("plans");
+                for(ODocument planDoc : plansDoc) {
+                    Plan plan = PlanMapper.buildPlan(planDoc);
+                    topic.addPlan(plan);
+                }
             }
+        }
+        finally {
+            db.close();
+        }
+        return topic;
+    }
+
+    public Topic getTopicByPost(String postId) {
+        String sql = "select plan.topic as topic from " + postId;
+        logger.debug(sql);
+
+        Topic topic = null;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                ODocument topicDoc = doc.field("topic");
+                topic = TopicMapper.buildTopic(topicDoc);
+                List<ODocument> plansDoc = topicDoc.field("plans");
+                for(ODocument planDoc : plansDoc) {
+                    Plan plan = PlanMapper.buildPlan(planDoc);
+                    topic.addPlan(plan);
+                }
+             }
         }
         finally {
             db.close();

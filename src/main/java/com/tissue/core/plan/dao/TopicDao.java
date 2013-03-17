@@ -14,6 +14,8 @@ public interface TopicDao {
 
     Topic getTopicByPlan(String planId);
 
+    Topic getTopicByPost(String postId);
+
     List<Topic> getTrendingTopics(int num);
 
     List<Topic> getFeaturedTopics(int num);

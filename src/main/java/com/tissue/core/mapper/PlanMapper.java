@@ -44,11 +44,20 @@ public class PlanMapper {
             }
         }
 
+        return plan;
+    }
+
+    /**
+    public static Plan buildPlan(ODocument doc) {
+
+        Plan plan = buildPlanSelf(doc);
+
         ODocument topicDoc = doc.field("topic");
         Topic topic = TopicMapper.buildTopicSelf(topicDoc);
         plan.setTopic(topic);
 
         return plan;
     }
+    */
 
 }

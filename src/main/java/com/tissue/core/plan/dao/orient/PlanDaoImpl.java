@@ -2,7 +2,9 @@ package com.tissue.core.plan.dao.orient;
 
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.command.PlanCommand;
+import com.tissue.core.mapper.TopicMapper;
 import com.tissue.core.mapper.PlanMapper;
+import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.dao.PlanDao;
 
@@ -72,6 +74,9 @@ public class PlanDaoImpl implements PlanDao {
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 plan = PlanMapper.buildPlan(doc);
+                ODocument topicDoc = doc.field("topic");
+                Topic topic = TopicMapper.buildTopic(topicDoc);
+                plan.setTopic(topic);
             }
         }
         finally {
@@ -152,6 +157,5 @@ public class PlanDaoImpl implements PlanDao {
         }
         return plans;
     }
-
 
 }

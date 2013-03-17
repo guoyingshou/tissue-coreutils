@@ -58,8 +58,9 @@ public class ArticleMapper {
         return article;
     }
 
-    public static Article buildArticleDetails(ODocument postDoc) {
-        Article article = buildArticle(postDoc);
+    /**
+    public static Article buildArticle(ODocument postDoc) {
+        Article article = buildArticleSelf(postDoc);
 
         List<ODocument> messagesDoc = postDoc.field("messages");
         if(messagesDoc != null) {
@@ -73,4 +74,5 @@ public class ArticleMapper {
         }
         return article;
     }
+    */
 }

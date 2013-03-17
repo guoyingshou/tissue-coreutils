@@ -7,6 +7,8 @@ public interface AnswerCommentDao {
 
     String create(AnswerCommentCommand command);
 
+    AnswerComment getAnswerComment(String answerCommentId);
+
     void update(AnswerCommentCommand command);
 
 }

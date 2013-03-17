@@ -8,6 +8,8 @@ public interface QuestionCommentDao {
 
     String create(QuestionCommentCommand command);
 
+    QuestionComment getQuestionComment(String questionCommentId);
+
     void update(QuestionCommentCommand command);
  
 }
