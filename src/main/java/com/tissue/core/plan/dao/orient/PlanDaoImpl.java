@@ -150,6 +150,19 @@ public class PlanDaoImpl implements PlanDao {
             for(ODocument doc : docs) {
                 Plan plan = PlanMapper.buildPlan(doc);
                 plans.add(plan);
+
+                ODocument topicDoc = doc.field("topic");
+                Topic topic = TopicMapper.buildTopic(topicDoc);
+                plan.setTopic(topic);
+                /**
+                List<ODocument> plansDoc = topicDoc.field("plans");
+                if(plansDoc != null) {
+                    for(ODocument planDoc : plansDoc) {
+                        Plan p = PlanMapper.buildPlan(planDoc);
+                        topic.addPlan(p);
+                    }
+                }
+                */
             }
         }
         finally {

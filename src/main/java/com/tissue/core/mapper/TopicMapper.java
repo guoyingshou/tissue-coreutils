@@ -59,23 +59,4 @@ public class TopicMapper {
  
         return topic;
     }
-
-
-    /**
-    public static Topic buildTopic(ODocument doc) {
-        Topic topic = buildTopicSelf(doc);
-
-        List<ODocument> plansDoc = doc.field("plans", List.class);
-        if(plansDoc != null) {
-            for(ODocument planDoc : plansDoc) {
-                Plan plan = PlanMapper.buildPlan(planDoc);
-                plan.setTopic(topic);
-                topic.addPlan(plan);
-            }
-        }
- 
-        return topic;
-    }
-    */
-
 }

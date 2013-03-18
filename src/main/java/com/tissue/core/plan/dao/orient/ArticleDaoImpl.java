@@ -86,6 +86,14 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
 
+                List<ODocument> topicPlansDoc = topicDoc.field("plans");
+                if(topicPlansDoc != null) {
+                    for(ODocument topicPlanDoc : topicPlansDoc) {
+                        Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
+                        topic.addPlan(topicPlan);
+                    }
+                }
+
                 List<ODocument> messagesDoc = doc.field("messages");
                 if(messagesDoc != null) {
                     for(ODocument messageDoc : messagesDoc) {
