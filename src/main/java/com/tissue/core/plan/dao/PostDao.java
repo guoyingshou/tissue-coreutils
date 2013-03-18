@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface PostDao extends ContentDao {
 
-    void update(PostCommand command);
+    String create(PostCommand command);
 
-    //void delete(String postId);
+    void update(PostCommand command);
 
     List<Post> getLatestPosts(int limit);
    
