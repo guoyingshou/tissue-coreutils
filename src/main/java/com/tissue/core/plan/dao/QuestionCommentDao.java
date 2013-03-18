@@ -10,6 +10,6 @@ public interface QuestionCommentDao {
 
     QuestionComment getQuestionComment(String questionCommentId);
 
-    void update(QuestionCommentCommand command);
+    //void update(QuestionCommentCommand command);
  
 }

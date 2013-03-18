@@ -1,6 +1,5 @@
 package com.tissue.core.social.dao.orient;
 
-import com.tissue.core.About;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.ActivityStreamMapper;
 import com.tissue.core.social.Activity;

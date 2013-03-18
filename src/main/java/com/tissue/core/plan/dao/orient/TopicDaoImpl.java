@@ -1,6 +1,5 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.command.TopicCommand;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
@@ -26,12 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component
-public class TopicDaoImpl implements TopicDao {
+public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
 
     private static Logger logger = LoggerFactory.getLogger(TopicDaoImpl.class);
-
-    @Autowired
-    protected OrientDataSource dataSource;
 
     public String create(TopicCommand command) {
         String id = null;
@@ -85,9 +81,11 @@ public class TopicDaoImpl implements TopicDao {
                 ODocument doc = docs.get(0);
                 topic = TopicMapper.buildTopic(doc);
                 List<ODocument> plansDoc = doc.field("plans");
-                for(ODocument planDoc :plansDoc) {
-                    Plan plan = PlanMapper.buildPlan(planDoc);
-                    topic.addPlan(plan);
+                if(plansDoc != null) {
+                    for(ODocument planDoc :plansDoc) {
+                        Plan plan = PlanMapper.buildPlan(planDoc);
+                        topic.addPlan(plan);
+                    }
                 }
             }
         }
@@ -110,9 +108,11 @@ public class TopicDaoImpl implements TopicDao {
                 ODocument topicDoc = doc.field("topic");
                 topic = TopicMapper.buildTopic(topicDoc);
                 List<ODocument> plansDoc = topicDoc.field("plans");
-                for(ODocument planDoc : plansDoc) {
-                    Plan plan = PlanMapper.buildPlan(planDoc);
-                    topic.addPlan(plan);
+                if(plansDoc != null) {
+                    for(ODocument planDoc : plansDoc) {
+                        Plan plan = PlanMapper.buildPlan(planDoc);
+                        topic.addPlan(plan);
+                    }
                 }
             }
         }
@@ -135,9 +135,11 @@ public class TopicDaoImpl implements TopicDao {
                 ODocument topicDoc = doc.field("topic");
                 topic = TopicMapper.buildTopic(topicDoc);
                 List<ODocument> plansDoc = topicDoc.field("plans");
-                for(ODocument planDoc : plansDoc) {
-                    Plan plan = PlanMapper.buildPlan(planDoc);
-                    topic.addPlan(plan);
+                if(plansDoc != null) {
+                    for(ODocument planDoc : plansDoc) {
+                        Plan plan = PlanMapper.buildPlan(planDoc);
+                        topic.addPlan(plan);
+                    }
                 }
              }
         }

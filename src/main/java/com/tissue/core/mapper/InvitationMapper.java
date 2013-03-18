@@ -16,7 +16,7 @@ public class InvitationMapper {
 
         //"in" is a user
         ODocument toUserDoc = doc.field("in");
-        User to = UserMapper.buildUserSelf(toUserDoc);
+        User to = UserMapper.buildUser(toUserDoc);
 
         String content = doc.field("content", String.class);
         Date createTime = doc.field("createTime", Date.class);

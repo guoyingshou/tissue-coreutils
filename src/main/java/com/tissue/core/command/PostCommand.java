@@ -1,11 +1,10 @@
 package com.tissue.core.command;
 
 import com.tissue.core.Account;
+import com.tissue.core.plan.Plan;
 
-public interface PostCommand {
-    String getId();
+public interface PostCommand extends ContentCommand {
     String getTitle();
-    String getContent();
     String getType();
-    Account getAccount();
+    Plan getPlan();
 }

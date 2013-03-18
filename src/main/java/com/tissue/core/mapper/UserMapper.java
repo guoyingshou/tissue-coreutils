@@ -1,7 +1,6 @@
 package com.tissue.core.mapper;
 
 import com.tissue.core.User;
-import com.tissue.core.About;
 import com.tissue.core.command.UserCommand;
 import com.tissue.core.social.Invitation;
 import com.tissue.core.social.Impression;
@@ -26,7 +25,7 @@ public class UserMapper {
         return doc;
     }
 
-    public static User buildUserSelf(ODocument userDoc) {
+    public static User buildUser(ODocument userDoc) {
         User user = new User();
         String rid = userDoc.getIdentity().toString();
         user.setId(rid);
@@ -37,12 +36,10 @@ public class UserMapper {
         String headline = userDoc.field("headline", String.class);
         user.setHeadline(headline);
 
-        String resume = userDoc.field("resume", String.class);
-        user.setResume(resume);
-
         return user;
     }
 
+    /**
     public static User buildUser(ODocument doc) {
         User user = buildUserSelf(doc);
  
@@ -58,6 +55,7 @@ public class UserMapper {
         }
         return user;
     }
+    */
 
     public static Impression buildImpressionSelf(ODocument impressionDoc) {
 

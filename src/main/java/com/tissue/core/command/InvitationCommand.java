@@ -1,11 +1,7 @@
 package com.tissue.core.command;
 
 import com.tissue.core.User;
-import com.tissue.core.Account;
 
-public interface InvitationCommand {
-    String getId();
-    String getContent();
+public interface InvitationCommand extends ContentCommand {
     User getTo();
-    Account getFrom();
 }

@@ -1,7 +1,7 @@
 package com.tissue.core.mapper;
 
 import com.tissue.core.Account;
-import com.tissue.core.command.QuestionCommand;
+import com.tissue.core.command.PostCommand;
 import com.tissue.core.plan.Post;
 import com.tissue.core.plan.Question;
 import com.tissue.core.plan.QuestionComment;
@@ -19,7 +19,8 @@ import java.util.Set;
 
 public class QuestionMapper {
 
-    public static ODocument convertQuestion(QuestionCommand command) {
+    /**
+    public static ODocument convertQuestion(PostCommand command) {
         ODocument doc = new ODocument("Question");
         doc.field("title", command.getTitle());
         doc.field("content", command.getContent());
@@ -27,6 +28,7 @@ public class QuestionMapper {
         doc.field("createTime", new Date());
         return doc;
     }
+    */
 
     public static Question buildQuestion(ODocument doc) {
         Question q = new Question();

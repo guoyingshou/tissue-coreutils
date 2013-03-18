@@ -10,7 +10,7 @@ public interface AnswerDao {
 
     Answer getAnswer(String answerId);
 
-    void update(AnswerCommand command);
+    //void update(AnswerCommand command);
 
 
 }

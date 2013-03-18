@@ -1,6 +1,5 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.command.AnswerCommentCommand;
 import com.tissue.core.mapper.TopicMapper;
 import com.tissue.core.mapper.PlanMapper;
@@ -26,12 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component
-public class AnswerCommentDaoImpl implements AnswerCommentDao {
+public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommentDao {
 
     private static Logger logger = LoggerFactory.getLogger(AnswerCommentDaoImpl.class);
-
-    @Autowired
-    protected OrientDataSource dataSource;
 
     public String create(AnswerCommentCommand command) {
         String id = null;
@@ -97,21 +93,6 @@ public class AnswerCommentDaoImpl implements AnswerCommentDao {
             db.close();
         }
         return answerComment;
-    }
-
-
-    public void update(AnswerCommentCommand command) {
-        String sql = "update " + command.getId() + " set content = '" + command.getContent() + "'";
-        logger.debug(sql);
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-         }
-        finally {
-            db.close();
-        }
     }
 
 }

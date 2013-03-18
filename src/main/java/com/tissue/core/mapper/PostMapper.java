@@ -18,6 +18,15 @@ import java.util.Set;
 
 public class PostMapper {
 
+    public static ODocument convertPost(PostCommand command) {
+        ODocument doc = new ODocument("Article");
+        doc.field("title", command.getTitle());
+        doc.field("content", command.getContent());
+        doc.field("type", command.getType());
+        doc.field("createTime", new Date());
+        return doc;
+    }
+
     public static Post buildPost(ODocument doc) {
         Post post = new Post();
         post.setId(doc.getIdentity().toString());

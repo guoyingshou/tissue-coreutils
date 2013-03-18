@@ -102,7 +102,6 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public Boolean isMember(String planId, String accountId) {
-        //String sql = "select from " + planId + " where in[label='joinGroup'].out in " + accountId;
         String sql = "select from " + planId + " where in.out in " + accountId;
         logger.debug(sql);
 
@@ -131,7 +130,11 @@ public class PlanDaoImpl implements PlanDao {
             for(ODocument doc : docs) {
                 Plan plan = PlanMapper.buildPlan(doc);
                 plans.add(plan);
-            }
+
+                ODocument topicDoc = doc.field("topic");
+                Topic topic = TopicMapper.buildTopic(topicDoc);
+                plan.setTopic(topic);
+             }
         }
         finally {
             db.close();
@@ -154,15 +157,6 @@ public class PlanDaoImpl implements PlanDao {
                 ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
-                /**
-                List<ODocument> plansDoc = topicDoc.field("plans");
-                if(plansDoc != null) {
-                    for(ODocument planDoc : plansDoc) {
-                        Plan p = PlanMapper.buildPlan(planDoc);
-                        topic.addPlan(p);
-                    }
-                }
-                */
             }
         }
         finally {

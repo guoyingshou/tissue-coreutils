@@ -10,22 +10,6 @@ import java.util.List;
 
 public interface UserDao {
 
-    /**
-    boolean isUsernameExist(String username);
-
-    boolean isEmailExist(String email);
-
-    boolean isEmailExist(String excludingUserId, String email);
-
-    String create(UserCommand userCommand);
-
-    void updateEmail(EmailCommand command);
-
-    void updatePassword(PasswordCommand command);
-
-    Account getAccount(String accountId);
-    */
-
     User getUser(String userId);
 
     User getUserByAccount(String accountId);

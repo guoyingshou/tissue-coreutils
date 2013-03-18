@@ -1,6 +1,5 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.command.MessageCommand;
 import com.tissue.core.mapper.TopicMapper;
 import com.tissue.core.mapper.PlanMapper;
@@ -25,12 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component
-public class MessageDaoImpl implements MessageDao {
+public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
 
     private static Logger logger = LoggerFactory.getLogger(MessageDaoImpl.class);
-
-    @Autowired
-    protected OrientDataSource dataSource;
 
     public String create(MessageCommand command) {
         String id = null;
@@ -93,18 +89,4 @@ public class MessageDaoImpl implements MessageDao {
         return message;
     }
 
-
-    public void update(MessageCommand command) {
-
-        String sql = "update " + command.getId() + " set content = '" + command.getContent() + "'";
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-         }
-        finally {
-            db.close();
-        }
-    }
 }

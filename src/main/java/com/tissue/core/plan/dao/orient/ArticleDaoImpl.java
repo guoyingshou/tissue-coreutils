@@ -1,7 +1,5 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.command.ArticleCommand;
 import com.tissue.core.mapper.TopicMapper;
 import com.tissue.core.mapper.PlanMapper;
 import com.tissue.core.mapper.ArticleMapper;
@@ -33,38 +31,6 @@ import org.slf4j.LoggerFactory;
 public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
 
     private static Logger logger = LoggerFactory.getLogger(ArticleDaoImpl.class);
-
-    public String create(ArticleCommand command) {
-        String id = null;
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = ArticleMapper.convertArticle(command);
-            db.save(doc);
-
-            id = doc.getIdentity().toString();
-            String accountId = command.getAccount().getId();
- 
-            String sql = "create edge EdgePost from " + accountId + " to " + id + " set createTime = sysdate(), label = '" + command.getType() + "'";
-            logger.debug(sql);
-
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-
-            if(command.getPlan() != null) {
-                String planId = command.getPlan().getId();
-                sql = "update " + id + " set plan = " + planId;
-                logger.debug(sql);
-
-                cmd = new OCommandSQL(sql);
-                db.command(cmd).execute();
-            }
-        }
-        finally {
-            db.close();
-        }
-        return id;
-    }
 
     public Article getArticle(String id) {
         String sql = "select from " + id;

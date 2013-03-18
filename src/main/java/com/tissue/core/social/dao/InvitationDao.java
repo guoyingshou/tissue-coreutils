@@ -18,7 +18,7 @@ import java.util.List;
 
 public interface InvitationDao {
 
-    Boolean isInvitable(String ownerId, Account viewerAccount);
+    Boolean isInvitable(User owner, Account viewerAccount);
 
     String create(InvitationCommand command);
 

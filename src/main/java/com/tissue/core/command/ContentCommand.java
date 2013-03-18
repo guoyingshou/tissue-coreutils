@@ -2,7 +2,7 @@ package com.tissue.core.command;
 
 import com.tissue.core.Account;
 
-public interface CommentCommand {
+public interface ContentCommand {
     String getId();
     String getContent();
     Account getAccount();

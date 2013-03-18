@@ -1,9 +1,14 @@
 package com.tissue.core.plan.dao;
 
+import com.tissue.core.command.PostCommand;
 import com.tissue.core.plan.Post;
 import java.util.List;
 
-public interface PostDao {
+public interface PostDao extends ContentDao {
+
+    void update(PostCommand command);
+
+    //void delete(String postId);
 
     List<Post> getLatestPosts(int limit);
    

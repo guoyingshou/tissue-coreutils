@@ -1,7 +1,6 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.command.QuestionCommand;
+//import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.TopicMapper;
 import com.tissue.core.mapper.PlanMapper;
 import com.tissue.core.mapper.QuestionMapper;
@@ -36,6 +35,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
 
     private static Logger logger = LoggerFactory.getLogger(QuestionDaoImpl.class);
 
+    /**
     public String create(QuestionCommand command) {
         String id = null;
         OGraphDatabase db = dataSource.getDB();
@@ -78,6 +78,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
             db.close();
         }
     }
+    */
 
     public Question getQuestion(String id) {
         Question question = null;

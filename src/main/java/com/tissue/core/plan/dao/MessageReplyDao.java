@@ -9,6 +9,6 @@ public interface MessageReplyDao {
 
     MessageReply getMessageReply(String messageReplyId);
 
-    void update(MessageReplyCommand command);
+    //void update(MessageReplyCommand command);
  
 }

@@ -10,7 +10,7 @@ public interface MessageDao {
 
     Message getMessage(String messageId);
 
-    void update(MessageCommand command);
+    //void update(MessageCommand command);
 
 
 }

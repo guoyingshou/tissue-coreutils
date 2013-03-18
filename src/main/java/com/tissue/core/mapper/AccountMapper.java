@@ -36,7 +36,7 @@ public class AccountMapper {
         account.setEmail(email);
 
         ODocument userDoc = doc.field("user");
-        User user = UserMapper.buildUserSelf(userDoc);
+        User user = UserMapper.buildUser(userDoc);
         account.setUser(user);
 
         return account;

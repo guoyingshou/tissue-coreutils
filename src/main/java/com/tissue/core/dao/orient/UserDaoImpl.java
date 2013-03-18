@@ -189,16 +189,20 @@ public class UserDaoImpl implements UserDao {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
 
-                ODocument inDoc = doc.field("in");
-                if(inDoc != null) {
-                    User user = UserMapper.buildUserSelf(inDoc);
-                    friends.add(user);
+                List<ODocument> insDoc = doc.field("in");
+                if(insDoc != null) {
+                    for(ODocument inDoc : insDoc) {
+                        User user = UserMapper.buildUser(inDoc);
+                        friends.add(user);
+                    }
                 }
 
-                ODocument outDoc = doc.field("out");
-                if(outDoc != null) {
-                    User user = UserMapper.buildUserSelf(outDoc);
-                    friends.add(user);
+                List<ODocument> outsDoc = doc.field("out");
+                if(outsDoc != null) {
+                    for(ODocument outDoc : outsDoc) {
+                        User user = UserMapper.buildUser(outDoc);
+                        friends.add(user);
+                    }
                 }
             }
         }
@@ -220,7 +224,7 @@ public class UserDaoImpl implements UserDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                User user = UserMapper.buildUserSelf(doc);
+                User user = UserMapper.buildUser(doc);
                 users.add(user);
             }
         }

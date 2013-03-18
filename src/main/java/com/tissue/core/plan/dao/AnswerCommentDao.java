@@ -9,6 +9,6 @@ public interface AnswerCommentDao {
 
     AnswerComment getAnswerComment(String answerCommentId);
 
-    void update(AnswerCommentCommand command);
+    //void update(AnswerCommentCommand command);
 
 }

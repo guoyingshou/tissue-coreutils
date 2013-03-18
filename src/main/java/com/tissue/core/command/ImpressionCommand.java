@@ -3,8 +3,6 @@ package com.tissue.core.command;
 import com.tissue.core.User;
 import com.tissue.core.Account;
 
-public interface ImpressionCommand {
-    String getContent();
+public interface ImpressionCommand extends ContentCommand {
     User getTo();
-    Account getAccount();
 }

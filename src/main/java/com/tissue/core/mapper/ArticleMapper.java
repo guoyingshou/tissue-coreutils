@@ -1,7 +1,7 @@
 package com.tissue.core.mapper;
 
 import com.tissue.core.Account;
-import com.tissue.core.command.ArticleCommand;
+import com.tissue.core.command.PostCommand;
 import com.tissue.core.plan.Article;
 import com.tissue.core.plan.Message;
 import com.tissue.core.plan.Plan;
@@ -17,7 +17,8 @@ import java.util.Set;
 
 public class ArticleMapper {
 
-    public static ODocument convertArticle(ArticleCommand command) {
+    /**
+    public static ODocument convertArticle(PostCommand command) {
         ODocument doc = new ODocument("Article");
         doc.field("title", command.getTitle());
         doc.field("content", command.getContent());
@@ -25,6 +26,7 @@ public class ArticleMapper {
         doc.field("createTime", new Date());
         return doc;
     }
+    */
 
     public static Article buildArticle(ODocument doc) {
         Article article = new Article();

@@ -1,6 +1,5 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.command.PostCommand;
 import com.tissue.core.mapper.PostMapper;
 import com.tissue.core.plan.Post;
@@ -23,12 +22,54 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component
-public class PostDaoImpl implements PostDao {
+public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
     private static Logger logger = LoggerFactory.getLogger(PostDaoImpl.class);
 
-    @Autowired
-    protected OrientDataSource dataSource;
+    public String create(PostCommand command) {
+        String id = null;
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = PostMapper.convertPost(command);
+            db.save(doc);
+
+            id = doc.getIdentity().toString();
+            String accountId = command.getAccount().getId();
+ 
+            String sql = "create edge EdgePost from " + accountId + " to " + id + " set createTime = sysdate(), label = '" + command.getType() + "'";
+            logger.debug(sql);
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+
+            if(command.getPlan() != null) {
+                String planId = command.getPlan().getId();
+                sql = "update " + id + " set plan = " + planId;
+                logger.debug(sql);
+
+                cmd = new OCommandSQL(sql);
+                db.command(cmd).execute();
+            }
+        }
+        finally {
+            db.close();
+        }
+        return id;
+    }
+
+    public void update(PostCommand command) {
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = db.load(new ORecordId(command.getId()));
+            doc.field("title", command.getTitle());
+            doc.field("content", command.getContent());
+            doc.save();
+        }
+        finally {
+            db.close();
+        }
+    }
 
     public List<Post> getLatestPosts(int limit) {
         List<Post> posts = new ArrayList();
