@@ -14,9 +14,11 @@ public class Article extends Post {
         messages.add(message);
     }
 
+    /**
     public void setMessages(List<Message> messages) {
         this.messages = messages;
     }
+    */
 
     public List<Message> getMessages() {
         return messages;

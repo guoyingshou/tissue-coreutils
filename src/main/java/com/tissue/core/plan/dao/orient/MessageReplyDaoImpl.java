@@ -42,15 +42,15 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
             String msgId = command.getMessage().getId();
             String userId = command.getAccount().getId();
 
-            String sql = "update " + id + " set postMessage = " + msgId;
+            String sql = "update " + id + " set message = " + msgId;
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'postMessageComment', createTime = sysdate()";
+            sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'messageReply', createTime = sysdate()";
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         
-            sql = "update " + msgId + " add comments = " + id;
+            sql = "update " + msgId + " add replies = " + id;
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }

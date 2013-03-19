@@ -25,9 +25,11 @@ public class Message extends UserGeneratedContent {
         replies.add(reply);
     }
 
+    /**
     public void setReplies(List<MessageReply> replies) {
         this.replies = replies;
     }
+    */
 
     public List<MessageReply> getReplies() {
         return replies;

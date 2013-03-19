@@ -25,9 +25,11 @@ public class Answer extends UserGeneratedContent {
         comments.add(comment);
     }
 
+    /**
     public void setComments(List<AnswerComment> comments) {
         this.comments = comments;
     }
+    */
 
     public List<AnswerComment> getComments() {
         return comments;

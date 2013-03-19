@@ -66,11 +66,11 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
                         Message message = MessageMapper.buildMessage(messageDoc);
                         article.addMessage(message);
 
-                        List<ODocument> messageRepliesDoc = messageDoc.field("messageReplies");
-                        if(messageRepliesDoc != null) {
-                            for(ODocument messageReplyDoc : messageRepliesDoc) {
-                                MessageReply messageReply = MessageReplyMapper.buildMessageReply(messageReplyDoc);
-                                message.addReply(messageReply);
+                        List<ODocument> repliesDoc = messageDoc.field("replies");
+                        if(repliesDoc != null) {
+                            for(ODocument replyDoc : repliesDoc) {
+                                MessageReply reply = MessageReplyMapper.buildMessageReply(replyDoc);
+                                message.addReply(reply);
                             }
                         }
                     }

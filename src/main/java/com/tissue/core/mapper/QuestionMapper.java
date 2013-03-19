@@ -19,17 +19,6 @@ import java.util.Set;
 
 public class QuestionMapper {
 
-    /**
-    public static ODocument convertQuestion(PostCommand command) {
-        ODocument doc = new ODocument("Question");
-        doc.field("title", command.getTitle());
-        doc.field("content", command.getContent());
-        doc.field("type", command.getType());
-        doc.field("createTime", new Date());
-        return doc;
-    }
-    */
-
     public static Question buildQuestion(ODocument doc) {
         Question q = new Question();
         q.setId(doc.getIdentity().toString());
@@ -59,37 +48,5 @@ public class QuestionMapper {
         }
         return q;
     }
-
-    /**
-    public static Question buildQuestion(ODocument doc) {
-        Question q = buildQuestionSelf(doc);
-
-        ODocument planDoc = doc.field("plan");
-        Plan plan = PlanMapper.buildPlan(planDoc);
-        q.setPlan(plan);
- 
-        List<ODocument> questionCommentsDoc = doc.field("comments");
-        if(questionCommentsDoc != null) {
-            for(ODocument commentDoc : questionCommentsDoc) {
-                String deleted = commentDoc.field("deleted", String.class);
-                if(deleted == null) {
-                    QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
-                    q.addComment(comment);
-                }
-            }
-        }
-        List<ODocument> answersDoc = doc.field("answers");
-        if(answersDoc != null) {
-            for(ODocument answerDoc : answersDoc) {
-                String deleted = answerDoc.field("deleted", String.class);
-                if(deleted == null) {
-                    Answer answer = AnswerMapper.buildAnswerDetails(answerDoc);
-                    q.addAnswer(answer);
-                }
-            }
-        }
-        return q;
-    }
-    */
 
 }

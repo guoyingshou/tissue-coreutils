@@ -15,9 +15,11 @@ public class Question extends Post {
         comments.add(comment);
     }
 
+    /**
     public void setComments(List<QuestionComment> comments) {
         this.comments = comments;
     }
+    */
 
     public List<QuestionComment> getComments() {
         return comments;
@@ -30,9 +32,11 @@ public class Question extends Post {
         answers.add(answer);
     }
 
+    /**
     public void setAnswers(List<Answer> answers) {
         this.answers = answers;
     }
+    */
 
     public List<Answer> getAnswers() {
         return answers;

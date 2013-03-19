@@ -51,24 +51,42 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
 
+                List<ODocument> plansDoc = topicDoc.field("plans");
+                if(plansDoc != null) {
+                    for(ODocument topicPlanDoc : plansDoc) {
+                        Plan p = PlanMapper.buildPlan(topicPlanDoc);
+                        topic.addPlan(p);
+                    }
+                }
+
                 List<ODocument> commentsDoc = doc.field("comments");
                 if(commentsDoc != null) {
                     for(ODocument commentDoc : commentsDoc) {
-                        QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
-                        question.addComment(comment);
+                        Object deletedDoc = commentDoc.field("deleted");
+                        if(deletedDoc == null) {
+                            QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
+                            question.addComment(comment);
+                        }
                     }
                 }
 
                 List<ODocument> answersDoc = doc.field("answers");
                 if(answersDoc != null) {
                     for(ODocument answerDoc : answersDoc) {
-                        Answer answer = AnswerMapper.buildAnswer(answerDoc);
+                        Object answerDeletedDoc = answerDoc.field("deleted");
+                        if(answerDeletedDoc == null) {
+                            Answer answer = AnswerMapper.buildAnswer(answerDoc);
+                            question.addAnswer(answer);
 
-                        List<ODocument> answerCommentsDoc = answerDoc.field("comments");
-                        if(answerCommentsDoc != null) {
-                            for(ODocument answerCommentDoc : answerCommentsDoc) {
-                                AnswerComment answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
-                                answer.addComment(answerComment);
+                            List<ODocument> answerCommentsDoc = answerDoc.field("comments");
+                            if(answerCommentsDoc != null) {
+                                for(ODocument answerCommentDoc : answerCommentsDoc) {
+                                    Object deletedDoc = answerCommentDoc.field("deleted");
+                                    if(deletedDoc == null) {
+                                        AnswerComment answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
+                                        answer.addComment(answerComment);
+                                    }
+                                }
                             }
                         }
                     }
@@ -80,46 +98,5 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
         }
         return question;
     }
-
-    /**
-    public long getQuestionsCountByTopic(String topicId) {
-        long count = 0;
-        String sql = "select count(*) from Question where deleted is null and plan.topic in " + topicId;
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                count = doc.field("count", long.class);
-            }
-        }
-        finally {
-            db.close();
-        }
-        return count;
-    }
-
-    public List<Question> getPagedQuestionsByTopic(String topicId, int page, int size) {
-        List<Question> questions = new ArrayList();
-
-        String sql = "select from Question where deleted is null and plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
-
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            for(ODocument doc : docs) {
-                Question question = QuestionMapper.buildQuestion(doc);
-                questions.add(question);
-            }
-        }
-        finally {
-            db.close();
-        }
-        return questions;
-    }
-    */
-
 
 }
