@@ -4,8 +4,8 @@ import com.tissue.core.social.Activity;
 import com.tissue.core.pipes.TopicPipeFunction;
 import com.tissue.core.pipes.PlanPipeFunction;
 import com.tissue.core.pipes.PostPipeFunction;
-import com.tissue.core.pipes.PostMessagePipeFunction;
-import com.tissue.core.pipes.PostMessageCommentPipeFunction;
+import com.tissue.core.pipes.MessagePipeFunction;
+import com.tissue.core.pipes.MessageReplyPipeFunction;
 import com.tissue.core.pipes.QuestionCommentPipeFunction;
 import com.tissue.core.pipes.AnswerPipeFunction;
 import com.tissue.core.pipes.AnswerCommentPipeFunction;
@@ -35,11 +35,11 @@ public class ActivityStreamMapper {
         SideEffectFunctionPipe postPipe = new SideEffectFunctionPipe<ODocument>(new PostPipeFunction(activities));
         pipeline.addPipe(postPipe);
 
-        SideEffectFunctionPipe postMessagePipe = new SideEffectFunctionPipe<ODocument>(new PostMessagePipeFunction(activities));
-        pipeline.addPipe(postMessagePipe);
+        SideEffectFunctionPipe messagePipe = new SideEffectFunctionPipe<ODocument>(new MessagePipeFunction(activities));
+        pipeline.addPipe(messagePipe);
 
-        SideEffectFunctionPipe postMessageCommentPipe = new SideEffectFunctionPipe<ODocument>(new PostMessageCommentPipeFunction(activities));
-        pipeline.addPipe(postMessageCommentPipe);
+        SideEffectFunctionPipe messageReplyPipe = new SideEffectFunctionPipe<ODocument>(new MessageReplyPipeFunction(activities));
+        pipeline.addPipe(messageReplyPipe);
 
         SideEffectFunctionPipe questionCommentPipe = new SideEffectFunctionPipe<ODocument>(new QuestionCommentPipeFunction(activities));
         pipeline.addPipe(questionCommentPipe);

@@ -11,20 +11,20 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PostMessageCommentPipeFunction implements PipeFunction<ODocument, List<Activity>>  {
+public class MessageReplyPipeFunction implements PipeFunction<ODocument, List<Activity>>  {
     
-    private static Logger logger = LoggerFactory.getLogger(PostMessageCommentPipeFunction.class);
+    private static Logger logger = LoggerFactory.getLogger(MessageReplyPipeFunction.class);
 
     private List<Activity> activities;
 
-    public PostMessageCommentPipeFunction(List<Activity> activities) {
+    public MessageReplyPipeFunction(List<Activity> activities) {
         this.activities = activities;
     }
 
     public List<Activity> compute(ODocument doc) {
         String label = doc.field("label", String.class);
 
-        if("postMessageComment".equals(label)) {
+        if("messageReply".equals(label)) {
             logger.debug("activity type: " + label);
 
             Activity activity = new Activity();
@@ -48,16 +48,16 @@ public class PostMessageCommentPipeFunction implements PipeFunction<ODocument, L
             who.setDisplayName(displayName);
 
             //setup what
-            ODocument postMessageCommentDoc = doc.field("in");
-            ODocument postMessageDoc = postMessageCommentDoc.field("postMessage");
-            ODocument postDoc = postMessageDoc.field("post");
-            String title = postDoc.field("title", String.class);
+            ODocument messageReplyDoc = doc.field("in");
+            ODocument messageDoc = messageReplyDoc.field("message");
+            ODocument articleDoc = messageDoc.field("article");
+            String title = articleDoc.field("title", String.class);
 
-            what.setId(postDoc.getIdentity().toString());
+            what.setId(articleDoc.getIdentity().toString());
             what.setDisplayName(title);
 
             //setup where(topic)
-            ODocument planDoc = postDoc.field("plan");
+            ODocument planDoc = articleDoc.field("plan");
             ODocument topicDoc = planDoc.field("topic");
 
             where.setId(topicDoc.getIdentity().toString());
