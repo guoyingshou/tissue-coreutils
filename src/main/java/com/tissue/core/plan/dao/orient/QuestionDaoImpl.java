@@ -1,6 +1,5 @@
 package com.tissue.core.plan.dao.orient;
 
-//import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.TopicMapper;
 import com.tissue.core.mapper.PlanMapper;
 import com.tissue.core.mapper.QuestionMapper;
@@ -34,51 +33,6 @@ import org.slf4j.LoggerFactory;
 public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
 
     private static Logger logger = LoggerFactory.getLogger(QuestionDaoImpl.class);
-
-    /**
-    public String create(QuestionCommand command) {
-        String id = null;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = QuestionMapper.convertQuestion(command);
-            db.save(doc);
-
-            id = doc.getIdentity().toString();
-
-            String userId = command.getAccount().getId();
-            String planId = command.getPlan().getId();
-
-            String sql = "update " + id + " set plan = " + planId;
-            logger.debug(sql);
-
-            OCommandSQL cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
- 
-            sql = "create edge EdgePost from " + userId + " to " + id + " set createTime = sysdate(), label = 'question'";
-            logger.debug(sql);
-
-            cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-        }
-        finally {
-            db.close();
-        }
-        return id;
-    }
-
-    public void update(QuestionCommand command) {
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = db.load(new ORecordId(command.getId()));
-            doc.field("title", command.getTitle());
-            doc.field("content", command.getContent());
-            doc.save();
-        }
-        finally {
-            db.close();
-        }
-    }
-    */
 
     public Question getQuestion(String id) {
         Question question = null;
@@ -127,6 +81,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
         return question;
     }
 
+    /**
     public long getQuestionsCountByTopic(String topicId) {
         long count = 0;
         String sql = "select count(*) from Question where deleted is null and plan.topic in " + topicId;
@@ -164,6 +119,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
         }
         return questions;
     }
+    */
 
 
 }
