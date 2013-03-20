@@ -1,7 +1,5 @@
 package com.tissue.core;
 
-import com.tissue.core.plan.Plan;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
