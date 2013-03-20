@@ -1,4 +1,4 @@
-package com.tissue.core.plan.dao;
+package com.tissue.core.dao;
 
 import com.tissue.core.command.ContentCommand;
 

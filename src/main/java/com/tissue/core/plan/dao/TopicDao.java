@@ -1,10 +1,11 @@
 package com.tissue.core.plan.dao;
 
-import com.tissue.core.command.TopicCommand;
+import com.tissue.core.dao.ContentDao;
+import com.tissue.core.plan.command.TopicCommand;
 import com.tissue.core.plan.Topic;
 import java.util.List;
 
-public interface TopicDao {
+public interface TopicDao extends ContentDao {
 
     String create(TopicCommand command);
 

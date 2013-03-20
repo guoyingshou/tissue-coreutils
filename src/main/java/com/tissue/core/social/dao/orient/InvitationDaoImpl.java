@@ -3,8 +3,8 @@ package com.tissue.core.social.dao.orient;
 import com.tissue.core.Account;
 import com.tissue.core.User;
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.command.InvitationCommand;
-import com.tissue.core.mapper.InvitationMapper;
+import com.tissue.core.social.mapper.InvitationMapper;
+import com.tissue.core.social.command.InvitationCommand;
 import com.tissue.core.social.Invitation;
 import com.tissue.core.social.dao.InvitationDao;
 

@@ -1,17 +1,18 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.command.MessageReplyCommand;
-import com.tissue.core.mapper.TopicMapper;
-import com.tissue.core.mapper.PlanMapper;
-import com.tissue.core.mapper.ArticleMapper;
-import com.tissue.core.mapper.MessageMapper;
-import com.tissue.core.mapper.MessageReplyMapper;
+import com.tissue.core.dao.orient.ContentDaoImpl;
+import com.tissue.core.plan.dao.MessageReplyDao;
+import com.tissue.core.plan.command.MessageReplyCommand;
+import com.tissue.core.plan.mapper.TopicMapper;
+import com.tissue.core.plan.mapper.PlanMapper;
+import com.tissue.core.plan.mapper.ArticleMapper;
+import com.tissue.core.plan.mapper.MessageMapper;
+import com.tissue.core.plan.mapper.MessageReplyMapper;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Article;
 import com.tissue.core.plan.Message;
 import com.tissue.core.plan.MessageReply;
-import com.tissue.core.plan.dao.MessageReplyDao;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;

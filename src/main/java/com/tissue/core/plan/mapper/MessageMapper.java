@@ -1,7 +1,8 @@
-package com.tissue.core.mapper;
+package com.tissue.core.plan.mapper;
 
 import com.tissue.core.Account;
-import com.tissue.core.command.MessageCommand;
+import com.tissue.core.mapper.AccountMapper;
+import com.tissue.core.plan.command.MessageCommand;
 import com.tissue.core.plan.Message;
 import com.tissue.core.plan.MessageReply;
 import com.tissue.core.plan.Article;

@@ -1,7 +1,8 @@
-package com.tissue.core.mapper;
+package com.tissue.core.plan.mapper;
 
 import com.tissue.core.Account;
-import com.tissue.core.command.PostCommand;
+import com.tissue.core.mapper.AccountMapper;
+import com.tissue.core.plan.command.PostCommand;
 import com.tissue.core.plan.Article;
 import com.tissue.core.plan.Message;
 import com.tissue.core.plan.Plan;
@@ -16,17 +17,6 @@ import java.util.Arrays;
 import java.util.Set;
 
 public class ArticleMapper {
-
-    /**
-    public static ODocument convertArticle(PostCommand command) {
-        ODocument doc = new ODocument("Article");
-        doc.field("title", command.getTitle());
-        doc.field("content", command.getContent());
-        doc.field("type", command.getType());
-        doc.field("createTime", new Date());
-        return doc;
-    }
-    */
 
     public static Article buildArticle(ODocument doc) {
         Article article = new Article();

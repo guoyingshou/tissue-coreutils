@@ -1,6 +1,6 @@
 package com.tissue.core.plan.dao;
 
-import com.tissue.core.command.PlanCommand;
+import com.tissue.core.plan.command.PlanCommand;
 import com.tissue.core.plan.Plan;
 import java.util.List;
 

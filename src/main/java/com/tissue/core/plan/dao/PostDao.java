@@ -1,6 +1,7 @@
 package com.tissue.core.plan.dao;
 
-import com.tissue.core.command.PostCommand;
+import com.tissue.core.dao.ContentDao;
+import com.tissue.core.plan.command.PostCommand;
 import com.tissue.core.plan.Post;
 import java.util.List;
 

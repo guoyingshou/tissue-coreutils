@@ -1,7 +1,7 @@
-package com.tissue.core.command;
+package com.tissue.core.social.command;
 
+import com.tissue.core.command.ContentCommand;
 import com.tissue.core.User;
-import com.tissue.core.Account;
 
 public interface ImpressionCommand extends ContentCommand {
     User getTo();

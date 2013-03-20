@@ -1,10 +1,10 @@
-package com.tissue.core.mapper;
+package com.tissue.core.plan.mapper;
 
 import com.tissue.core.Account;
-import com.tissue.core.command.AnswerCommentCommand;
+import com.tissue.core.mapper.AccountMapper;
+import com.tissue.core.plan.command.AnswerCommentCommand;
 import com.tissue.core.plan.AnswerComment;
 import com.tissue.core.plan.Answer;
-import com.tissue.core.command.AnswerCommentCommand;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;

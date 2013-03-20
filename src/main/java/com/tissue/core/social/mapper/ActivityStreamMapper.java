@@ -1,4 +1,4 @@
-package com.tissue.core.mapper;
+package com.tissue.core.social.mapper;
 
 import com.tissue.core.social.Activity;
 import com.tissue.core.pipes.TopicPipeFunction;

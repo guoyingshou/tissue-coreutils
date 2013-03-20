@@ -1,8 +1,8 @@
 package com.tissue.core.social.dao.orient;
 
 import com.tissue.core.util.OrientDataSource;
-import com.tissue.core.command.ImpressionCommand;
 import com.tissue.core.mapper.UserMapper;
+import com.tissue.core.social.command.ImpressionCommand;
 import com.tissue.core.social.Impression;
 import com.tissue.core.social.dao.ImpressionDao;
 
@@ -34,7 +34,7 @@ public class ImpressionDaoImpl implements ImpressionDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public void addImpression(ImpressionCommand command) {
+    public void create(ImpressionCommand command) {
         String sql = "create edge EdgeImpression from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set label = 'impression', createTime = sysdate(), content = '" + command.getContent() + "'";
         logger.debug(sql);
 

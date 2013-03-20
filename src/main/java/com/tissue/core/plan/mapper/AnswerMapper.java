@@ -1,7 +1,8 @@
-package com.tissue.core.mapper;
+package com.tissue.core.plan.mapper;
 
 import com.tissue.core.Account;
-import com.tissue.core.command.AnswerCommand;
+import com.tissue.core.mapper.AccountMapper;
+import com.tissue.core.plan.command.AnswerCommand;
 import com.tissue.core.plan.Answer;
 import com.tissue.core.plan.AnswerComment;
 import com.tissue.core.plan.Question;

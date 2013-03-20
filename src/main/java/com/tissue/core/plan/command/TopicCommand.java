@@ -1,4 +1,4 @@
-package com.tissue.core.command;
+package com.tissue.core.plan.command;
 
 import java.util.Set;
 

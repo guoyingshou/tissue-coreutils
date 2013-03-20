@@ -1,7 +1,9 @@
-package com.tissue.core.mapper;
+package com.tissue.core.social.mapper;
 
 import com.tissue.core.User;
 import com.tissue.core.Account;
+import com.tissue.core.mapper.UserMapper;
+import com.tissue.core.mapper.AccountMapper;
 import com.tissue.core.social.Invitation;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Date;

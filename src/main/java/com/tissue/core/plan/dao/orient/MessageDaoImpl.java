@@ -1,17 +1,18 @@
 package com.tissue.core.plan.dao.orient;
 
-import com.tissue.core.command.MessageCommand;
-import com.tissue.core.mapper.TopicMapper;
-import com.tissue.core.mapper.PlanMapper;
-import com.tissue.core.mapper.ArticleMapper;
-import com.tissue.core.mapper.MessageMapper;
-import com.tissue.core.mapper.MessageReplyMapper;
+import com.tissue.core.dao.orient.ContentDaoImpl;
+import com.tissue.core.plan.dao.MessageDao;
+import com.tissue.core.plan.command.MessageCommand;
+import com.tissue.core.plan.mapper.TopicMapper;
+import com.tissue.core.plan.mapper.PlanMapper;
+import com.tissue.core.plan.mapper.ArticleMapper;
+import com.tissue.core.plan.mapper.MessageMapper;
+import com.tissue.core.plan.mapper.MessageReplyMapper;
 import com.tissue.core.plan.Topic;
 import com.tissue.core.plan.Plan;
 import com.tissue.core.plan.Article;
 import com.tissue.core.plan.Message;
 import com.tissue.core.plan.MessageReply;
-import com.tissue.core.plan.dao.MessageDao;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,19 +76,6 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
                 ODocument articleDoc = doc.field("article");
                 Article article = ArticleMapper.buildArticle(articleDoc);
                 message.setArticle(article);
-
-                /**
-                List<ODocument> repliesDoc = doc.field("replies");
-                if(repliesDoc != null) {
-                    for(ODocument replyDoc : repliesDoc) {
-                        Object deleted = replyDoc.field("deleted");
-                        if(deleted == null) {
-                            MessageReply reply = MessageReplyMapper.buildMessageReply(replyDoc);
-                            message.addReply(reply);
-                        }
-                    }
-                }
-                */
 
                 ODocument planDoc = articleDoc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
