@@ -3,7 +3,6 @@ package com.tissue.core.dao.orient;
 import com.tissue.core.User;
 import com.tissue.core.dao.UserDao;
 import com.tissue.core.command.UserCommand;
-import com.tissue.core.command.ProfileCommand;
 import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.UserMapper;
 
@@ -35,37 +34,10 @@ public class UserDaoImpl implements UserDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    /**
-    public String create(UserCommand userCommand) {
-        String accountId;
-
+    public void updateProfile(UserCommand command) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument accountDoc = AccountMapper.convertAccount(userCommand);
-            accountDoc.save();
-
-            ODocument userDoc = UserMapper.convertUser(userCommand);
-            List accounts = new ArrayList();
-            accounts.add(accountDoc.getIdentity());
-            userDoc.field("accounts", accounts);
-            userDoc.save();
-
-            accountDoc.field("user", userDoc.getIdentity());
-            accountDoc.save();
-
-            accountId = accountDoc.getIdentity().toString();
-        }
-        finally {
-           db.close();
-        }
-        return accountId;
-    }
-    */
-
-    public void updateProfile(ProfileCommand command) {
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = db.load(new ORecordId(command.getAccount().getUser().getId()));
+            ODocument doc = db.load(new ORecordId(command.getId()));
             doc.field("displayName", command.getDisplayName());
             doc.field("headline", command.getHeadline());
             db.save(doc);
@@ -75,53 +47,6 @@ public class UserDaoImpl implements UserDao {
         }
     }
  
-    /**
-    public void updateEmail(EmailCommand command) {
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = db.load(new ORecordId(command.getAccount().getId()));
-            doc.field("email", command.getEmail());
-            db.save(doc);
-        }
-        finally {
-           db.close();
-        }
-    }
-
-    public void updatePassword(PasswordCommand command) {
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = db.load(new ORecordId(command.getAccount().getId()));
-            doc.field("password", Hashing.md5().hashString(command.getPassword(), Charset.forName("utf-8")).toString());
-            db.save(doc);
-        }
-        finally {
-           db.close();
-        }
-    }
-
-    public Account getAccount(String accountId) {
-        String sql = "select from " + accountId;
-        logger.debug(sql);
-
-        Account account = null;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                account = AccountMapper.buildAccount(doc);
-            }
-        }
-        finally {
-            db.close();
-        }
-        return account;
-    }
-
-
-    */
-
     public User getUser(String userId) {
         String sql = "select from " + userId;
         logger.debug(sql);
@@ -160,6 +85,7 @@ public class UserDaoImpl implements UserDao {
         return user;
     }
 
+    /**
     public String getUserIdByAccount(String accountId) {
         String sql = "select from user where accounts in " + accountId;
         logger.debug(sql);
@@ -178,31 +104,22 @@ public class UserDaoImpl implements UserDao {
         }
         return userId;
     }
+    */
 
     public List<User> getFriends(String userId) {
-        String sql = "select in[label='friend'].out, out[label='friend'].in from " + userId;
+        String sql = "select set(in[label='friend'].out, out[label='friend'].in) as friends from " + userId;
         logger.debug(sql);
 
         List<User> friends = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
+            
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            for(ODocument doc : docs) {
-
-                List<ODocument> insDoc = doc.field("in");
-                if(insDoc != null) {
-                    for(ODocument inDoc : insDoc) {
-                        User user = UserMapper.buildUser(inDoc);
-                        friends.add(user);
-                    }
-                }
-
-                List<ODocument> outsDoc = doc.field("out");
-                if(outsDoc != null) {
-                    for(ODocument outDoc : outsDoc) {
-                        User user = UserMapper.buildUser(outDoc);
-                        friends.add(user);
-                    }
+            if(!docs.isEmpty()) {
+                List<ODocument> friendsDoc = docs.get(0).field("friends");
+                for(ODocument doc : friendsDoc) {
+                    User user = UserMapper.buildUser(doc);
+                    friends.add(user);
                 }
             }
         }
@@ -210,6 +127,24 @@ public class UserDaoImpl implements UserDao {
             db.close();
         }
         return friends;
+    }
+
+    public Boolean isFriend(String userId1, String userId2) {
+        String sql = "select from EdgeFriend where label in 'friend' and ((out in " + userId1 + " and in in " + userId2 + ") or (out in " + userId2 + " and in in " + userId1 + "))";
+        logger.debug(sql);
+
+        Boolean friend = false;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(docs.size() > 0) {
+               friend = true;
+            }
+        }
+        finally {
+            db.close();
+        }
+        return friend;
     }
 
     public List<User> getNewUsers(String excludingUserId, int limit) {
@@ -233,79 +168,5 @@ public class UserDaoImpl implements UserDao {
         }
         return users;
     }
-
-    public Boolean isFriend(String userId1, String userId2) {
-        String sql = "select from EdgeFriend where label in 'friend' and ((out in " + userId1 + " and in in " + userId2 + ") or (out in " + userId2 + " and in in " + userId1 + "))";
-        logger.debug(sql);
-
-        Boolean friend = false;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(docs.size() > 0) {
-               friend = true;
-            }
-        }
-        finally {
-            db.close();
-        }
-        return friend;
-    }
-
-    /**
-    public boolean isUsernameExist(String username) {
-        String sql = "select from account where username = '" + username + "'";
-        logger.debug(sql);
-
-        boolean exist = false;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(docs.size() > 0) {
-               exist = true;
-            }
-        }
-        finally {
-            db.close();
-        }
-        return exist;
-    }
-
-    public boolean isEmailExist(String email) {
-        String sql = "select from account where email = '" + email + "'";
-        logger.debug(sql);
-
-        boolean exist = false;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(docs.size() > 0) {
-               exist = true;
-            }
-        }
-        finally {
-            db.close();
-        }
-        return exist;
-    }
-
-    public boolean isEmailExist(String excludingUserId, String email) {
-        String sql = "select from account where email = '" + email + "' and @rid <> " + excludingUserId;
-        logger.debug(sql);
-
-        boolean exist = false;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(docs.size() > 0) {
-               exist = true;
-            }
-        }
-        finally {
-            db.close();
-        }
-        return exist;
-    }
-    */
 
 }

@@ -20,4 +20,7 @@ public interface AccountDao {
 
     Account getAccount(String accountId);
 
+    Account getAccountByEmail(String email);
+
+    void setVerified(String accountId);
 }

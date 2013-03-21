@@ -1,13 +1,15 @@
 package com.tissue.core.dao;
 
 
+import com.tissue.core.Verification;
 import com.tissue.core.command.VerificationCommand;
 
 public interface VerificationDao {
 
     String create(VerificationCommand command);
 
-    String getAccountId(String code);
+    Verification getVerification(String code);
 
-    void setVerified(String accountId);
+    void delete(String verificationId);
+
 }

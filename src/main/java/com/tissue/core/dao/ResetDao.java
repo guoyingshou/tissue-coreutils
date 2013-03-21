@@ -1,18 +1,14 @@
 package com.tissue.core.dao;
 
-import com.tissue.core.command.ResetRequestCommand;
-import com.tissue.core.command.ResetPasswordCommand;
+import com.tissue.core.Reset;
+import com.tissue.core.command.ResetCommand;
 
 public interface ResetDao {
 
-    String create(ResetRequestCommand command);
+    String create(ResetCommand command);
 
-    boolean isEmailExist(String email);
+    Reset getReset(String code);
 
-    boolean isCodeExist(String code);
-
-    String getEmail(String code);
-
-    void updatePassword(ResetPasswordCommand command);
+    void delete(String resetId);
 
 }

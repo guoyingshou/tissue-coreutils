@@ -18,9 +18,9 @@ public class AccountMapper {
 
     public static ODocument convertAccount(UserCommand command) {
         ODocument doc = new ODocument("Account");
-        doc.field("username", command.getUsername());
-        doc.field("password", Hashing.md5().hashString(command.getPassword(), Charset.forName("utf-8")).toString());
-        doc.field("email", command.getEmail());
+        doc.field("username", command.getAccount().getUsername());
+        doc.field("password", Hashing.md5().hashString(command.getAccount().getPassword(), Charset.forName("utf-8")).toString());
+        doc.field("email", command.getAccount().getEmail());
         return doc;
     }
 

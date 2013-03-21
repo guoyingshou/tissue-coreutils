@@ -1,8 +1,10 @@
 package com.tissue.core.dao.orient;
 
-import com.tissue.core.dao.VerificationDao;
 import com.tissue.core.util.OrientDataSource;
+import com.tissue.core.Verification;
+import com.tissue.core.dao.VerificationDao;
 import com.tissue.core.command.VerificationCommand;
+import com.tissue.core.mapper.VerificationMapper;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,45 +47,37 @@ public class VerificationDaoImpl implements VerificationDao {
         return verificationId;
     }
 
-    public String getAccountId(String code) {
-        String sql = "select account from Verification where code = '" + code + "'";
+    public Verification getVerification(String code) {
+        String sql = "select from Verification where code = '" + code + "'";
         logger.debug(sql);
 
-        String accountId = null;
+        Verification verification = null;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
-                ODocument accountDoc = doc.field("account");
-                accountId = accountDoc.getIdentity().toString();
+                verification = VerificationMapper.buildVerification(doc);
             }
         }
         finally {
             db.close();
         }
-        return accountId;
+        return verification;
     }
 
-    public void setVerified(String accountId) {
-        String sql = "delete from Verification where account in " + accountId;
+    public void delete(String verificationId) {
+        String sql = "delete from " + verificationId;
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
-
-            sql = "update " + accountId + " set verified = true";
-            logger.debug(sql);
-
-            cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
         }
         finally {
             db.close();
         }
     }
-
 
 }

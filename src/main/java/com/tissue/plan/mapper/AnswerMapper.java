@@ -42,29 +42,7 @@ public class AnswerMapper {
                 break;
             }
         }
-        /**
-        ODocument qDoc = answerDoc.field("question");
-        Question question = QuestionMapper.buildQuestion(qDoc);
-        answer.setQuestion(question);
-        */
         return answer;
     }
-
-    /**
-    public static Answer buildAnswer(ODocument answerDoc) {
-        Answer answer = buildAnswerSelf(answerDoc);
-        List<ODocument> commentsDoc = answerDoc.field("comments");
-        if(commentsDoc != null) {
-            for(ODocument commentDoc : commentsDoc) {
-                String status = commentDoc.field("status", String.class);
-                if(status == null) {
-                    AnswerComment comment = AnswerCommentMapper.buildAnswerComment(commentDoc);
-                    answer.addComment(comment);
-                }
-            }
-        }
-        return answer;
-    }
-    */
 
 }
