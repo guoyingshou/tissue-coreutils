@@ -40,7 +40,7 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
             String userId = command.getAccount().getId();
             String qId = command.getQuestion().getId();
 
-            String sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'questionComment', createTime = sysdate()";
+            String sql = "create edge EdgeCreate from " + userId + " to " + id + " set label = 'questionComment', createTime = sysdate()";
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  

@@ -47,7 +47,7 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge EdgePost from " + userId + " to " + id + " set label = 'message', createTime = sysdate()";
+            sql = "create edge EdgeCreate from " + userId + " to " + id + " set label = 'message', createTime = sysdate()";
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  

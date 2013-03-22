@@ -38,7 +38,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             id = doc.getIdentity().toString();
             String accountId = command.getAccount().getId();
  
-            String sql = "create edge EdgePost from " + accountId + " to " + id + " set createTime = sysdate(), label = '" + command.getType() + "'";
+            String sql = "create edge EdgeCreate from " + accountId + " to " + id + " set createTime = sysdate(), label = '" + command.getType() + "'";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);

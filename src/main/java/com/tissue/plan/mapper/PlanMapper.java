@@ -37,7 +37,7 @@ public class PlanMapper {
         Set<ODocument> inEdgesDoc = doc.field("in");
         for(ODocument inEdgeDoc : inEdgesDoc) {
             String label = inEdgeDoc.field("label");
-            if("hostGroup".equals(label)) {
+            if("plan".equals(label)) {
                 ODocument accountDoc = inEdgeDoc.field("out");
                 Account account = AccountMapper.buildAccount(accountDoc);
                 plan.setAccount(account);
@@ -47,18 +47,5 @@ public class PlanMapper {
 
         return plan;
     }
-
-    /**
-    public static Plan buildPlan(ODocument doc) {
-
-        Plan plan = buildPlanSelf(doc);
-
-        ODocument topicDoc = doc.field("topic");
-        Topic topic = TopicMapper.buildTopicSelf(topicDoc);
-        plan.setTopic(topic);
-
-        return plan;
-    }
-    */
 
 }

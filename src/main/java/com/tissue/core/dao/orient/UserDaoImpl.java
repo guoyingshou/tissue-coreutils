@@ -85,27 +85,6 @@ public class UserDaoImpl implements UserDao {
         return user;
     }
 
-    /**
-    public String getUserIdByAccount(String accountId) {
-        String sql = "select from user where accounts in " + accountId;
-        logger.debug(sql);
-
-        String userId = null;
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                userId = doc.getIdentity().toString();
-            }
-        }
-        finally {
-            db.close();
-        }
-        return userId;
-    }
-    */
-
     public List<User> getFriends(String userId) {
         String sql = "select set(in[label='friend'].out, out[label='friend'].in) as friends from " + userId;
         logger.debug(sql);
@@ -130,7 +109,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     public Boolean isFriend(String userId1, String userId2) {
-        String sql = "select from EdgeFriend where label in 'friend' and ((out in " + userId1 + " and in in " + userId2 + ") or (out in " + userId2 + " and in in " + userId1 + "))";
+        String sql = "select from EdgeConnect where label in 'friend' and ((out in " + userId1 + " and in in " + userId2 + ") or (out in " + userId2 + " and in in " + userId1 + "))";
         logger.debug(sql);
 
         Boolean friend = false;

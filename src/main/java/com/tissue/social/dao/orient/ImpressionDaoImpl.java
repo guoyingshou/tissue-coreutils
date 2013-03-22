@@ -36,7 +36,7 @@ public class ImpressionDaoImpl implements ImpressionDao {
     protected OrientDataSource dataSource;
 
     public void create(ImpressionCommand command) {
-        String sql = "create edge EdgeImpression from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set label = 'impression', createTime = sysdate(), content = '" + command.getContent() + "'";
+        String sql = "create edge EdgeCreate from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set label = 'impression', createTime = sysdate(), content = '" + command.getContent() + "'";
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
@@ -49,8 +49,53 @@ public class ImpressionDaoImpl implements ImpressionDao {
         }
     }
 
+    public Impression getImpression(String impressionId) {
+        String sql = "select from " + impressionId;
+        logger.debug(sql);
+
+        Impression impression = null;
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
+                impression = ImpressionMapper.buildImpression(doc);
+            }
+        }
+        finally {
+            db.close();
+        }
+        return impression;
+    }
+
+    public void update(ImpressionCommand command) {
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = db.load(new ORecordId(command.getId()));
+            doc.field("content", command.getContent());
+            doc.save();
+        }
+        finally {
+            db.close();
+        }
+    }
+
+    public void delete(String rid) {
+        String sql = "update " + rid + " set deleted = true";
+        logger.debug(sql);
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+        }
+        finally {
+            db.close();
+        }
+    }
+
     public List<Impression> getImpressions(String userId) {
-        String sql = "select @this as impression, out as user from EdgeImpression where in in " + userId;
+        String sql = "select from EdgeCreate where label = 'impression' and in in " + userId;
         logger.debug(sql);
 
         List<Impression> impressions = new ArrayList();
@@ -58,8 +103,7 @@ public class ImpressionDaoImpl implements ImpressionDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                ODocument impDoc = doc.field("impression");
-                Impression impression = ImpressionMapper.buildImpression(impDoc);
+                Impression impression = ImpressionMapper.buildImpression(doc);
 
                 impressions.add(impression);
             }

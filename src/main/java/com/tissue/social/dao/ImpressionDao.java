@@ -8,6 +8,10 @@ public interface ImpressionDao {
 
     void create(ImpressionCommand command);
 
+    Impression getImpression(String impressionId);
+
+    void delete(String impressionId);
+
     List<Impression> getImpressions(String userId);
 
 }

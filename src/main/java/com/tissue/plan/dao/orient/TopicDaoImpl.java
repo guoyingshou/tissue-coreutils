@@ -40,7 +40,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             id = doc.getIdentity().toString();
             String uId = command.getAccount().getId();
 
-            String sql = "create edge EdgePost from " + uId + " to " + id + " set label = 'topic', createTime = sysdate()";
+            String sql = "create edge EdgeCreate from " + uId + " to " + id + " set label = 'topic', createTime = sysdate()";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);

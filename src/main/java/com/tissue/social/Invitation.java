@@ -13,7 +13,7 @@ public class Invitation implements Serializable {
     private Date createTime;
 
     private User to;
-    private Account from;
+    private Account account;
 
     public void setId(String id) {
         this.id = id;
@@ -47,11 +47,11 @@ public class Invitation implements Serializable {
         return to;
     }
 
-    public void setFrom(Account from) {
-        this.from = from;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
-    public Account getFrom() {
-        return from;
+    public Account getAccount() {
+        return account;
     }
 }

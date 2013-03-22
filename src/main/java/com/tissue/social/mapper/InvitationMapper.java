@@ -12,23 +12,26 @@ public class InvitationMapper {
 
     public static Invitation buildInvitation(ODocument doc) {
 
-        //out is an account
-        ODocument fromDoc = doc.field("out");
-        Account from = AccountMapper.buildAccount(fromDoc);
+        Invitation invitation = new Invitation();
+        invitation.setId(doc.getIdentity().toString());
 
+        String content = doc.field("content", String.class);
+        invitation.setContent(content);
+
+        Date createTime = doc.field("createTime", Date.class);
+        invitation.setCreateTime(createTime);
+
+        //out is an account
+        ODocument accountDoc = doc.field("out");
+        Account account = AccountMapper.buildAccount(accountDoc);
+        invitation.setAccount(account);
+
+        /**
         //"in" is a user
         ODocument toUserDoc = doc.field("in");
         User to = UserMapper.buildUser(toUserDoc);
-
-        String content = doc.field("content", String.class);
-        Date createTime = doc.field("createTime", Date.class);
-
-        Invitation invitation = new Invitation();
-        invitation.setId(doc.getIdentity().toString());
-        invitation.setFrom(from);
         invitation.setTo(to);
-        invitation.setContent(content);
-        invitation.setCreateTime(createTime);
+        */
 
         return invitation;
     }

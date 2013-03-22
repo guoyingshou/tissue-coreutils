@@ -34,7 +34,7 @@ public class ActivityDaoImpl implements ActivityDao {
     protected OrientDataSource dataSource;
 
     public List<Activity> getActivities(int num) {
-        String sql = "select from EdgeAction where label in ['friend', 'topic', 'hostGroup', 'joinGroup', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
+        String sql = "select from EdgeAction where label in ['friend', 'topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
         logger.debug(sql);
 
         List<Activity> activities = new ArrayList();
@@ -86,7 +86,7 @@ public class ActivityDaoImpl implements ActivityDao {
     }
 
     public List<Activity> getActivitiesForNewUser(int num) {
-        String sql = "select from EdgeAction where label in ['topic', 'hostGroup', 'joinGroup', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
+        String sql = "select from EdgeAction where label in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + num;
         logger.debug(sql);
 
         List<Activity> activities = new ArrayList();

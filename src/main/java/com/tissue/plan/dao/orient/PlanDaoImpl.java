@@ -41,7 +41,7 @@ public class PlanDaoImpl implements PlanDao {
             db.save(doc);
 
             id = doc.getIdentity().toString();
-            String sql = "create edge EdgeTopic from " + userId + " to " + id + " set label = 'hostGroup', createTime = sysdate()";
+            String sql = "create edge EdgeCreate from " + userId + " to " + id + " set label = 'plan', createTime = sysdate()";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -97,7 +97,7 @@ public class PlanDaoImpl implements PlanDao {
     public void addMember(String planId, String accountId) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "create edge EdgeTopic from " + accountId + " to " + planId + " set label='joinGroup', createTime=sysdate()";
+            String sql = "create edge EdgeCreate from " + accountId + " to " + planId + " set label='member', createTime=sysdate()";
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  

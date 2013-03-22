@@ -23,7 +23,7 @@ public class PlanPipeFunction implements PipeFunction<ODocument, List<Activity>>
 
     public List<Activity> compute(ODocument doc) {
         String label = doc.field("label", String.class);
-        if("hostGroup".equals(label) || "joinGroup".equals(label)) {
+        if("plan".equals(label) || "member".equals(label)) {
             logger.debug("activity type: " + label);
 
             Activity activity = new Activity();

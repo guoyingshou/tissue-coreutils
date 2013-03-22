@@ -35,7 +35,7 @@ public class AboutDaoImpl extends ContentDaoImpl implements AboutDao {
             doc.save();
 
             id = doc.getIdentity().toString();
-            String sql = "create edge EdgePost from " + command.getAccount().getId() + " to " + id + " set label = 'praise', createTime = sysdate()";
+            String sql = "create edge EdgeCreate from " + command.getAccount().getId() + " to " + id + " set label = 'praise', createTime = sysdate()";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);

@@ -11,7 +11,7 @@ public class Impression implements Serializable {
     private String content;
     private Date createTime;
 
-    private User user;
+    private User to;
     private Account account;
 
     public void setId(String id) {
@@ -38,12 +38,12 @@ public class Impression implements Serializable {
         return createTime;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setTo(User to) {
+        this.to = to;
     }
 
-    public User getUser() {
-        return user;
+    public User getTo() {
+        return to;
     }
 
     public void setAccount(Account account) {

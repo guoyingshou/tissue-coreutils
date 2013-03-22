@@ -3,6 +3,7 @@ package com.tissue.social.dao.orient;
 import com.tissue.core.Account;
 import com.tissue.core.User;
 import com.tissue.core.util.OrientDataSource;
+import com.tissue.core.mapper.UserMapper;
 import com.tissue.social.mapper.InvitationMapper;
 import com.tissue.social.command.InvitationCommand;
 import com.tissue.social.Invitation;
@@ -37,7 +38,7 @@ public class InvitationDaoImpl implements InvitationDao {
     protected OrientDataSource dataSource;
 
     public String create(InvitationCommand command) {
-        String sql = "create edge EdgeInvitation from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set label = 'invite', createTime = sysdate(), content = '" + command.getContent() + "'";
+        String sql = "create edge EdgeInvite from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set label = 'invitation', createTime = sysdate(), content = '" + command.getContent() + "'";
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
@@ -63,6 +64,10 @@ public class InvitationDaoImpl implements InvitationDao {
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 invitation = InvitationMapper.buildInvitation(doc);
+
+                ODocument toDoc = doc.field("in");
+                User to = UserMapper.buildUser(toDoc);
+                invitation.setTo(to);
             }
         }
         finally {
@@ -72,7 +77,7 @@ public class InvitationDaoImpl implements InvitationDao {
     }
 
     public List<Invitation> getInvitationsReceived(String userId) {
-        String sql = "select from EdgeInvitation where label = 'invite' and in in " + userId;
+        String sql = "select from EdgeInvite where label = 'invitation' and in in " + userId;
         logger.debug(sql);
 
         List<Invitation> invitations = new ArrayList();
@@ -114,7 +119,7 @@ public class InvitationDaoImpl implements InvitationDao {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge EdgeFriend from " + invitation.getTo().getId() + " to " + invitation.getFrom().getUser().getId() + " set label = 'friend', updateTime = sysdate()";
+            sql = "create edge EdgeConnect from " + invitation.getTo().getId() + " to " + invitation.getAccount().getUser().getId() + " set label = 'friend', updateTime = sysdate()";
             logger.debug(sql);
 
             cmd = new OCommandSQL(sql);
@@ -131,7 +136,7 @@ public class InvitationDaoImpl implements InvitationDao {
      */
     public Boolean isInvitable(User owner, Account viewerAccount) {
         Boolean invitable = true;
-        String sql = "select from EdgeInvitation where (out in " + viewerAccount.getId() + " and in in " + owner.getId() + ") or (out.user in " + owner.getId()  + " and in.accounts contains " + viewerAccount.getId();
+        String sql = "select from EdgeInvite where (out in " + viewerAccount.getId() + " and in in " + owner.getId() + ") or (out.user in " + owner.getId()  + " and in.accounts contains " + viewerAccount.getId();
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
