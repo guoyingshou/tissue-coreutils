@@ -14,7 +14,7 @@ import com.tissue.plan.QuestionComment;
 import com.tissue.plan.Answer;
 import com.tissue.plan.AnswerComment;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -29,7 +29,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component
+@Repository
 public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
 
     private static Logger logger = LoggerFactory.getLogger(QuestionDaoImpl.class);

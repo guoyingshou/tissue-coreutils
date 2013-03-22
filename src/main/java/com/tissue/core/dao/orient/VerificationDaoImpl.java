@@ -6,7 +6,7 @@ import com.tissue.core.dao.VerificationDao;
 import com.tissue.core.command.VerificationCommand;
 import com.tissue.core.mapper.VerificationMapper;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.List;
 
-@Component
+@Repository
 public class VerificationDaoImpl implements VerificationDao {
 
     private static Logger logger = LoggerFactory.getLogger(VerificationDaoImpl.class);

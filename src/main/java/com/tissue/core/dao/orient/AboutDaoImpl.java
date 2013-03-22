@@ -5,7 +5,7 @@ import com.tissue.core.dao.AboutDao;
 import com.tissue.core.command.ContentCommand;
 import com.tissue.core.mapper.AboutMapper;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
-@Component
+@Repository
 public class AboutDaoImpl extends ContentDaoImpl implements AboutDao {
 
     private static Logger logger = LoggerFactory.getLogger(AboutDaoImpl.class);

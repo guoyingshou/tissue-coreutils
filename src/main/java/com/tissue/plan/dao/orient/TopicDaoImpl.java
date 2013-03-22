@@ -8,11 +8,7 @@ import com.tissue.plan.mapper.PlanMapper;
 import com.tissue.plan.Topic;
 import com.tissue.plan.Plan;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Date;
-
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
@@ -22,10 +18,14 @@ import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component
+@Repository
 public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
 
     private static Logger logger = LoggerFactory.getLogger(TopicDaoImpl.class);

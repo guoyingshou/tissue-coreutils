@@ -4,7 +4,7 @@ import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.command.ContentCommand;
 import com.tissue.core.dao.ContentDao;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -20,7 +20,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component
+@Repository
 public class ContentDaoImpl implements ContentDao {
 
     private static Logger logger = LoggerFactory.getLogger(ContentDaoImpl.class);

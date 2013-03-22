@@ -13,7 +13,7 @@ import com.tissue.plan.Article;
 import com.tissue.plan.Message;
 import com.tissue.plan.MessageReply;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -28,7 +28,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component
+@Repository
 public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
 
     private static Logger logger = LoggerFactory.getLogger(ArticleDaoImpl.class);

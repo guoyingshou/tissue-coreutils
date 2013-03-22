@@ -6,7 +6,7 @@ import com.tissue.core.command.ResetCommand;
 import com.tissue.core.dao.ResetDao;
 import com.tissue.core.mapper.ResetMapper;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -20,7 +20,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component
+@Repository
 public class ResetDaoImpl implements ResetDao {
 
     private static Logger logger = LoggerFactory.getLogger(ResetDaoImpl.class);

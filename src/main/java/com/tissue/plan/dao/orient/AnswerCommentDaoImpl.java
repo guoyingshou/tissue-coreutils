@@ -14,7 +14,7 @@ import com.tissue.plan.Answer;
 import com.tissue.plan.AnswerComment;
 import com.tissue.plan.dao.AnswerCommentDao;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
@@ -25,7 +25,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component
+@Repository
 public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommentDao {
 
     private static Logger logger = LoggerFactory.getLogger(AnswerCommentDaoImpl.class);

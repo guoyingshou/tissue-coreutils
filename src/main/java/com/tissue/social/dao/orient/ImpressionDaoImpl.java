@@ -7,7 +7,7 @@ import com.tissue.social.command.ImpressionCommand;
 import com.tissue.social.Impression;
 import com.tissue.social.dao.ImpressionDao;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -27,7 +27,7 @@ import java.util.Set;
 import java.nio.charset.Charset;
 import com.google.common.hash.Hashing;
 
-@Component
+@Repository
 public class ImpressionDaoImpl implements ImpressionDao {
 
     private static Logger logger = LoggerFactory.getLogger(ImpressionDaoImpl.class);
