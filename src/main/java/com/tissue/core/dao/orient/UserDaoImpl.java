@@ -34,7 +34,7 @@ public class UserDaoImpl implements UserDao {
     @Autowired
     protected OrientDataSource dataSource;
 
-    public void updateProfile(UserCommand command) {
+    public void updateHeadline(UserCommand command) {
         OGraphDatabase db = dataSource.getDB();
         try {
             ODocument doc = db.load(new ORecordId(command.getId()));
