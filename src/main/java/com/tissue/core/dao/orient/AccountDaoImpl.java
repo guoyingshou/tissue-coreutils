@@ -63,11 +63,13 @@ public class AccountDaoImpl implements AccountDao {
     }
  
     public void updateEmail(EmailCommand command) {
+        String sql = "update " + command.getAccount().getId() + " set email = '" + command.getEmail() + "'";
+        logger.debug(sql);
+
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = db.load(new ORecordId(command.getAccount().getId()));
-            doc.field("email", command.getEmail());
-            db.save(doc);
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
         }
         finally {
            db.close();
@@ -75,11 +77,14 @@ public class AccountDaoImpl implements AccountDao {
     }
 
     public void updatePassword(PasswordCommand command) {
+        String password = Hashing.md5().hashString(command.getPassword(), Charset.forName("utf-8")).toString();
+        String sql = "update " + command.getAccount().getId() + " set password = '" + password + "'";
+        logger.debug(sql);
+
         OGraphDatabase db = dataSource.getDB();
         try {
-            ODocument doc = db.load(new ORecordId(command.getAccount().getId()));
-            doc.field("password", Hashing.md5().hashString(command.getPassword(), Charset.forName("utf-8")).toString());
-            db.save(doc);
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
         }
         finally {
            db.close();
