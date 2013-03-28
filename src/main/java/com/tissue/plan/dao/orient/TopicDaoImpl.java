@@ -185,11 +185,9 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         List<Topic> topics = new ArrayList();
         OGraphDatabase db = dataSource.getDB();
         try {
-
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                ODocument topicDoc = doc.field("topic");
-                Topic topic = TopicMapper.buildTopic(topicDoc);
+                Topic topic = TopicMapper.buildTopic(doc);
                 topics.add(topic);
             }
         }
