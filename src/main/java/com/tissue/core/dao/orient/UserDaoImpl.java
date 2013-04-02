@@ -95,7 +95,7 @@ public class UserDaoImpl implements UserDao {
             
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
-                List<ODocument> friendsDoc = docs.get(0).field("friends");
+                Set<ODocument> friendsDoc = docs.get(0).field("friends", Set.class);
                 for(ODocument doc : friendsDoc) {
                     User user = UserMapper.buildUser(doc);
                     friends.add(user);
@@ -109,7 +109,8 @@ public class UserDaoImpl implements UserDao {
     }
 
     public Boolean isFriend(String userId1, String userId2) {
-        String sql = "select from EdgeConnect where label in 'friend' and ((out in " + userId1 + " and in in " + userId2 + ") or (out in " + userId2 + " and in in " + userId1 + "))";
+        String users = "[" + userId1 + "," + userId2 + "]";
+        String sql = "select from EdgeConnect where label in 'friend' and out in " + users + " and in in " + users;
         logger.debug(sql);
 
         Boolean friend = false;
@@ -124,6 +125,24 @@ public class UserDaoImpl implements UserDao {
             db.close();
         }
         return friend;
+    }
+
+    public void removeRelation(String userId1, String userId2) {
+        /**
+        String users = "[" + userId1 + "," + userId2 + "]";
+        String sql = "update EdgeConnect set label = 'removed' where label in 'friend' and out in " + users + " and in in " + users;
+        */
+        String sql = "delete edge from " + userId1 + " to " + userId2;
+        logger.debug(sql);
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+        }
+        finally {
+            db.close();
+        }
     }
 
     public List<User> getNewUsers(String excludingUserId, int limit) {

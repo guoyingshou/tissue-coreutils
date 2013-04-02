@@ -75,7 +75,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     public List<Post> getLatestPosts(int limit) {
         List<Post> posts = new ArrayList();
 
-        String sql = "select from Post where deleted is null and plan.topic.deleted is null and type contains ['concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + limit;
+        String sql = "select from Post where deleted is null and plan.topic.deleted is null and type in ['concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + limit;
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();

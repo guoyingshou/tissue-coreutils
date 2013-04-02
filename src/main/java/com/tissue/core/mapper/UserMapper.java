@@ -19,16 +19,19 @@ public class UserMapper {
         return doc;
     }
 
-    public static User buildUser(ODocument userDoc) {
+    public static User buildUser(ODocument doc) {
         User user = new User();
-        String rid = userDoc.getIdentity().toString();
+        String rid = doc.getIdentity().toString();
         user.setId(rid);
 
-        String displayName = userDoc.field("displayName", String.class);
+        String displayName = doc.field("displayName", String.class);
         user.setDisplayName(displayName);
 
-        String headline = userDoc.field("headline", String.class);
+        String headline = doc.field("headline", String.class);
         user.setHeadline(headline);
+
+        Integer inviteLimit = doc.field("inviteLimit", Integer.class);
+        user.setInviteLimit(inviteLimit);
 
         return user;
     }

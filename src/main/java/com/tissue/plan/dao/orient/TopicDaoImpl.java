@@ -14,12 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
+//import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -238,16 +239,16 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
     /**
      * Get all tags.
      */
-    public List<String> getTopicTags() {
+    public Set<String> getTopicTags() {
         String sql = "select set(tags) from Topic where deleted is null";
         logger.debug(sql);
 
-        OTrackedList<String> tags = null;
+        Set<String> tags = null;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if((docs != null) && (docs.size() > 0)) {
-                tags = docs.get(0).field("set");
+                tags = docs.get(0).field("set", Set.class);
             }
             return tags;
         }

@@ -17,5 +17,7 @@ public interface UserDao {
 
     Boolean isFriend(String userId1, String userId2);
 
+    void removeRelation(String userId1, String userId2);
+
     void updateHeadline(UserCommand command);
 }

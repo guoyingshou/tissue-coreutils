@@ -4,6 +4,7 @@ import com.tissue.core.dao.ContentDao;
 import com.tissue.plan.command.TopicCommand;
 import com.tissue.plan.Topic;
 import java.util.List;
+import java.util.Set;
 
 public interface TopicDao extends ContentDao {
 
@@ -27,7 +28,7 @@ public interface TopicDao extends ContentDao {
 
     long getTopicsCountByTag(String tag);
 
-    List<String> getTopicTags();
+    Set<String> getTopicTags();
 
     List<Topic> getPagedTopicsByTag(String tag, int page, int size);
 

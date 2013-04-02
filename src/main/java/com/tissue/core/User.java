@@ -12,7 +12,7 @@ public class User implements Serializable {
     private String id;
     private String displayName;
     private String headline;
-    private String resume;
+    private int inviteLimit;
 
     public void setId(String id) {
         this.id = id;
@@ -38,12 +38,12 @@ public class User implements Serializable {
         return headline;
     }
 
-    public void setResume(String resume) {
-        this.resume = resume;
+    public void setInviteLimit(int inviteLimit) {
+        this.inviteLimit = inviteLimit;
     }
 
-    public String getResume() {
-        return resume;
+    public int getInviteLimit() {
+        return inviteLimit;
     }
 
 }

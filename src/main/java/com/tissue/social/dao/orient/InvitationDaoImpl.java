@@ -119,9 +119,16 @@ public class InvitationDaoImpl implements InvitationDao {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge EdgeConnect from " + invitation.getTo().getId() + " to " + invitation.getAccount().getUser().getId() + " set label = 'friend', updateTime = sysdate()";
-            logger.debug(sql);
+            String fromId = invitation.getAccount().getUser().getId();
+            String toId = invitation.getTo().getId();
 
+            sql = "create edge EdgeConnect from " + toId + " to " + fromId + " set label = 'friend', updateTime = sysdate()";
+            logger.debug(sql);
+            cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+
+            sql = "update " + fromId + " increment inviteLimit = -1";
+            logger.debug(sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
@@ -136,7 +143,11 @@ public class InvitationDaoImpl implements InvitationDao {
      */
     public Boolean isInvitable(User owner, Account viewerAccount) {
         Boolean invitable = true;
-        String sql = "select from EdgeInvite where (out in " + viewerAccount.getId() + " and in in " + owner.getId() + ") or (out.user in " + owner.getId()  + " and in.accounts contains " + viewerAccount.getId();
+
+        String fromUsers = "[" + viewerAccount.getUser().getId() + ", " + owner.getId() + "]";
+        String toUsers = "[" + viewerAccount.getUser().getId() + ", " + owner.getId() + "]";
+
+        String sql = "select from EdgeInvite where out.user in " + fromUsers + " and in in " + toUsers;
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
