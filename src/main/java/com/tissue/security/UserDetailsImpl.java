@@ -61,7 +61,7 @@ public class UserDetailsImpl implements UserDetails {
 
     public List<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        //authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
         if(roles != null) {
             for(String role : roles) {

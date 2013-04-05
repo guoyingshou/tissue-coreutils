@@ -30,13 +30,6 @@ public class ImpressionMapper {
         Account account = AccountMapper.buildAccount(accountDoc);
         impression.setAccount(account);
 
-        /**
-        //"in" is a user
-        ODocument toUserDoc = doc.field("in");
-        User to = UserMapper.buildUser(toUserDoc);
-        impression.setTo(to);
-        */
-
         return impression;
     }
 

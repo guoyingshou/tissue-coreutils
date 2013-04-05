@@ -62,8 +62,8 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                 List<ODocument> commentsDoc = doc.field("comments");
                 if(commentsDoc != null) {
                     for(ODocument commentDoc : commentsDoc) {
-                        Object deletedDoc = commentDoc.field("deleted");
-                        if(deletedDoc == null) {
+                        Object deleted = commentDoc.field("deleted");
+                        if(deleted == null) {
                             QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
                             question.addComment(comment);
                         }
@@ -73,16 +73,16 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                 List<ODocument> answersDoc = doc.field("answers");
                 if(answersDoc != null) {
                     for(ODocument answerDoc : answersDoc) {
-                        Object answerDeletedDoc = answerDoc.field("deleted");
-                        if(answerDeletedDoc == null) {
+                        Object deleted = answerDoc.field("deleted");
+                        if(deleted == null) {
                             Answer answer = AnswerMapper.buildAnswer(answerDoc);
                             question.addAnswer(answer);
 
                             List<ODocument> answerCommentsDoc = answerDoc.field("comments");
                             if(answerCommentsDoc != null) {
                                 for(ODocument answerCommentDoc : answerCommentsDoc) {
-                                    Object deletedDoc = answerCommentDoc.field("deleted");
-                                    if(deletedDoc == null) {
+                                    deleted = answerCommentDoc.field("deleted");
+                                    if(deleted == null) {
                                         AnswerComment answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
                                         answer.addComment(answerComment);
                                     }

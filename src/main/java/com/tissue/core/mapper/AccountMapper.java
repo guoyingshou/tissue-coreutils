@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.HashSet;
 import java.nio.charset.Charset;
 import com.google.common.hash.Hashing;
 
@@ -21,6 +22,11 @@ public class AccountMapper {
         doc.field("username", command.getAccount().getUsername());
         doc.field("password", Hashing.md5().hashString(command.getAccount().getPassword(), Charset.forName("utf-8")).toString());
         doc.field("email", command.getAccount().getEmail());
+
+        Set<String> roles = new HashSet();
+        roles.add("ROLE_USER");
+        doc.field("roles", roles);
+
         return doc;
     }
 

@@ -26,14 +26,6 @@ public class UserDetailsMapper {
         Set<String> roles = doc.field("roles", Set.class);
         userDetails.setRoles(roles);
 
-        /**
-        String displayName = doc.field("displayName", String.class);
-        userDetails.setDisplayName(displayName);
-
-        Integer inviteLimit = doc.field("inviteLimit", Integer.class);
-        userDetails.setInviteLimit(inviteLimit);
-        */
-
         return userDetails;
     }
 
