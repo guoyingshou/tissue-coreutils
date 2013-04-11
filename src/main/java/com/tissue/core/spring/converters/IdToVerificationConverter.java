@@ -5,9 +5,9 @@ import com.tissue.core.dao.VerificationDao;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+//import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class IdToVerificationConverter implements Converter<String, Verification> {
 
     @Autowired

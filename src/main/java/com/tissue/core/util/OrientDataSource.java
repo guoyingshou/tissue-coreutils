@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 public class OrientDataSource {
     private OGraphDatabasePool pool;
 
-    public OrientDataSource(String dburl, String user, String pass, int minium, int max) {
-        pool = new OGraphDatabasePool(dburl, user, pass);
+    public OrientDataSource(String dburl, String user, String pass, Integer minium, Integer max) {
+        pool = new OGraphDatabasePool(dburl.trim(), user.trim(), pass.trim());
         pool.setup(minium, max);
     }
 

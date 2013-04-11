@@ -5,9 +5,9 @@ import com.tissue.plan.dao.PlanDao;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+//import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class IdToPlanConverter implements Converter<String, Plan> {
 
     @Autowired
