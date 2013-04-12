@@ -13,6 +13,7 @@ public class Account implements Serializable {
     private String username;
     private String password;
     private String email;
+    Set<String> roles = new HashSet<String>();
 
     private User user;
 
@@ -46,6 +47,14 @@ public class Account implements Serializable {
 
     public String getEmail() {
         return email;
+    }
+
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
+    }
+
+    public boolean hasRole(String role) {
+        return roles.contains(role);
     }
 
     public void setUser(User user) {

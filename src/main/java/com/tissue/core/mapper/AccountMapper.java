@@ -41,6 +41,9 @@ public class AccountMapper {
         String email = doc.field("email", String.class);
         account.setEmail(email);
 
+        Set<String> roles = doc.field("roles", Set.class);
+        account.setRoles(roles);
+
         ODocument userDoc = doc.field("user");
         User user = UserMapper.buildUser(userDoc);
         account.setUser(user);

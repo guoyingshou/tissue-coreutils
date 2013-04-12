@@ -145,10 +145,10 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
-    public List<User> getNewUsers(String excludingUserId, int limit) {
-        String sql = "select from user order by createTime desc limit " + limit;
-        if(excludingUserId != null) {
-            sql = "select from user where @this not in " + excludingUserId + " order by createTime desc limit " + limit;
+    public List<User> getNewUsers(String excludingAccountId, int limit) {
+        String sql = "select user from account order by createTime desc limit " + limit;
+        if(excludingAccountId != null) {
+            sql = "select user from account where @this not in " + excludingAccountId + " order by createTime desc limit " + limit;
         }
         logger.debug(sql);
 
@@ -157,7 +157,8 @@ public class UserDaoImpl implements UserDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                User user = UserMapper.buildUser(doc);
+                ODocument userDoc = doc.field("user");
+                User user = UserMapper.buildUser(userDoc);
                 users.add(user);
             }
         }

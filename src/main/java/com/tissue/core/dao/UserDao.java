@@ -11,7 +11,7 @@ public interface UserDao {
 
     User getUserByAccount(String accountId);
 
-    List<User> getNewUsers(String excludingUserId, int limit);
+    List<User> getNewUsers(String excludingAccountId, int limit);
 
     List<User> getFriends(String userId);
 
