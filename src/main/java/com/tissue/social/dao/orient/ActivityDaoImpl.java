@@ -50,11 +50,12 @@ public class ActivityDaoImpl implements ActivityDao {
         return activities;
     }
 
-    public List<Activity> getWatchedActivities(String userId, int num) {
+    public List<Activity> getWatchedActivities(String accountId, int num) {
         List<Activity> activities = new ArrayList();
 
-        String sql = "select from EdgeAction where out.user in (select in[label='friend'].out from " + userId + ") or out.user in (select out[label='friend'].in from " + userId + ") or (" + userId + " in in.plan.in.out.user and out.user not in " + userId + ") order by createTime desc limit " + num;
+        String sql = "select from EdgeAction where out.user in (select set(user.in[label='friend'].out, user.out[label='friend'].in) from " + accountId + ") or (" + accountId + " in in.plan.in.out and out not in " + accountId + ") order by createTime desc limit " + num;
         logger.debug(sql);
+
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -68,7 +69,25 @@ public class ActivityDaoImpl implements ActivityDao {
         return activities;
     }
 
-    public List<Activity> getSelfActivities(String userId, int num) {
+    public List<Activity> getActivitiesByAccount(String accountId, int num) {
+        //String sql = "select from EdgeAction where out.user in " + userId + " order by createTime desc";
+        String sql = "select from EdgeAction where out in " + accountId + " order by createTime desc";
+        logger.debug(sql);
+
+        List<Activity> activities = new ArrayList();
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            ActivityStreamMapper mapper = new ActivityStreamMapper();
+            activities = mapper.process(docs);
+        }
+        finally {
+            db.close();
+        }
+        return activities;
+    }
+
+    public List<Activity> getActivitiesByUser(String userId, int num) {
         String sql = "select from EdgeAction where out.user in " + userId + " order by createTime desc";
         logger.debug(sql);
 

@@ -20,4 +20,6 @@ public interface UserDao {
     void removeRelation(String userId1, String userId2);
 
     void updateHeadline(UserCommand command);
+
+    Boolean isInvitable(String ownerId, Account viewerAccount);
 }

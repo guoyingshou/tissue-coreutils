@@ -12,11 +12,10 @@ public interface InvitationDao {
 
     Invitation getInvitation(String invitationId);
 
-    List<Invitation> getInvitationsReceived(String userId);
+    List<Invitation> getInvitationsReceived(String accountId);
 
     void declineInvitation(Invitation invitation);
 
     void acceptInvitation(Invitation invitation);
 
-    Boolean isInvitable(User owner, Account viewerAccount);
 }

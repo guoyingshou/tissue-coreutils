@@ -49,22 +49,4 @@ public class ArticleMapper {
 
         return article;
     }
-
-    /**
-    public static Article buildArticle(ODocument postDoc) {
-        Article article = buildArticleSelf(postDoc);
-
-        List<ODocument> messagesDoc = postDoc.field("messages");
-        if(messagesDoc != null) {
-            for(ODocument messageDoc : messagesDoc) {
-                String deleted = messageDoc.field("deleted", String.class);
-                if(deleted == null) {
-                    Message message = MessageMapper.buildMessageDetails(messageDoc);
-                    article.addMessage(message);
-                }
-            }
-        }
-        return article;
-    }
-    */
 }

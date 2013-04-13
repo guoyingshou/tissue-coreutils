@@ -1,5 +1,6 @@
 package com.tissue.core.dao.orient;
 
+import com.tissue.core.Account;
 import com.tissue.core.User;
 import com.tissue.core.dao.UserDao;
 import com.tissue.core.command.UserCommand;
@@ -166,6 +167,32 @@ public class UserDaoImpl implements UserDao {
             db.close();
         }
         return users;
+    }
+
+    /**
+     * The invitation's out property is a link to an account while in property
+     * is a link to a user.
+     */
+    public Boolean isInvitable(String ownerId, Account viewerAccount) {
+        Boolean invitable = true;
+
+        String fromUsers = "[" + viewerAccount.getUser().getId() + ", " + ownerId + "]";
+        String toUsers = "[" + viewerAccount.getUser().getId() + ", " + ownerId + "]";
+
+        String sql = "select from EdgeInvite where out.user in " + fromUsers + " and in in " + toUsers;
+        logger.debug(sql);
+
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            if(docs.size() > 0) {
+               invitable = false;
+            }
+        }
+        finally {
+            db.close();
+        }
+        return invitable;
     }
 
 }

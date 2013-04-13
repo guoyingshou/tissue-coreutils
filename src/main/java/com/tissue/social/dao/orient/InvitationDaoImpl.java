@@ -76,8 +76,9 @@ public class InvitationDaoImpl implements InvitationDao {
         return invitation;
     }
 
-    public List<Invitation> getInvitationsReceived(String userId) {
-        String sql = "select from EdgeInvite where label = 'invitation' and in in " + userId;
+    public List<Invitation> getInvitationsReceived(String accountId) {
+        //String sql = "select from EdgeInvite where label = 'invitation' and in in " + userId;
+        String sql = "select from EdgeInvite where label = 'invitation' and " + accountId + " in in.accounts";
         logger.debug(sql);
 
         List<Invitation> invitations = new ArrayList();
@@ -135,32 +136,6 @@ public class InvitationDaoImpl implements InvitationDao {
         finally {
             db.close();
         }
-    }
-
-    /**
-     * The invitation's out property is a link to an account while in property
-     * is a link to a user.
-     */
-    public Boolean isInvitable(User owner, Account viewerAccount) {
-        Boolean invitable = true;
-
-        String fromUsers = "[" + viewerAccount.getUser().getId() + ", " + owner.getId() + "]";
-        String toUsers = "[" + viewerAccount.getUser().getId() + ", " + owner.getId() + "]";
-
-        String sql = "select from EdgeInvite where out.user in " + fromUsers + " and in in " + toUsers;
-        logger.debug(sql);
-
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            if(docs.size() > 0) {
-               invitable = false;
-            }
-        }
-        finally {
-            db.close();
-        }
-        return invitable;
     }
 
 }

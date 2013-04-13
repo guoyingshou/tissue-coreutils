@@ -5,9 +5,11 @@ import java.util.List;
 
 public interface ActivityDao {
 
-    List<Activity> getSelfActivities(String userId, int num);
+    List<Activity> getActivitiesByAccount(String accountId, int num);
 
-    List<Activity> getWatchedActivities(String userId, int num);
+    List<Activity> getActivitiesByUser(String userId, int num);
+
+    List<Activity> getWatchedActivities(String accountId, int num);
 
     List<Activity> getActivities(int num);
 
