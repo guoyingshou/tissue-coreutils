@@ -81,4 +81,8 @@ public class Account implements Serializable {
         hash = 31 * hash + username.hashCode();
         return hash;
     }
+
+    public String toString() {
+        return this.id;
+    }
 }

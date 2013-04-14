@@ -67,8 +67,8 @@ public class UserGeneratedContent {
         return account;
     }
 
-    public boolean isOwner(String viewerAccountId) {
-        if((viewerAccountId != null) && viewerAccountId.equals(account.getId())) {
+    public boolean isOwner(Account viewerAccount) {
+        if((viewerAccount != null) && viewerAccount.getId().equals(account.getId())) {
             return true;
         }
         return false;
@@ -86,4 +86,7 @@ public class UserGeneratedContent {
         return new TimeFormat(new DateTime(getCreateTime()), new DateTime());
     }
 
+    public String toString() {
+        return this.id;    
+    }
 }

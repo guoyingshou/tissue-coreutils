@@ -84,6 +84,14 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
+
+                List<ODocument> plansDoc = topicDoc.field("plans");
+                if(plansDoc != null) {
+                    for(ODocument topicPlanDoc : plansDoc) {
+                        Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
+                        topic.addPlan(topicPlan);
+                    }
+                }
             }
         }
         finally {

@@ -68,6 +68,8 @@ public class PlanDaoImpl implements PlanDao {
     public Plan getPlan(String planId) {
         Plan plan = null;
         String sql = "select from " + planId;
+        logger.debug(sql);
+
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
@@ -98,10 +100,12 @@ public class PlanDaoImpl implements PlanDao {
         OGraphDatabase db = dataSource.getDB();
         try {
             String sql = "create edge EdgeCreate from " + accountId + " to " + planId + " set label='member', createTime=sysdate()";
+            logger.debug(sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
             sql = "update " + planId + " increment count = 1";
+            logger.debug(sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
