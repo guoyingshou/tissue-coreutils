@@ -22,6 +22,7 @@ public class AccountMapper {
         doc.field("username", command.getAccount().getUsername());
         doc.field("password", Hashing.md5().hashString(command.getAccount().getPassword(), Charset.forName("utf-8")).toString());
         doc.field("email", command.getAccount().getEmail());
+        doc.field("createTime", new Date());
 
         Set<String> roles = new HashSet();
         roles.add("ROLE_USER");

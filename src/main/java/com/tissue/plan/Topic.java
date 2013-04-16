@@ -18,6 +18,15 @@ public class Topic extends UserGeneratedContent2 {
         return tags;
     }
 
+    public String getTagsAsString() {
+        StringBuilder buf = new StringBuilder();
+        for(String tag : tags) {
+            buf.append(tag);
+            buf.append(" ");
+        }
+        return buf.toString();
+    }
+
     public void addPlan(Plan plan) {
         if(plans == null) {
             plans = new ArrayList();

@@ -14,7 +14,7 @@ public class UserMapper {
         ODocument doc = new ODocument("User");
         doc.field("displayName", user.getDisplayName());
         doc.field("headline", user.getHeadline());
-        doc.field("createTime", new Date());
+        //doc.field("createTime", new Date());
         doc.field("inviteLimit", 32);
         return doc;
     }

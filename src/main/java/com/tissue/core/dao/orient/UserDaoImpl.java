@@ -129,10 +129,6 @@ public class UserDaoImpl implements UserDao {
     }
 
     public void removeRelation(String userId1, String userId2) {
-        /**
-        String users = "[" + userId1 + "," + userId2 + "]";
-        String sql = "update EdgeConnect set label = 'removed' where label in 'friend' and out in " + users + " and in in " + users;
-        */
         String sql = "delete edge from " + userId1 + " to " + userId2;
         logger.debug(sql);
 
