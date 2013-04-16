@@ -53,9 +53,8 @@ public class ActivityDaoImpl implements ActivityDao {
     public List<Activity> getWatchedActivities(String accountId, int num) {
         List<Activity> activities = new ArrayList();
 
-        String sql = "select from EdgeAction where out.user in (select set(user.in[label='friend'].out, user.out[label='friend'].in) from " + accountId + ") or (" + accountId + " in in.plan.in.out and out not in " + accountId + ") order by createTime desc limit " + num;
+        String sql = "select from EdgeAction where out.user in (select set(user.in[label='friend'].out, user.out[label='friend'].in) from " + accountId + ") or (" + accountId + " in set(in.plan.in.out, in.article.plan.in.out, in.message.article.plan.in.out, in.question.plan.in.out, in.answer.question.plan.in.out) and out not in " + accountId + ") order by createTime desc limit " + num;
         logger.debug(sql);
-
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -70,7 +69,6 @@ public class ActivityDaoImpl implements ActivityDao {
     }
 
     public List<Activity> getActivitiesByAccount(String accountId, int num) {
-        //String sql = "select from EdgeAction where out.user in " + userId + " order by createTime desc";
         String sql = "select from EdgeAction where out in " + accountId + " order by createTime desc";
         logger.debug(sql);
 
