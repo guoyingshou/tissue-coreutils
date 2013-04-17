@@ -22,8 +22,10 @@ public class ImpressionMapper {
         String content = doc.field("content", String.class);
         impression.setContent(content);
 
+        /**
         Date createTime = doc.field("createTime", Date.class);
         impression.setCreateTime(createTime);
+        */
 
         //out is an account
         ODocument accountDoc = doc.field("out");

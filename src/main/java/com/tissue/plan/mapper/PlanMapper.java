@@ -18,7 +18,6 @@ public class PlanMapper {
     public static ODocument convertPlan(PlanCommand plan) {
         ODocument doc = new ODocument("Plan");
         doc.field("duration", plan.getDuration());
-        //doc.field("createTime", new Date());
         doc.field("count", 0);
         return doc;
     }
@@ -31,19 +30,14 @@ public class PlanMapper {
         Integer duration = doc.field("duration", Integer.class);
         plan.setDuration(duration);
 
-        /**
-        Date createTime = doc.field("createTime", Date.class);
-        plan.setCreateTime(createTime);
-        */
- 
-        Set<ODocument> inEdgesDoc = doc.field("in");
-        for(ODocument inEdgeDoc : inEdgesDoc) {
-            String label = inEdgeDoc.field("label");
+        Set<ODocument> edgeCreatePlanDocs = doc.field("in");
+        for(ODocument edgeCreatePlanDoc : edgeCreatePlanDocs) {
+            String label = edgeCreatePlanDoc.field("label");
             if("plan".equals(label)) {
-                Date createTime = inEdgeDoc.field("createTime", Date.class);
+                Date createTime = edgeCreatePlanDoc.field("createTime", Date.class);
                 plan.setCreateTime(createTime);
 
-                ODocument accountDoc = inEdgeDoc.field("out");
+                ODocument accountDoc = edgeCreatePlanDoc.field("out");
                 Account account = AccountMapper.buildAccount(accountDoc);
                 plan.setAccount(account);
                 break;

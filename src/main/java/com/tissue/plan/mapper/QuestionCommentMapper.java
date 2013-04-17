@@ -31,14 +31,14 @@ public class QuestionCommentMapper {
         String commentContent = commentDoc.field("content", String.class);
         questionComment.setContent(commentContent);
 
-        Set<ODocument> inEdges = commentDoc.field("in");
-        for(ODocument inEdge : inEdges) {
-            String label = inEdge.field("label", String.class);
+        Set<ODocument> edgeCreatePostDocs = commentDoc.field("in");
+        for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
+            String label = edgeCreatePostDoc.field("label", String.class);
             if("questionComment".equals(label)) {
-                Date createTime = inEdge.field("createTime", Date.class);
+                Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
                 questionComment.setCreateTime(createTime);
 
-                ODocument accountDoc = inEdge.field("out");
+                ODocument accountDoc = edgeCreatePostDoc.field("out");
                 Account account = AccountMapper.buildAccount(accountDoc);
                 questionComment.setAccount(account);
                 break;

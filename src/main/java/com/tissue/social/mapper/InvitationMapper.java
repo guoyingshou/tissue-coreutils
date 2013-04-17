@@ -26,13 +26,6 @@ public class InvitationMapper {
         Account account = AccountMapper.buildAccount(accountDoc);
         invitation.setAccount(account);
 
-        /**
-        //"in" is a user
-        ODocument toUserDoc = doc.field("in");
-        User to = UserMapper.buildUser(toUserDoc);
-        invitation.setTo(to);
-        */
-
         return invitation;
     }
 

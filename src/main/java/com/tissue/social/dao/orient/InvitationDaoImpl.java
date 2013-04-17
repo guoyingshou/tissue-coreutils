@@ -77,7 +77,6 @@ public class InvitationDaoImpl implements InvitationDao {
     }
 
     public List<Invitation> getInvitationsReceived(String accountId) {
-        //String sql = "select from EdgeInvite where label = 'invitation' and in in " + userId;
         String sql = "select from EdgeInvite where label = 'invitation' and " + accountId + " in in.accounts";
         logger.debug(sql);
 

@@ -24,7 +24,7 @@ public class PostMapper {
         doc.field("title", command.getTitle());
         doc.field("content", command.getContent());
         doc.field("type", command.getType());
-        doc.field("createTime", new Date());
+        //doc.field("createTime", new Date());
         return doc;
     }
 
@@ -41,8 +41,10 @@ public class PostMapper {
         String postType = doc.field("type", String.class);
         post.setType(postType);
 
+        /**
         Date createTime = doc.field("createTime", Date.class);
         post.setCreateTime(createTime);
+        */
 
         Boolean deleted = doc.field("deleted", Boolean.class);
         if(deleted != null) {
@@ -50,9 +52,12 @@ public class PostMapper {
         }
  
         //creator
-        Set<ODocument> inEdgesDoc = doc.field("in");
-        for(ODocument inEdgeDoc : inEdgesDoc) {
-            ODocument accountDoc = inEdgeDoc.field("out");
+        Set<ODocument> edgeCreatePostDocs = doc.field("in");
+        for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
+            Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
+            post.setCreateTime(createTime);
+
+            ODocument accountDoc = edgeCreatePostDoc.field("out");
             Account account = AccountMapper.buildAccount(accountDoc);
             post.setAccount(account);
             break;

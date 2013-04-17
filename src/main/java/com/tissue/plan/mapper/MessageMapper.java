@@ -29,42 +29,18 @@ public class MessageMapper {
         String content = doc.field("content", String.class);
         message.setContent(content);
 
-        Set<ODocument> inEdges = doc.field("in");
-        for(ODocument inEdge : inEdges) {
-            Date createTime = inEdge.field("createTime", Date.class);
+        Set<ODocument> edgeCreatePostDocs = doc.field("in");
+        for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
+            Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
             message.setCreateTime(createTime);
 
-            ODocument accountDoc = inEdge.field("out");
+            ODocument accountDoc = edgeCreatePostDoc.field("out");
             Account account = AccountMapper.buildAccount(accountDoc);
             message.setAccount(account);
             break;
         }
 
-        /**
-        ODocument articleDoc = doc.field("article");
-        Article article = ArticleMapper.buildArticle(articleDoc);
-        message.setArticle(article);
-        */
-
         return message;
     }
 
-    /**
-    public static Message buildMessage(ODocument doc) {
-
-        Message message = buildMessageSelf(doc);
-
-        List<ODocument> commentsDoc = doc.field("comments");
-        if(commentsDoc != null) {
-            for(ODocument commentDoc : commentsDoc) {
-                String deleted = commentDoc.field("deleted", String.class);
-                if(deleted == null) {
-                    MessageReply reply = MessageReplyMapper.buildMessageReply(commentDoc);
-                    message.addReply(reply);
-                }
-            }
-        }
-        return message;
-    }
-    */
 }

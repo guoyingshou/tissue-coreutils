@@ -29,14 +29,14 @@ public class AnswerMapper {
         String answerContent = answerDoc.field("content", String.class);
         answer.setContent(answerContent);
 
-        Set<ODocument> inEdges = answerDoc.field("in");
-        for(ODocument inEdge : inEdges) {
-            String label = inEdge.field("label", String.class);
+        Set<ODocument> edgeCreatePostDocs = answerDoc.field("in");
+        for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
+            String label = edgeCreatePostDoc.field("label", String.class);
             if("answer".equals(label)) {
-                Date createTime = inEdge.field("createTime", Date.class);
+                Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
                 answer.setCreateTime(createTime);
 
-                ODocument accountDoc = inEdge.field("out");
+                ODocument accountDoc = edgeCreatePostDoc.field("out");
                 Account account = AccountMapper.buildAccount(accountDoc);
                 answer.setAccount(account);
                 break;

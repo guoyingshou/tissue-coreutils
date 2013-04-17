@@ -32,6 +32,6 @@ public interface TopicDao extends ContentDao {
 
     List<Topic> getPagedTopicsByTag(String tag, int page, int size);
 
-    List<Topic> getNewTopics(String excludingUserId, int limit);
+    //List<Topic> getNewTopics(String excludingUserId, int limit);
 
 }

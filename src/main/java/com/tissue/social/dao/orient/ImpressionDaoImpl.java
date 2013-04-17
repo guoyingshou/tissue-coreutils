@@ -36,7 +36,7 @@ public class ImpressionDaoImpl implements ImpressionDao {
     protected OrientDataSource dataSource;
 
     public void create(ImpressionCommand command) {
-        String sql = "create edge EdgeCreate from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set label = 'impression', createTime = sysdate(), content = '" + command.getContent() + "'";
+        String sql = "create edge EdgeCreateImpression from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set label = 'impression', createTime = sysdate(), content = '" + command.getContent() + "'";
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
@@ -95,7 +95,7 @@ public class ImpressionDaoImpl implements ImpressionDao {
     }
 
     public List<Impression> getImpressions(String userId) {
-        String sql = "select from EdgeCreate where label = 'impression' and in in " + userId;
+        String sql = "select from EdgeCreateImpression where in in " + userId;
         logger.debug(sql);
 
         List<Impression> impressions = new ArrayList();

@@ -41,7 +41,7 @@ public class AnswerDaoImpl extends ContentDaoImpl implements AnswerDao {
             String userId = command.getAccount().getId();
             String qId = command.getQuestion().getId();
 
-            String sql = "create edge EdgeCreate from " + userId + " to " + id+ " set label = 'answer', createTime = sysdate()";
+            String sql = "create edge EdgeCreatePost from " + userId + " to " + id+ " set label = 'answer', createTime = sysdate()";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);

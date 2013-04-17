@@ -41,7 +41,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             id = doc.getIdentity().toString();
             String uId = command.getAccount().getId();
 
-            String sql = "create edge EdgeCreate from " + uId + " to " + id + " set label = 'topic', createTime = sysdate()";
+            String sql = "create edge EdgeCreateTopic from " + uId + " to " + id + " set label = 'topic', createTime = sysdate()";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -180,7 +180,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      */
     public List<Topic> getFeaturedTopics(int num) {
 
-        String sql = "select from Topic where deleted is null and type = 'featured' order by createTime desc limit " + num;
+        String sql = "select in as topic from EdgeCreateTopic where in.deleted is null and in.type = 'featured' order by createTime desc limit " + num;
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
@@ -188,7 +188,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                Topic topic = TopicMapper.buildTopic(doc);
+                ODocument topicDoc = doc.field("topic");
+                Topic topic = TopicMapper.buildTopic(topicDoc);
                 topics.add(topic);
             }
         }
@@ -218,7 +219,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      */
     public List<Topic> getPagedTopics(int page, int size) {
 
-        String sql = "select from Topic where deleted is null order by createTime desc skip " + ((page -1) * size) + " limit " + size;
+        String sql = "select in as topic from EdgeCreateTopic where in.topic.deleted is null order by createTime desc skip " + ((page -1) * size) + " limit " + size;
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
@@ -226,7 +227,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                Topic topic = TopicMapper.buildTopic(doc);
+                ODocument topicDoc = doc.field("topic");
+                Topic topic = TopicMapper.buildTopic(topicDoc);
                 topics.add(topic);
             }
         }
@@ -297,30 +299,4 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         }
         return topics;
     }
-
-    /**
-     * Questions
-     */
-    public List<Topic> getNewTopics(String excludingUserId, int limit) {
-        String sql = "select from topic where deleted is null order by createTime desc limit " + limit;
-        if(excludingUserId != null) {
-            sql = "select from topic where deleted is null and in.out not in " + excludingUserId + " and plans.in.out not in " + excludingUserId + " order by createTime desc limit " + limit;
-        }
-        logger.debug(sql);
-
-        List<Topic> topics = new ArrayList();
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            for(ODocument doc : docs) {
-                Topic topic = TopicMapper.buildTopic(doc);
-                topics.add(topic);
-            }
-        }
-        finally {
-            db.close();
-        }
-        return topics;
-    }
-
 }

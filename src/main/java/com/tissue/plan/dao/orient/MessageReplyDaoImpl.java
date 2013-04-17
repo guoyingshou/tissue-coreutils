@@ -47,7 +47,7 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge EdgeCreate from " + userId + " to " + id + " set label = 'messageReply', createTime = sysdate()";
+            sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set label = 'messageReply', createTime = sysdate()";
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         
