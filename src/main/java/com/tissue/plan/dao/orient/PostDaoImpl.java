@@ -229,7 +229,6 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     public List<Post> getPagedPostsByType(String topicId, String type, int page, int size) {
         List<Post> posts = new ArrayList<Post>();
 
-        //String sql = "select from post where deleted is null and type = '" + type + "' and plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
         String sql = "select in as post from EdgeCreatePost where in.deleted is null and in.type = '" + type + "' and in.plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
 
 
@@ -238,7 +237,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
-                Post post = PostMapper.buildPost(doc);
+                Post post = PostMapper.buildPost(postDoc);
                 posts.add(post);
             }
         }

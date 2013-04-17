@@ -27,14 +27,14 @@ public class AboutMapper {
         String content = doc.field("content", String.class);
         about.setContent(content);
 
-        Set<ODocument> inEdges = doc.field("in");
-        for(ODocument inEdge : inEdges) {
-            String label = inEdge.field("label", String.class);
+        Set<ODocument> edgeCreateAboutDocs = doc.field("in");
+        for(ODocument edgeCreateAboutDoc : edgeCreateAboutDocs) {
+            String label = edgeCreateAboutDoc.field("label", String.class);
             if("praise".equals(label)) {
-                Date createTime = inEdge.field("createTime", Date.class);
+                Date createTime = edgeCreateAboutDoc.field("createTime", Date.class);
                 about.setCreateTime(createTime);
 
-                ODocument accountDoc = inEdge.field("out");
+                ODocument accountDoc = edgeCreateAboutDoc.field("out");
                 Account account = AccountMapper.buildAccount(accountDoc);
                 about.setAccount(account);
                 break;
