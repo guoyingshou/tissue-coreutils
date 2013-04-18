@@ -79,7 +79,7 @@ public class UserGeneratedContent {
      * Intended to be used in controller.
      */
     public void checkPermission(Account viewerAccount, String role) {
-        if((viewerAccount != null) && (viewerAccount.hasRole(role) || viewerAccount.getId().equals(account.getId()))) {
+        if((viewerAccount != null) && !viewerAccount.hasRole("ROLE_EVIL") && (viewerAccount.hasRole(role) || viewerAccount.getId().equals(account.getId()))) {
             return;
         }
         throw new AccessControlException("Access of " + id + " denied: " + account);
@@ -89,7 +89,10 @@ public class UserGeneratedContent {
      * Intended to be used in view.
      */
     public boolean isAllowed(Account viewerAccount, String role) {
-        if((viewerAccount != null) && (viewerAccount.hasRole(role) || viewerAccount.getId().equals(account.getId()))) {
+        if((viewerAccount == null) || viewerAccount.hasRole("ROLE_EVIL")) {
+            return false;
+        }
+        if(viewerAccount.hasRole(role) || viewerAccount.getId().equals(account.getId())) {
             return true;
         }
         return false;
