@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
+import java.security.AccessControlException;
 
 public class UserGeneratedContent {
 
@@ -69,6 +70,26 @@ public class UserGeneratedContent {
 
     public boolean isOwner(Account viewerAccount) {
         if((viewerAccount != null) && viewerAccount.getId().equals(account.getId())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Intended to be used in controller.
+     */
+    public void checkPermission(Account viewerAccount, String role) {
+        if((viewerAccount != null) && (viewerAccount.hasRole(role) || viewerAccount.getId().equals(account.getId()))) {
+            return;
+        }
+        throw new AccessControlException("Access of " + id + " denied: " + account);
+    }
+
+    /** 
+     * Intended to be used in view.
+     */
+    public boolean isAllowed(Account viewerAccount, String role) {
+        if((viewerAccount != null) && (viewerAccount.hasRole(role) || viewerAccount.getId().equals(account.getId()))) {
             return true;
         }
         return false;

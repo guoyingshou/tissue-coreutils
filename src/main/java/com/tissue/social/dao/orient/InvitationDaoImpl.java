@@ -2,7 +2,7 @@ package com.tissue.social.dao.orient;
 
 import com.tissue.core.Account;
 import com.tissue.core.User;
-import com.tissue.core.util.OrientDataSource;
+import com.tissue.core.datasources.OrientDataSource;
 import com.tissue.core.mapper.UserMapper;
 import com.tissue.social.mapper.InvitationMapper;
 import com.tissue.social.command.InvitationCommand;

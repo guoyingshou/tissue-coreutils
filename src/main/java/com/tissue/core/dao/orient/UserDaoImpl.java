@@ -2,9 +2,9 @@ package com.tissue.core.dao.orient;
 
 import com.tissue.core.Account;
 import com.tissue.core.User;
+import com.tissue.core.datasources.OrientDataSource;
 import com.tissue.core.dao.UserDao;
 import com.tissue.core.command.UserCommand;
-import com.tissue.core.util.OrientDataSource;
 import com.tissue.core.mapper.UserMapper;
 
 import org.springframework.stereotype.Repository;

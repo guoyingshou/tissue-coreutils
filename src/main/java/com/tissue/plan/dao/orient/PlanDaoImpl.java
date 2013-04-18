@@ -1,6 +1,6 @@
 package com.tissue.plan.dao.orient;
 
-import com.tissue.core.util.OrientDataSource;
+import com.tissue.core.datasources.OrientDataSource;
 import com.tissue.plan.command.PlanCommand;
 import com.tissue.plan.mapper.TopicMapper;
 import com.tissue.plan.mapper.PlanMapper;

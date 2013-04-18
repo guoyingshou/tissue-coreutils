@@ -47,10 +47,6 @@ public class PostMapper {
  
         //creator
         Set<ODocument> edgeCreatePostDocs = doc.field("in");
-        System.out.println("++++++++++++++++++");
-        System.out.println(doc);
-        System.out.println(edgeCreatePostDocs);
-        System.out.println("++++++++++++++++++");
 
         for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
             Date createTime = edgeCreatePostDoc.field("createTime", Date.class);

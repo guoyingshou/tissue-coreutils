@@ -1,6 +1,6 @@
 package com.tissue.core.dao.orient;
 
-import com.tissue.core.util.OrientDataSource;
+import com.tissue.core.datasources.OrientDataSource;
 import com.tissue.core.Verification;
 import com.tissue.core.dao.VerificationDao;
 import com.tissue.core.command.VerificationCommand;
