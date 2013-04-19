@@ -53,6 +53,10 @@ public class Account implements Serializable {
         this.roles = roles;
     }
 
+    public Set<String> getRoles() {
+        return roles;
+    }
+
     public boolean hasRole(String role) {
         return roles.contains(role);
     }
