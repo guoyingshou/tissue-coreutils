@@ -26,6 +26,9 @@ public class AccountMapper {
 
         Set<String> roles = new HashSet();
         roles.add("ROLE_USER");
+        if(command.getStatus() != null) {
+            roles.add("ROLE_EVIL");
+        }
         doc.field("roles", roles);
 
         return doc;

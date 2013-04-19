@@ -7,6 +7,7 @@ public interface UserCommand {
     String getId();
     String getDisplayName();
     String getHeadline();
+    String getStatus();
 
     Account getAccount();
 

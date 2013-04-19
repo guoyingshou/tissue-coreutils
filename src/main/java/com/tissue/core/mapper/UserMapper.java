@@ -10,12 +10,12 @@ import java.util.Date;
 
 public class UserMapper {
 
-    public static ODocument convertUser(UserCommand user) {
+    public static ODocument convertUser(UserCommand command) {
         ODocument doc = new ODocument("User");
-        doc.field("displayName", user.getDisplayName());
-        doc.field("headline", user.getHeadline());
-        //doc.field("createTime", new Date());
+        doc.field("displayName", command.getDisplayName());
+        doc.field("headline", command.getHeadline());
         doc.field("inviteLimit", 32);
+        doc.field("status", command.getStatus());
         return doc;
     }
 
@@ -32,6 +32,9 @@ public class UserMapper {
 
         Integer inviteLimit = doc.field("inviteLimit", Integer.class);
         user.setInviteLimit(inviteLimit);
+
+        String status = doc.field("status", String.class);
+        user.setStatus(status);
 
         return user;
     }

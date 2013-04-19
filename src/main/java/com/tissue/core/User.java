@@ -14,6 +14,8 @@ public class User implements Serializable {
     private String headline;
     private int inviteLimit;
 
+    private String status;
+
     public void setId(String id) {
         this.id = id;
     }
@@ -46,4 +48,15 @@ public class User implements Serializable {
         return inviteLimit;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String toString() {
+        return id;
+    }
 }

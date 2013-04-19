@@ -143,9 +143,9 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<User> getNewUsers(String excludingAccountId, int limit) {
-        String sql = "select user from account order by createTime desc limit " + limit;
+        String sql = "select user from account where user.status is null order by createTime desc limit " + limit;
         if(excludingAccountId != null) {
-            sql = "select user from account where @this not in " + excludingAccountId + " order by createTime desc limit " + limit;
+            sql = "select user from account where user.status is null and @this not in " + excludingAccountId + " order by createTime desc limit " + limit;
         }
         logger.debug(sql);
 
