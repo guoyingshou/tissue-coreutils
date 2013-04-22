@@ -86,7 +86,7 @@ public class ActivityDaoImpl implements ActivityDao {
     }
 
     public List<Activity> getActivitiesByUser(String userId, int num) {
-        String sql = "select from EdgeAction where out.user in " + userId + " order by createTime desc";
+        String sql = "select from EdgeAction where out.user in " + userId + " order by createTime desc limit " + num;
         logger.debug(sql);
 
         List<Activity> activities = new ArrayList();
