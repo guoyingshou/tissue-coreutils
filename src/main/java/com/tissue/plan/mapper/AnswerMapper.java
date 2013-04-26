@@ -29,10 +29,11 @@ public class AnswerMapper {
         String answerContent = answerDoc.field("content", String.class);
         answer.setContent(answerContent);
 
+        /**
         Set<ODocument> edgeCreatePostDocs = answerDoc.field("in");
         for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
-            String label = edgeCreatePostDoc.field("label", String.class);
-            if("answer".equals(label)) {
+            String category = edgeCreatePostDoc.field("category", String.class);
+            if("answer".equals(category)) {
                 Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
                 answer.setCreateTime(createTime);
 
@@ -42,6 +43,7 @@ public class AnswerMapper {
                 break;
             }
         }
+        */
         return answer;
     }
 

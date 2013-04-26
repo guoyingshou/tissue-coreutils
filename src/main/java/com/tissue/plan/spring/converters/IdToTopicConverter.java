@@ -5,9 +5,7 @@ import com.tissue.plan.dao.TopicDao;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Component;
 
-//@Component
 public class IdToTopicConverter implements Converter<String, Topic> {
 
     @Autowired

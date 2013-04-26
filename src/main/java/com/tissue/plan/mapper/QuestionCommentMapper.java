@@ -31,10 +31,15 @@ public class QuestionCommentMapper {
         String commentContent = commentDoc.field("content", String.class);
         questionComment.setContent(commentContent);
 
-        Set<ODocument> edgeCreatePostDocs = commentDoc.field("in");
+        return questionComment;
+    }
+
+    /**
+    public static void postProcessQuestionComment(QuestionComment questionComment, ODocument questionCommentDoc) {
+        Set<ODocument> edgeCreatePostDocs = questionCommentDoc.field("in_");
         for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
-            String label = edgeCreatePostDoc.field("label", String.class);
-            if("questionComment".equals(label)) {
+            String category = edgeCreatePostDoc.field("category", String.class);
+            if("questionComment".equals(category)) {
                 Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
                 questionComment.setCreateTime(createTime);
 
@@ -44,6 +49,6 @@ public class QuestionCommentMapper {
                 break;
             }
         }
-        return questionComment;
     }
+    */
 }

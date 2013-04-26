@@ -87,7 +87,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<User> getFriends(String userId) {
-        String sql = "select set(in[label='friend'].out, out[label='friend'].in) as friends from " + userId;
+        String sql = "select set(in[catetory='friend'].out, out[category='friend'].in) as friends from " + userId;
         logger.debug(sql);
 
         List<User> friends = new ArrayList();
@@ -111,7 +111,7 @@ public class UserDaoImpl implements UserDao {
 
     public Boolean isFriend(String userId1, String userId2) {
         String users = "[" + userId1 + "," + userId2 + "]";
-        String sql = "select from EdgeConnect where label in 'friend' and out in " + users + " and in in " + users;
+        String sql = "select from EdgeConnect where category in 'friend' and out in " + users + " and in in " + users;
         logger.debug(sql);
 
         Boolean friend = false;

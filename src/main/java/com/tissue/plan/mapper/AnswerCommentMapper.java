@@ -16,34 +16,31 @@ import java.util.Set;
 
 public class AnswerCommentMapper {
 
-    public static ODocument convertAnswerComment(AnswerCommentCommand comment) {
-        ODocument commentDoc = new ODocument("AnswerComment");
-        commentDoc.field("content", comment.getContent());
-        commentDoc.field("answer", new ORecordId(comment.getAnswer().getId()));
-        return commentDoc;
+    public static ODocument convertAnswerComment(AnswerCommentCommand command) {
+        ODocument doc = new ODocument("AnswerComment");
+        doc.field("content", command.getContent());
+        doc.field("answer", new ORecordId(command.getAnswer().getId()));
+        return doc;
     }
 
-    public static AnswerComment buildAnswerComment(ODocument commentDoc) {
+    public static AnswerComment buildAnswerComment(ODocument doc) {
         AnswerComment answerComment = new AnswerComment();
-        answerComment.setId(commentDoc.getIdentity().toString());
+        answerComment.setId(doc.getIdentity().toString());
 
-        String commentContent = commentDoc.field("content", String.class);
+        String commentContent = doc.field("content", String.class);
         answerComment.setContent(commentContent);
 
-        Set<ODocument> edgeCreatePostDocs = commentDoc.field("in");
-        for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
-            String label = edgeCreatePostDoc.field("label", String.class);
-            if("answerComment".equals(label)) {
-                Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
-                answerComment.setCreateTime(createTime);
+        /**
+        ODocument edgeCreatePostDoc = doc.field("in_");
 
-                ODocument accountDoc = edgeCreatePostDoc.field("out");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                answerComment.setAccount(account);
-                break;
-            }
-        }
+        String category = edgeCreatePostDoc.field("category", String.class);
+        answerComment.setType(category);
 
+        ODocument accountDoc = edgeCreatePostDoc.field("out");
+        Account account = AccountMapper.buildAccount(accountDoc);
+        answerComment.setAccount(account);
+        */
+ 
         return answerComment;
     }
 

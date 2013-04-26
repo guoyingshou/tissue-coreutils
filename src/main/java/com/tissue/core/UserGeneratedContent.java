@@ -11,14 +11,14 @@ import java.security.AccessControlException;
 
 public class UserGeneratedContent {
 
-    private String id;
-    private String content;
-    private String type;
-    private Date createTime;
-    private Date updateTime;
-    private boolean deleted = false;
+    protected String id;
+    protected String content;
+    protected String type;
+    protected Date createTime;
+    protected Date updateTime;
+    protected boolean deleted = false;
 
-    private Account account;
+    protected Account account;
 
     public void setId(String id) {
         this.id = id;

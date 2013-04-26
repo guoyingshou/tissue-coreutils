@@ -33,27 +33,11 @@ public class QuestionMapper {
         String type = doc.field("type", String.class);
         q.setType(type);
 
-        /**
-        Date createTime = doc.field("createTime", Date.class);
-        q.setCreateTime(createTime);
-        */
-
         Boolean deleted = doc.field("deleted", Boolean.class);
         if(deleted != null) {
             q.setDeleted(deleted);
         }
  
-        Set<ODocument> edgeCreatePostDocs = doc.field("in");
-        for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
-            Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
-            q.setCreateTime(createTime);
-
-            ODocument accountDoc = edgeCreatePostDoc.field("out");
-            Account account = AccountMapper.buildAccount(accountDoc);
-            q.setAccount(account);
-
-            break;
-        }
         return q;
     }
 

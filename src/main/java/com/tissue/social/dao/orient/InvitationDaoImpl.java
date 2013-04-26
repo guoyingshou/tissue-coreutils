@@ -38,7 +38,7 @@ public class InvitationDaoImpl implements InvitationDao {
     protected OrientDataSource dataSource;
 
     public String create(InvitationCommand command) {
-        String sql = "create edge EdgeInvite from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set label = 'invitation', createTime = sysdate(), content = '" + command.getContent() + "'";
+        String sql = "create edge EdgeInvite from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set category = 'invitation', createTime = sysdate(), content = '" + command.getContent() + "'";
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
@@ -77,7 +77,7 @@ public class InvitationDaoImpl implements InvitationDao {
     }
 
     public List<Invitation> getInvitationsReceived(String accountId) {
-        String sql = "select from EdgeInvite where label = 'invitation' and " + accountId + " in in.accounts";
+        String sql = "select from EdgeInvite where category = 'invitation' and " + accountId + " in in.accounts";
         logger.debug(sql);
 
         List<Invitation> invitations = new ArrayList();
@@ -96,7 +96,7 @@ public class InvitationDaoImpl implements InvitationDao {
     }
 
     public void declineInvitation(Invitation invitation) {
-        String sql = "update " + invitation.getId() + " set label = 'declined', updateTime = sysdate()";
+        String sql = "update " + invitation.getId() + " set category = 'declined', updateTime = sysdate()";
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
@@ -111,7 +111,7 @@ public class InvitationDaoImpl implements InvitationDao {
 
     public void acceptInvitation(Invitation invitation) {
 
-        String sql = "update " + invitation.getId() + " set label = 'accepted', updateTime = sysdate()";
+        String sql = "update " + invitation.getId() + " set category = 'accepted', updateTime = sysdate()";
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
@@ -122,7 +122,7 @@ public class InvitationDaoImpl implements InvitationDao {
             String fromId = invitation.getAccount().getUser().getId();
             String toId = invitation.getTo().getId();
 
-            sql = "create edge EdgeConnect from " + toId + " to " + fromId + " set label = 'friend', updateTime = sysdate()";
+            sql = "create edge EdgeConnect from " + toId + " to " + fromId + " set category = 'friend', updateTime = sysdate()";
             logger.debug(sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();

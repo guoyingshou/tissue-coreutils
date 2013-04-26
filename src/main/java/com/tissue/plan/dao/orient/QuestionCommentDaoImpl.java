@@ -1,5 +1,7 @@
 package com.tissue.plan.dao.orient;
 
+import com.tissue.core.Account;
+import com.tissue.core.mapper.AccountMapper;
 import com.tissue.core.dao.orient.ContentDaoImpl;
 import com.tissue.plan.dao.QuestionCommentDao;
 import com.tissue.plan.command.QuestionCommentCommand;
@@ -40,7 +42,7 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
             String userId = command.getAccount().getId();
             String qId = command.getQuestion().getId();
 
-            String sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set label = 'questionComment', createTime = sysdate()";
+            String sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set category = 'questionComment', createTime = sysdate()";
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
@@ -56,7 +58,7 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
     }
 
     public QuestionComment getQuestionComment(String questionCommentId) {
-        String sql = "select from " + questionCommentId;
+        String sql = "select @this as questionComment, in_.out as account from " + questionCommentId;
         logger.debug(sql);
 
         QuestionComment questionComment = null;
@@ -65,18 +67,31 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
-                questionComment = QuestionCommentMapper.buildQuestionComment(doc);
+                ODocument questionCommentDoc = doc.field("questionComment");
+                questionComment = QuestionCommentMapper.buildQuestionComment(questionCommentDoc);
 
-                ODocument questionDoc = doc.field("question");
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                questionComment.setAccount(account);
+
+                ODocument questionDoc = questionCommentDoc.field("question");
                 Question question = QuestionMapper.buildQuestion(questionDoc);
+
+                ODocument edge = questionDoc.field("in_");
+                ODocument questionAccountDoc = edge.field("out");
+                Account questionAccount = AccountMapper.buildAccount(questionAccountDoc);
+                question.setAccount(questionAccount);
+
                 questionComment.setQuestion(question);
 
                 ODocument planDoc = questionDoc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
+                //PlanMapper.postProcessPlan(plan, planDoc);
                 question.setPlan(plan);
 
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
+                TopicMapper.postProcessTopic(topic, topicDoc);
                 plan.setTopic(topic);
             }
         }

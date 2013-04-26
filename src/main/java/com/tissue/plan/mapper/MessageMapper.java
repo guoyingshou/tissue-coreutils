@@ -29,6 +29,7 @@ public class MessageMapper {
         String content = doc.field("content", String.class);
         message.setContent(content);
 
+        /**
         Set<ODocument> edgeCreatePostDocs = doc.field("in");
         for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
             Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
@@ -39,6 +40,7 @@ public class MessageMapper {
             message.setAccount(account);
             break;
         }
+        */
 
         return message;
     }

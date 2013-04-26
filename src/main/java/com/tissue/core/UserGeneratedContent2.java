@@ -2,7 +2,7 @@ package com.tissue.core;
 
 public class UserGeneratedContent2 extends UserGeneratedContent {
 
-    private String title;
+    protected String title;
 
     public void setTitle(String title) {
         this.title = title;

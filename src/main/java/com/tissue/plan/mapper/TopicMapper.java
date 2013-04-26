@@ -19,17 +19,18 @@ import com.google.common.collect.Sets;
 public class TopicMapper {
 
     public static ODocument convertTopic(TopicCommand command) {
+
         ODocument doc = new ODocument("Topic");
         doc.field("title", command.getTitle());
         doc.field("content", command.getContent());
         Set<String> tags = command.getTags();
         doc.field("tags", tags);
-        //doc.field("createTime", new Date());
 
         return doc;
     }
 
     public static Topic buildTopic(ODocument doc) {
+
         Topic topic = new Topic();
         topic.setId(doc.getIdentity().toString());
 
@@ -42,29 +43,23 @@ public class TopicMapper {
         Set<String> tags = doc.field("tags", Set.class);
         topic.setTags(tags);
 
-        /**
-        Date createTime = doc.field("createTime", Date.class);
-        topic.setCreateTime(createTime);
-        */
-
         Boolean deleted = doc.field("deleted", Boolean.class);
         if(deleted != null) {
             topic.setDeleted(deleted); 
         }
 
-        Set<ODocument> edgeCreateDocs = doc.field("in");
-        for(ODocument edgeCreateDoc : edgeCreateDocs) {
-
-            Date createTime = edgeCreateDoc.field("createTime", Date.class);
-            topic.setCreateTime(createTime);
-
-            ODocument accountDoc = edgeCreateDoc.field("out");
-            Account account = AccountMapper.buildAccount(accountDoc);
-            topic.setAccount(account);
-
-            break;
-        }
- 
         return topic;
+    }
+
+    public static void postProcessTopic(Topic topic, ODocument topicDoc) {
+        List<ODocument> plansDoc = topicDoc.field("plans");
+
+        if(plansDoc != null) {
+            for(ODocument planDoc :plansDoc) {
+                Plan plan = PlanMapper.buildPlan(planDoc);
+                PlanMapper.postProcessPlan(plan, planDoc);
+                topic.addPlan(plan);
+            }
+        }
     }
 }

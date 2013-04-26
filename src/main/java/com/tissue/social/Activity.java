@@ -3,7 +3,6 @@ package com.tissue.social;
 import com.tissue.core.TimeFormat;
 
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
@@ -91,7 +90,6 @@ public class Activity implements Serializable {
 
     public TimeFormat getTimeBefore() {
         return new TimeFormat(new DateTime(createTime), new DateTime());
-
     }
 
 }

@@ -4,6 +4,7 @@ import com.tissue.core.UserGeneratedContent2;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
+import org.joda.time.DateTime;
 
 public class Topic extends UserGeneratedContent2 {
 
@@ -64,4 +65,29 @@ public class Topic extends UserGeneratedContent2 {
         }
         return result;
     }
+
+    /**
+    //-------- Activity implementation
+
+    public String getLabel() {
+        return "topic";
+    }
+
+    public List<String> getMessageArgs() {
+        List<String> args = new ArrayList<String>();
+
+        args.add(id.replece("#", ""));
+        if(title.length() > 24) {
+            args.add(title.substring(0,24) + "...");
+        }
+        else {
+            args.add(title);
+        }
+        return args;
+    }
+
+    public TimeFormat getTimeBefore() {
+        return new TimeFormat(new DateTime(createTime), new DateTime());
+    }
+    */
 }

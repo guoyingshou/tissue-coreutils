@@ -1,5 +1,7 @@
 package com.tissue.plan.dao.orient;
 
+import com.tissue.core.Account;
+import com.tissue.core.mapper.AccountMapper;
 import com.tissue.core.dao.orient.ContentDaoImpl;
 import com.tissue.plan.dao.MessageReplyDao;
 import com.tissue.plan.command.MessageReplyCommand;
@@ -22,6 +24,7 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 import java.util.List;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +50,7 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set label = 'messageReply', createTime = sysdate()";
+            sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set category = 'messageReply', createTime = sysdate()";
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         
@@ -62,7 +65,7 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
     }
 
     public MessageReply getMessageReply(String messageReplyId) {
-        String sql = "select from " + messageReplyId;
+        String sql = "select @this as reply, in_.out as account, createTime from " + messageReplyId;
         logger.debug(sql);
 
         MessageReply messageReply = null;
@@ -71,9 +74,17 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
-                messageReply = MessageReplyMapper.buildMessageReply(doc);
+                ODocument replyDoc = doc.field("reply");
+                messageReply = MessageReplyMapper.buildMessageReply(replyDoc);
 
-                ODocument messageDoc = doc.field("message");
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                messageReply.setAccount(account);
+
+                Date ctime = doc.field("createTime", Date.class);
+                messageReply.setCreateTime(ctime);
+
+                ODocument messageDoc = replyDoc.field("message");
                 Message message = MessageMapper.buildMessage(messageDoc);
                 messageReply.setMessage(message);
 
@@ -87,6 +98,7 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
 
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
+                TopicMapper.postProcessTopic(topic, topicDoc);
                 plan.setTopic(topic);
             }
         }

@@ -36,7 +36,7 @@ public class ImpressionDaoImpl implements ImpressionDao {
     protected OrientDataSource dataSource;
 
     public void create(ImpressionCommand command) {
-        String sql = "create edge EdgeCreateImpression from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set label = 'impression', createTime = sysdate(), content = '" + command.getContent() + "'";
+        String sql = "create edge EdgeCreateImpression from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set category = 'impression', createTime = sysdate(), content = '" + command.getContent() + "'";
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();

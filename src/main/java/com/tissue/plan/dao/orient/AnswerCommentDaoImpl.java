@@ -1,5 +1,7 @@
 package com.tissue.plan.dao.orient;
 
+import com.tissue.core.Account;
+import com.tissue.core.mapper.AccountMapper;
 import com.tissue.core.dao.orient.ContentDaoImpl;
 import com.tissue.plan.command.AnswerCommentCommand;
 import com.tissue.plan.mapper.TopicMapper;
@@ -22,6 +24,8 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 import java.util.List;
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +46,7 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
             String userId = command.getAccount().getId();
             String answerId = command.getAnswer().getId();
 
-            String sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set label = 'answerComment', createTime = sysdate()";
+            String sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set category = 'answerComment', createTime = sysdate()";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -62,7 +66,7 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
     }
 
     public AnswerComment getAnswerComment(String answerCommentId) {
-        String sql = "select from " + answerCommentId;
+        String sql = "select @this as answerComment, in_.out as account from " + answerCommentId;
         logger.debug(sql);
 
         AnswerComment answerComment = null;
@@ -71,9 +75,14 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
-                answerComment = AnswerCommentMapper.buildAnswerComment(doc);
+                ODocument answerCommentDoc = doc.field("answerComment");
+                answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
 
-                ODocument answerDoc = doc.field("answer");
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                answerComment.setAccount(account);
+
+                ODocument answerDoc = answerCommentDoc.field("answer");
                 Answer answer = AnswerMapper.buildAnswer(answerDoc);
                 answerComment.setAnswer(answer);
 

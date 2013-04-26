@@ -29,8 +29,8 @@ public class AboutMapper {
 
         Set<ODocument> edgeCreateAboutDocs = doc.field("in");
         for(ODocument edgeCreateAboutDoc : edgeCreateAboutDocs) {
-            String label = edgeCreateAboutDoc.field("label", String.class);
-            if("praise".equals(label)) {
+            String category = edgeCreateAboutDoc.field("category", String.class);
+            if("praise".equals(category)) {
                 Date createTime = edgeCreateAboutDoc.field("createTime", Date.class);
                 about.setCreateTime(createTime);
 

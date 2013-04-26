@@ -1,5 +1,7 @@
 package com.tissue.plan.dao.orient;
 
+import com.tissue.core.Account;
+import com.tissue.core.mapper.AccountMapper;
 import com.tissue.core.dao.orient.ContentDaoImpl;
 import com.tissue.plan.command.AnswerCommand;
 import com.tissue.plan.mapper.TopicMapper;
@@ -20,6 +22,7 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 import java.util.List;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +44,7 @@ public class AnswerDaoImpl extends ContentDaoImpl implements AnswerDao {
             String userId = command.getAccount().getId();
             String qId = command.getQuestion().getId();
 
-            String sql = "create edge EdgeCreatePost from " + userId + " to " + id+ " set label = 'answer', createTime = sysdate()";
+            String sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set category = 'answer', createTime = sysdate()";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -66,7 +69,7 @@ public class AnswerDaoImpl extends ContentDaoImpl implements AnswerDao {
     }
 
     public Answer getAnswer(String answerId) {
-        String sql = "select from " + answerId;
+        String sql = "select @this as answer, in_.out as account, createTime from " + answerId;
         logger.debug(sql);
 
         Answer answer = null;
@@ -75,9 +78,15 @@ public class AnswerDaoImpl extends ContentDaoImpl implements AnswerDao {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
-                answer = AnswerMapper.buildAnswer(doc);
+               
+                ODocument answerDoc = doc.field("answer");
+                answer = AnswerMapper.buildAnswer(answerDoc);
 
-                ODocument questionDoc = doc.field("question");
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                answer.setAccount(account);
+
+                ODocument questionDoc = answerDoc.field("question");
                 Question question = QuestionMapper.buildQuestion(questionDoc);
                 answer.setQuestion(question);
 
@@ -87,15 +96,9 @@ public class AnswerDaoImpl extends ContentDaoImpl implements AnswerDao {
 
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
+                TopicMapper.postProcessTopic(topic, topicDoc);
                 plan.setTopic(topic);
 
-                List<ODocument> plansDoc = topicDoc.field("plans");
-                if(plansDoc != null) {
-                    for(ODocument topicPlanDoc : plansDoc) {
-                        Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
-                        topic.addPlan(topicPlan);
-                    }
-                }
             }
         }
         finally {

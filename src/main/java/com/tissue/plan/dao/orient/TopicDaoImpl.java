@@ -1,6 +1,8 @@
 package com.tissue.plan.dao.orient;
 
+import com.tissue.core.Account;
 import com.tissue.core.dao.orient.ContentDaoImpl;
+import com.tissue.core.mapper.AccountMapper;
 import com.tissue.plan.dao.TopicDao;
 import com.tissue.plan.command.TopicCommand;
 import com.tissue.plan.mapper.TopicMapper;
@@ -39,9 +41,9 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             db.save(doc);
 
             id = doc.getIdentity().toString();
-            String uId = command.getAccount().getId();
+            String accountId = command.getAccount().getId();
 
-            String sql = "create edge EdgeCreateTopic from " + uId + " to " + id + " set label = 'topic', createTime = sysdate()";
+            String sql = "create edge EdgeCreateTopic from " + accountId + " to " + id + " set category = 'topic', createTime = sysdate()";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -53,42 +55,31 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         return id;
     }
 
-    public void update(TopicCommand command) {
-        OGraphDatabase db = dataSource.getDB();
-        try {
-            ODocument doc = db.load(new ORecordId(command.getId()));
-            doc.field("title", command.getTitle());
-            doc.field("content", command.getContent());
-            doc.field("tags", command.getTags());
-            doc.field("updateTime", new Date());
-            db.save(doc);
-        }
-        finally {
-            db.close();
-        }
-    }
-
     /**
      * Get a topic with all fields available.
      */
     public Topic getTopic(String topicId) {
-        String sql = "select from " + topicId;
+        String sql = "select @this as topic, in_.out as account, in_.createTime as createTime from " + topicId;
         logger.debug(sql);
 
         Topic topic = null;
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
-                topic = TopicMapper.buildTopic(doc);
-                List<ODocument> plansDoc = doc.field("plans");
-                if(plansDoc != null) {
-                    for(ODocument planDoc :plansDoc) {
-                        Plan plan = PlanMapper.buildPlan(planDoc);
-                        topic.addPlan(plan);
-                    }
-                }
+                ODocument topicDoc = doc.field("topic");
+                topic = TopicMapper.buildTopic(topicDoc);
+
+                Date createTime = doc.field("createTime", Date.class);
+                topic.setCreateTime(createTime);
+
+                TopicMapper.postProcessTopic(topic, topicDoc);
+
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                topic.setAccount(account);
             }
         }
         finally {
@@ -109,13 +100,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
                 ODocument doc = docs.get(0);
                 ODocument topicDoc = doc.field("topic");
                 topic = TopicMapper.buildTopic(topicDoc);
-                List<ODocument> plansDoc = topicDoc.field("plans");
-                if(plansDoc != null) {
-                    for(ODocument planDoc : plansDoc) {
-                        Plan plan = PlanMapper.buildPlan(planDoc);
-                        topic.addPlan(plan);
-                    }
-                }
+                TopicMapper.postProcessTopic(topic, topicDoc);
             }
         }
         finally {
@@ -136,13 +121,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
                 ODocument doc = docs.get(0);
                 ODocument topicDoc = doc.field("topic");
                 topic = TopicMapper.buildTopic(topicDoc);
-                List<ODocument> plansDoc = topicDoc.field("plans");
-                if(plansDoc != null) {
-                    for(ODocument planDoc : plansDoc) {
-                        Plan plan = PlanMapper.buildPlan(planDoc);
-                        topic.addPlan(plan);
-                    }
-                }
+                TopicMapper.postProcessTopic(topic, topicDoc);
              }
         }
         finally {
@@ -151,12 +130,27 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         return topic;
     }
 
+    public void update(TopicCommand command) {
+        OGraphDatabase db = dataSource.getDB();
+        try {
+            ODocument doc = db.load(new ORecordId(command.getId()));
+            doc.field("title", command.getTitle());
+            doc.field("content", command.getContent());
+            doc.field("tags", command.getTags());
+            doc.field("updateTime", new Date());
+            db.save(doc);
+        }
+        finally {
+            db.close();
+        }
+    }
+
     /**
      * Get topics with the largest members.
      */
     public List<Topic> getTrendingTopics(int num) {
 
-        String sql = "select topic from Plan where topic.deleted is null order by count desc limit " + num;
+        String sql = "select topic, topic.in_.out as account, topic.in_.createTime as createTime from Plan where topic.deleted is null order by count desc limit " + num;
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
@@ -166,6 +160,14 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
+
+                Date createTime = doc.field("createTime", Date.class);
+                topic.setCreateTime(createTime);
+
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                topic.setAccount(account);
+
                 topics.add(topic);
             }
         }
@@ -180,7 +182,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      */
     public List<Topic> getFeaturedTopics(int num) {
 
-        String sql = "select in as topic from EdgeCreateTopic where in.deleted is null and in.type = 'featured' order by createTime desc limit " + num;
+        String sql = "select in as topic, out as account, createTime from EdgeCreateTopic where in.deleted is null and in.type = 'featured' order by createTime desc limit " + num;
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
@@ -190,6 +192,14 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
+
+                Date createTime = doc.field("createTime", Date.class);
+                topic.setCreateTime(createTime);
+
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                topic.setAccount(account);
+
                 topics.add(topic);
             }
         }
@@ -219,7 +229,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      */
     public List<Topic> getPagedTopics(int page, int size) {
 
-        String sql = "select in as topic from EdgeCreateTopic where in.topic.deleted is null order by createTime desc skip " + ((page -1) * size) + " limit " + size;
+        String sql = "select in as topic, out as account, createTime from EdgeCreateTopic where in.deleted is null order by createTime desc skip " + ((page -1) * size) + " limit " + size;
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
@@ -229,6 +239,14 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
+
+                Date createTime = doc.field("createTime", Date.class);
+                topic.setCreateTime(createTime);
+
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                topic.setAccount(account);
+
                 topics.add(topic);
             }
         }
@@ -282,7 +300,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
 
     public List<Topic> getPagedTopicsByTag(String tag, int page, int size) {
 
-        String sql = "select from Topic where deleted is null and tags in '" + tag + "' order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select in as topic, out as account, createTime from EdgeCreateTopic where in.deleted is null and in.tags in '" + tag + "' order by createTime desc skip " + (page - 1) * size + " limit " + size;
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
@@ -290,7 +308,16 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             for(ODocument doc : docs) {
-                Topic topic = TopicMapper.buildTopic(doc);
+                ODocument topicDoc = doc.field("topic");
+                Topic topic = TopicMapper.buildTopic(topicDoc);
+
+                Date createTime = doc.field("createTime", Date.class);
+                topic.setCreateTime(createTime);
+
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                topic.setAccount(account);
+
                 topics.add(topic);
             }
         }
@@ -299,4 +326,5 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         }
         return topics;
     }
+
 }

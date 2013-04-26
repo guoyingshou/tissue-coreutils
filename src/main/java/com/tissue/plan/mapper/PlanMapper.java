@@ -30,21 +30,63 @@ public class PlanMapper {
         Integer duration = doc.field("duration", Integer.class);
         plan.setDuration(duration);
 
-        Set<ODocument> edgeCreatePlanDocs = doc.field("in");
-        for(ODocument edgeCreatePlanDoc : edgeCreatePlanDocs) {
-            String label = edgeCreatePlanDoc.field("label");
-            if("plan".equals(label)) {
-                Date createTime = edgeCreatePlanDoc.field("createTime", Date.class);
-                plan.setCreateTime(createTime);
+        /**
+        Date createTime = doc.field("createTime", Date.class);
+        plan.setCreateTime(createTime);
 
-                ODocument accountDoc = edgeCreatePlanDoc.field("out");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                plan.setAccount(account);
-                break;
+        Object inEdge = doc.field("in_");
+        if(inEdge instanceof ODocument) {
+            ODocument edgeCreatePlanDoc = (ODocument)inEdge;
+            ODocument accountDoc = edgeCreatePlanDoc.field("out");
+            Account account = AccountMapper.buildAccount(accountDoc);
+            plan.setAccount(account);
+        }
+        else {
+            Set<ODocument> edgeCreatePlanDocs = (Set)inEdge;
+
+            for(ODocument edgeCreatePlanDoc : edgeCreatePlanDocs) {
+                String category = edgeCreatePlanDoc.field("category");
+                if("plan".equals(category)) {
+                    ODocument accountDoc = edgeCreatePlanDoc.field("out");
+                    Account account = AccountMapper.buildAccount(accountDoc);
+                    plan.setAccount(account);
+                    break;
+                }
             }
         }
+        */
 
         return plan;
+    }
+
+    public static void postProcessPlan(Plan plan, ODocument doc) {
+        Object inDoc = doc.field("in_");
+
+        if(inDoc instanceof ODocument) {
+            ODocument inEdgeDoc = (ODocument)inDoc;
+            Date ctime = inEdgeDoc.field("createTime", Date.class);
+            plan.setCreateTime(ctime);
+
+            ODocument accountDoc = inEdgeDoc.field("out");
+            Account account = AccountMapper.buildAccount(accountDoc);
+            plan.setAccount(account);
+        }
+        else {
+            Set<ODocument> inEdgeDocs = (Set)inDoc;
+            for(ODocument inEdgeDoc : inEdgeDocs) {
+                String category = inEdgeDoc.field("category");
+                if("plan".equals(category)) {
+                    Date ctime = inEdgeDoc.field("createTime", Date.class);
+                    plan.setCreateTime(ctime);
+
+                    ODocument accountDoc = inEdgeDoc.field("out");
+                    Account account = AccountMapper.buildAccount(accountDoc);
+                    plan.setAccount(account);
+ 
+                    break;
+                }
+            }
+        }
     }
 
 }

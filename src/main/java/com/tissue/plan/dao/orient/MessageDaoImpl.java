@@ -1,5 +1,7 @@
 package com.tissue.plan.dao.orient;
 
+import com.tissue.core.Account;
+import com.tissue.core.mapper.AccountMapper;
 import com.tissue.core.dao.orient.ContentDaoImpl;
 import com.tissue.plan.dao.MessageDao;
 import com.tissue.plan.command.MessageCommand;
@@ -22,6 +24,7 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 import java.util.List;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +50,7 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set label = 'message', createTime = sysdate()";
+            sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set category = 'message', createTime = sysdate()";
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
@@ -62,7 +65,7 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
     }
 
     public Message getMessage(String messageId) {
-        String sql = "select from " + messageId;
+        String sql = "select @this as message, in_.out as account, createTime from " + messageId;
         logger.debug(sql);
 
         Message message = null;
@@ -71,9 +74,18 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
-                message = MessageMapper.buildMessage(doc);
 
-                ODocument articleDoc = doc.field("article");
+                ODocument messageDoc = doc.field("message");
+                message = MessageMapper.buildMessage(messageDoc);
+
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                message.setAccount(account);
+
+                Date ctime = doc.field("createTime", Date.class);
+                message.setCreateTime(ctime);
+
+                ODocument articleDoc = messageDoc.field("article");
                 Article article = ArticleMapper.buildArticle(articleDoc);
                 message.setArticle(article);
 
@@ -83,15 +95,8 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
 
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
+                TopicMapper.postProcessTopic(topic, topicDoc);
                 plan.setTopic(topic);
-
-                List<ODocument> plansDoc = topicDoc.field("plans");
-                if(plansDoc != null) {
-                    for(ODocument topicPlanDoc : plansDoc) {
-                        Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
-                        topic.addPlan(topicPlan);
-                    }
-                }
             }
         }
         finally {
