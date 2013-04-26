@@ -11,86 +11,31 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TopicPipeFunction implements PipeFunction<ODocument, List<Activity>>  {
+public class TopicPipeFunction extends ActivityPipeFunction  {
     
     private static Logger logger = LoggerFactory.getLogger(TopicPipeFunction.class);
 
-    private List<Activity> activities;
-
     public TopicPipeFunction(List<Activity> activities) {
-        this.activities = activities;
+        super(activities);
     }
 
     public List<Activity> compute(ODocument doc) {
 
-        Activity activity = new Activity();
-        ActivityObject who = new ActivityObject();
-        ActivityObject what = new ActivityObject();
-        activity.setWho(who);
-        activity.setWhat(what);
+        String category = doc.field("category", String.class);
+        if("topic".equals(category)) {
 
-        String type = doc.field("type");
-        activity.setLabel(type);
+            Activity activity = init(doc);
+            activity.setLabel(category);
 
-        Date createTime = doc.field("createTime", Date.class);
-        activity.setCreateTime(createTime);
+            ODocument whatDoc = doc.field("what");
+            activity.getWhat().setId(whatDoc.getIdentity().toString());
 
-        ODocument userDoc = doc.field("user");
-        who.setId(userDoc.getIdentity().toString());
-
-        String displayName = userDoc.field("displayName", String.class);
-        who.setDisplayName(displayName);
-
-        if("plan".equals(type)) {
-            ODocument topicDoc = doc.field("topic");
-            what.setId(topicDoc.getIdentity().toString());
-
-            String topicTitle = topicDoc.field("title", String.class);
-            what.setDisplayName(topicTitle);
-        }
-        else {
-            String rid = doc.field("rid", String.class);
-            what.setId(rid);
-
-            String title = doc.field("title", String.class);
-            what.setDisplayName(title);
-        }
-
-        activities.add(activity);
-
-        /**
-
-        ODocument edgeDoc = doc.field("in_");
-        if("topic".equals(type)) {
-
-            Activity activity = new Activity();
-            ActivityObject who = new ActivityObject();
-            ActivityObject what = new ActivityObject();
-            activity.setWho(who);
-            activity.setWhat(what);
-
-            activity.setLabel(type);
-            Date createTime = doc.field("createTime", Date.class);
-            activity.setCreateTime(createTime);
-
-            //setup who
-            ODocument accountDoc = edgeDoc.field("out");
-            ODocument userDoc = accountDoc.field("user");
-            String displayName = userDoc.field("displayName", String.class);
-
-            who.setId(userDoc.getIdentity().toString());
-            who.setDisplayName(displayName);
-
-            //setup what
-            ODocument topicDoc = edgeDoc.field("in");
-            String title = topicDoc.field("title", String.class);
-
-            what.setId(topicDoc.getIdentity().toString());
-            what.setDisplayName(title);
+            String title = whatDoc.field("title", String.class);
+            activity.getWhat().setDisplayName(title);
 
             activities.add(activity);
         }
-        */
+
         return null;
     }
 }

@@ -11,23 +11,24 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MessageReplyPipeFunction implements PipeFunction<ODocument, List<Activity>>  {
+public class MessageReplyPipeFunction extends ActivityPipeFunction  {
     
     private static Logger logger = LoggerFactory.getLogger(MessageReplyPipeFunction.class);
 
-    private List<Activity> activities;
-
     public MessageReplyPipeFunction(List<Activity> activities) {
-        this.activities = activities;
+        super(activities);
     }
 
     public List<Activity> compute(ODocument doc) {
-        String label = doc.field("label", String.class);
+        String category = doc.field("category", String.class);
 
-        if("messageReply".equals(label)) {
-            logger.debug("activity type: " + label);
+        if("messageReply".equals(category)) {
+            logger.debug("activity type: " + category);
 
-            Activity activity = new Activity();
+            Activity activity = init(doc);
+            activity.setLabel(category);
+
+            /**
             ActivityObject who = new ActivityObject();
             ActivityObject what = new ActivityObject();
             ActivityObject where = new ActivityObject();
@@ -46,21 +47,24 @@ public class MessageReplyPipeFunction implements PipeFunction<ODocument, List<Ac
 
             who.setId(userDoc.getIdentity().toString());
             who.setDisplayName(displayName);
+            */
 
             //setup what
-            ODocument messageReplyDoc = doc.field("in");
-            ODocument messageDoc = messageReplyDoc.field("message");
+            ODocument whatDoc = doc.field("what");
+            ODocument messageDoc = whatDoc.field("message");
             ODocument articleDoc = messageDoc.field("article");
             String title = articleDoc.field("title", String.class);
 
-            what.setId(articleDoc.getIdentity().toString());
-            what.setDisplayName(title);
+            activity.getWhat().setId(articleDoc.getIdentity().toString());
+            activity.getWhat().setDisplayName(title);
 
+            /**
             //setup where(topic)
             ODocument planDoc = articleDoc.field("plan");
             ODocument topicDoc = planDoc.field("topic");
 
             where.setId(topicDoc.getIdentity().toString());
+            */
 
             activities.add(activity);
         }

@@ -34,8 +34,7 @@ public class ActivityDaoImpl implements ActivityDao {
     protected OrientDataSource dataSource;
 
     public List<Activity> getActivities(int num) {
-        //String sql = "select from EdgeAction where category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer'] order by createTime desc limit " + num;
-        String sql = "select in_.out.user as user, @rid, title, in_.category as type, createTime from UserGeneratedContent where in_.category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer'] order by createTime desc limit " + num;
+        String sql = "select out.user as user, in as what, category, createTime from EdgeAction where category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer'] order by createTime desc limit " + num;
         logger.debug(sql);
 
         List<Activity> activities = new ArrayList();
@@ -54,8 +53,7 @@ public class ActivityDaoImpl implements ActivityDao {
     public List<Activity> getWatchedActivities(String accountId, int num) {
         List<Activity> activities = new ArrayList();
 
-        //String sql = "select from EdgeAction where out.user in (select set(user.in[category='friend'].out, user.out[category='friend'].in) from " + accountId + ") or (" + accountId + " in set(in.plan.in.out, in.article.plan.in.out, in.message.article.plan.in.out, in.question.plan.in.out, in.answer.question.plan.in.out) and out not in " + accountId + ") order by createTime desc limit " + num;
-        String sql = "select in_.out.user as user, @rid, title, type, createTime from UserGeneratedContent where in_.out.user in (select set(user.in[category='friend'].out, user.out[category='friend'].in) from " + accountId + ") or (" + accountId + " in set(in.plan.in.out, in.article.plan.in.out, in.message.article.plan.in.out, in.question.plan.in.out, in.answer.question.plan.in.out) and out not in " + accountId + ") order by createTime desc limit " + num;
+        String sql = "select out.user as user, in as what, category, createTime from EdgeAction where out.user in (select set(user.in_[category='friend'].out, user.out_[category='friend'].in) from " + accountId + ") or (" + accountId + " in set(in.plan.in_.out, in.article.plan.in_.out, in.message.article.plan.in_.out, in.question.plan.in_.out, in.answer.question.plan.in_.out) and out not in " + accountId + ") order by createTime desc limit " + num;
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
@@ -71,8 +69,7 @@ public class ActivityDaoImpl implements ActivityDao {
     }
 
     public List<Activity> getActivitiesByAccount(String accountId, int num) {
-        //String sql = "select from EdgeAction where out in " + accountId + " order by createTime desc";
-        String sql = "select in_.out.user as user, @rid, title, type, createTime from UserGeneratedContent where in_.out in " + accountId + " order by createTime desc";
+        String sql = "select out.user as user, in as what, category, createTime from EdgeAction where out in " + accountId + " order by createTime desc";
         logger.debug(sql);
 
         List<Activity> activities = new ArrayList();
@@ -89,8 +86,7 @@ public class ActivityDaoImpl implements ActivityDao {
     }
 
     public List<Activity> getActivitiesByUser(String userId, int num) {
-        //String sql = "select from EdgeAction where out.user in " + userId + " order by createTime desc limit " + num;
-        String sql = "select in_.out.user as user, @rid, title, type, createTime from UserGeneratedContent where in_.out.user in " + userId + " order by createTime desc limit " + num;
+        String sql = "select out.user as user, in as what, category, createTime from EdgeAction where out.user in " + userId + " order by createTime desc limit " + num;
         logger.debug(sql);
 
         List<Activity> activities = new ArrayList();
@@ -107,7 +103,7 @@ public class ActivityDaoImpl implements ActivityDao {
     }
 
     public List<Activity> getActivitiesForNewUser(int num) {
-        String sql = "select in_.out.user as user, @rid, title, type, createTime from UserGeneratedContent where type in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer'] order by createTime desc limit " + num;
+        String sql = "select out.user as user, in as what, category, createTime from EdgeAction where category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer'] order by createTime desc limit " + num;
         logger.debug(sql);
 
         List<Activity> activities = new ArrayList();

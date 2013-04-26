@@ -29,7 +29,6 @@ public class ActivityStreamMapper {
         SideEffectFunctionPipe topicPipe = new SideEffectFunctionPipe<ODocument>(new TopicPipeFunction(activities));
         pipeline.addPipe(topicPipe);
 
-        /**
         SideEffectFunctionPipe planPipe = new SideEffectFunctionPipe<ODocument>(new PlanPipeFunction(activities));
         pipeline.addPipe(planPipe);
 
@@ -50,7 +49,6 @@ public class ActivityStreamMapper {
 
         SideEffectFunctionPipe answerCommentPipe = new SideEffectFunctionPipe<ODocument>(new AnswerCommentPipeFunction(activities));
         pipeline.addPipe(answerCommentPipe);
-        */
 
     }
 

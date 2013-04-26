@@ -73,6 +73,8 @@ public class Activity implements Serializable {
 
         if(what != null && what.getId() != null) {
             args.add(what.getId().replace("#", ""));
+            System.out.println("+++ in Activity: " + what.getDisplayName());
+
             if(what.getDisplayName().length() > 24) {
                args.add(what.getDisplayName().substring(0, 24) + "..."); 
             }
@@ -81,9 +83,11 @@ public class Activity implements Serializable {
             }
         }
 
+        /**
         if(where != null && where.getId() != null) {
             args.add(where.getId().replace("#", ""));
         }
+        */
 
         return args;
     }

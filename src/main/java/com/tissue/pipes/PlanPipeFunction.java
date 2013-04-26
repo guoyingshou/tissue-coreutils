@@ -11,22 +11,22 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PlanPipeFunction implements PipeFunction<ODocument, List<Activity>>  {
+public class PlanPipeFunction extends ActivityPipeFunction  {
 
     private static Logger logger = LoggerFactory.getLogger(PlanPipeFunction.class);
 
-    private List<Activity> activities;
-
     public PlanPipeFunction(List<Activity> activities) {
-        this.activities = activities;
+        super(activities);
     }
 
     public List<Activity> compute(ODocument doc) {
-        String label = doc.field("label", String.class);
-        if("plan".equals(label) || "member".equals(label)) {
-            logger.debug("activity type: " + label);
+        String category = doc.field("category", String.class);
+        if("plan".equals(category) || "member".equals(category)) {
 
-            Activity activity = new Activity();
+            Activity activity = init(doc);
+            activity.setLabel(category);
+
+            /**
             ActivityObject who = new ActivityObject();
             ActivityObject what = new ActivityObject();
             activity.setWho(who);
@@ -43,15 +43,17 @@ public class PlanPipeFunction implements PipeFunction<ODocument, List<Activity>>
 
             who.setId(userDoc.getIdentity().toString());
             who.setDisplayName(displayName);
-
+            */
 
             //setup what
-            ODocument planDoc = doc.field("in");
-            ODocument topicDoc = planDoc.field("topic");
+            //ODocument planDoc = doc.field("in_");
+
+            ODocument whatDoc = doc.field("what");
+            ODocument topicDoc = whatDoc.field("topic");
             String title = topicDoc.field("title", String.class);
 
-            what.setId(topicDoc.getIdentity().toString());
-            what.setDisplayName(title);
+            activity.getWhat().setId(topicDoc.getIdentity().toString());
+            activity.getWhat().setDisplayName(title);
 
             activities.add(activity);
         }
