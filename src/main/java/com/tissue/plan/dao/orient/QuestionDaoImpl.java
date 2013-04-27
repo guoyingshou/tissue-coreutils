@@ -39,7 +39,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
 
     public Question getQuestion(String id) {
         Question question = null;
-        String sql = "select @this as question, in_.out as account, createTime from " + id;
+        String sql = "select @this as question, in_.out as account, in_.createTime as createTime from " + id;
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();

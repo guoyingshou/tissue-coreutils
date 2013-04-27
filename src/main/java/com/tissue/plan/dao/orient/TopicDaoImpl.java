@@ -150,7 +150,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      */
     public List<Topic> getTrendingTopics(int num) {
 
-        String sql = "select topic, topic.in_.out as account, topic.in_.createTime as createTime from Plan where topic.deleted is null order by count desc limit " + num;
+        //String sql = "select topic, topic.in_.out as account, topic.in_.createTime as createTime from Plan where topic.deleted is null order by count desc limit " + num;
+        String sql = "select in_.size() as memberCount, topic, topic.in_.out as account, topic.in_.createTime as createTime from Plan where topic.deleted is null order by memberCount desc limit " + num;
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();

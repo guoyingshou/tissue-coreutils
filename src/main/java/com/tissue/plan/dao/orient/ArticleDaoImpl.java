@@ -37,7 +37,7 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
     private static Logger logger = LoggerFactory.getLogger(ArticleDaoImpl.class);
 
     public Article getArticle(String id) {
-        String sql = "select @this as article, in_.out as account, createTime from " + id;
+        String sql = "select @this as article, in_.out as account, in_.createTime as createTime from " + id;
         logger.debug(sql);
 
         Article article = null;

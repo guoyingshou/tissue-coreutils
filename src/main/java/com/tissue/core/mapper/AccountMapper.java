@@ -35,9 +35,6 @@ public class AccountMapper {
     }
 
     public static Account buildAccount(ODocument doc) {
-        System.out.println("=====================");
-        System.out.println("in account mapper: " + doc);
-
         Account account = new Account();
         String rid = doc.getIdentity().toString();
         account.setId(rid);
@@ -52,11 +49,9 @@ public class AccountMapper {
         account.setRoles(roles);
 
         ODocument userDoc = doc.field("user");
-        System.out.println("in account mapper: " + userDoc);
         User user = UserMapper.buildUser(userDoc);
         account.setUser(user);
 
-        System.out.println("=====================");
         return account;
     }
 }

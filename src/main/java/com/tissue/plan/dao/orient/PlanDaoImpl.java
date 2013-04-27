@@ -104,11 +104,13 @@ public class PlanDaoImpl implements PlanDao {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
+            /**
             sql = "update " + planId + " increment count = 1";
             logger.debug(sql);
 
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
+            */
         }
         finally {
             db.close();

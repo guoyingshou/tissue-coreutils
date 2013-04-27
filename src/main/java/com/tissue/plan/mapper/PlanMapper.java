@@ -18,7 +18,7 @@ public class PlanMapper {
     public static ODocument convertPlan(PlanCommand plan) {
         ODocument doc = new ODocument("Plan");
         doc.field("duration", plan.getDuration());
-        doc.field("count", 0);
+        //doc.field("count", 0);
         return doc;
     }
 
