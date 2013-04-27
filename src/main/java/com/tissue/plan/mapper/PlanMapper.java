@@ -30,32 +30,6 @@ public class PlanMapper {
         Integer duration = doc.field("duration", Integer.class);
         plan.setDuration(duration);
 
-        /**
-        Date createTime = doc.field("createTime", Date.class);
-        plan.setCreateTime(createTime);
-
-        Object inEdge = doc.field("in_");
-        if(inEdge instanceof ODocument) {
-            ODocument edgeCreatePlanDoc = (ODocument)inEdge;
-            ODocument accountDoc = edgeCreatePlanDoc.field("out");
-            Account account = AccountMapper.buildAccount(accountDoc);
-            plan.setAccount(account);
-        }
-        else {
-            Set<ODocument> edgeCreatePlanDocs = (Set)inEdge;
-
-            for(ODocument edgeCreatePlanDoc : edgeCreatePlanDocs) {
-                String category = edgeCreatePlanDoc.field("category");
-                if("plan".equals(category)) {
-                    ODocument accountDoc = edgeCreatePlanDoc.field("out");
-                    Account account = AccountMapper.buildAccount(accountDoc);
-                    plan.setAccount(account);
-                    break;
-                }
-            }
-        }
-        */
-
         return plan;
     }
 

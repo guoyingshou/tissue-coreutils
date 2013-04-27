@@ -98,7 +98,7 @@ public class PlanDaoImpl implements PlanDao {
     public void addMember(String planId, String accountId) {
         OGraphDatabase db = dataSource.getDB();
         try {
-            String sql = "create edge EdgeCreateMember from " + accountId + " to " + planId + " set createTime = sydate(), category ='member'";
+            String sql = "create edge EdgeCreateMember from " + accountId + " to " + planId + " set createTime = sysdate(), category ='member'";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
