@@ -23,6 +23,9 @@ import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+
 import java.util.List;
 import java.util.Date;
 
@@ -37,10 +40,12 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
     public String create(AnswerCommentCommand command) {
         String id = null;
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = AnswerCommentMapper.convertAnswerComment(command);
-            db.save(doc);
+            //db.save(doc);
+            doc.save();
 
             id = doc.getIdentity().toString();
             String userId = command.getAccount().getId();
@@ -59,7 +64,8 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
             db.command(cmd).execute();
         }
         finally {
-             db.close();
+             //db.close();
+             db.shutdown();
         }
 
         return id;
@@ -70,9 +76,15 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
         logger.debug(sql);
 
         AnswerComment answerComment = null;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
             if(!docs.isEmpty()) {
                 ODocument answerCommentDoc = docs.get(0);
                 answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
@@ -97,7 +109,8 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return answerComment;
     }

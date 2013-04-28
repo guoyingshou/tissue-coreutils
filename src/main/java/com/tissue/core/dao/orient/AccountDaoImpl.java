@@ -19,6 +19,8 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +42,8 @@ public class AccountDaoImpl implements AccountDao {
     public String create(UserCommand command) {
         String accountId;
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             ODocument accountDoc = AccountMapper.convertAccount(command);
             accountDoc.save();
@@ -57,7 +60,8 @@ public class AccountDaoImpl implements AccountDao {
             accountId = accountDoc.getIdentity().toString();
         }
         finally {
-           db.close();
+           //db.close();
+           db.shutdown();
         }
         return accountId;
     }
@@ -66,13 +70,15 @@ public class AccountDaoImpl implements AccountDao {
         String sql = "update " + command.getAccount().getId() + " set email = '" + command.getEmail() + "'";
         logger.debug(sql);
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
         finally {
-           db.close();
+           //db.close();
+           db.shutdown();
         }
     }
 
@@ -81,13 +87,15 @@ public class AccountDaoImpl implements AccountDao {
         String sql = "update " + command.getAccount().getId() + " set password = '" + password + "'";
         logger.debug(sql);
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
         finally {
-           db.close();
+           //db.close();
+           db.shutdown();
         }
     }
 
@@ -96,16 +104,22 @@ public class AccountDaoImpl implements AccountDao {
         logger.debug(sql);
 
         Account account = null;
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 account = AccountMapper.buildAccount(doc);
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return account;
     }
@@ -115,16 +129,22 @@ public class AccountDaoImpl implements AccountDao {
         logger.debug(sql);
 
         Account account = null;
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 account = AccountMapper.buildAccount(doc);
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return account;
     }
@@ -134,15 +154,21 @@ public class AccountDaoImpl implements AccountDao {
         logger.debug(sql);
 
         boolean exist = false;
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
             if(docs.size() > 0) {
                exist = true;
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return exist;
     }
@@ -152,15 +178,21 @@ public class AccountDaoImpl implements AccountDao {
         logger.debug(sql);
 
         boolean exist = false;
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+//            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
             if(docs.size() > 0) {
                exist = true;
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return exist;
     }
@@ -169,13 +201,15 @@ public class AccountDaoImpl implements AccountDao {
         String sql = "update " + accountId + " set verified = true";
         logger.debug(sql);
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
     }
 

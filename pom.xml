@@ -19,9 +19,16 @@
         <artifactId>slf4j-api</artifactId>
     </dependency>
 
+    <!--
     <dependency>
         <groupId>com.orientechnologies</groupId>
         <artifactId>orientdb-client</artifactId>
+    </dependency>
+    -->
+
+    <dependency>
+        <groupId>com.tinkerpop.blueprints</groupId>
+        <artifactId>blueprints-orient-graph</artifactId>
     </dependency>
 
     <dependency>

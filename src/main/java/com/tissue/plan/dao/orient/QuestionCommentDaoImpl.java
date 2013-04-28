@@ -21,6 +21,9 @@ import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +36,12 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
     public String create(QuestionCommentCommand command) {
         String id = null;
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = QuestionCommentMapper.convertQuestionComment(command);
-            db.save(doc);
+            doc.save();
+            //db.save(doc);
         
             id = doc.getIdentity().toString();
             String userId = command.getAccount().getId();
@@ -52,7 +57,8 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
  
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return id;
     }
@@ -62,9 +68,14 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
         logger.debug(sql);
 
         QuestionComment questionComment = null;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
             if(!docs.isEmpty()) {
                 ODocument questionCommentDoc = docs.get(0);
                 questionComment = QuestionCommentMapper.buildQuestionComment(questionCommentDoc);
@@ -84,7 +95,8 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
             }
         }
         finally {
-           db.close();
+           //db.close();
+           db.shutdown();
         }
         return questionComment;
     }

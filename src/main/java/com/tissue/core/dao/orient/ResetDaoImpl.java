@@ -15,6 +15,9 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
@@ -29,9 +32,12 @@ public class ResetDaoImpl implements ResetDao {
     protected OrientDataSource dataSource;
 
     public String create(ResetCommand command) {
-        OGraphDatabase db = dataSource.getDB();
         String resetId = null;
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
+
             ODocument doc = new ODocument("Reset");
             doc.field("code", command.getCode());
             doc.field("account", new ORecordId(command.getAccount().getId()));
@@ -41,7 +47,8 @@ public class ResetDaoImpl implements ResetDao {
             resetId = doc.getIdentity().toString();
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return resetId;
     }
@@ -51,16 +58,23 @@ public class ResetDaoImpl implements ResetDao {
         logger.debug(sql);
 
         Reset reset = null;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql));
-            if(!docs.isEmpty()) {
+            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql));
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
+             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 reset = ResetMapper.buildReset(doc);
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return reset;
     }
@@ -69,13 +83,15 @@ public class ResetDaoImpl implements ResetDao {
         String sql = "delete from " + resetId;
         logger.debug(sql);
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
     }
 

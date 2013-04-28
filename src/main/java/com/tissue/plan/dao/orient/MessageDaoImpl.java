@@ -23,6 +23,10 @@ import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+
+
 import java.util.List;
 import java.util.Date;
 
@@ -37,10 +41,12 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
     public String create(MessageCommand command) {
         String id = null;
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = MessageMapper.convertMessage(command);
-            db.save(doc);
+            doc.save();
+            //db.save(doc);
 
             id = doc.getIdentity().toString();
             String postId = command.getArticle().getId();
@@ -59,7 +65,8 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
             db.command(cmd).execute();
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return id;
     }
@@ -69,9 +76,15 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
         logger.debug(sql);
 
         Message message = null;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
             if(!docs.isEmpty()) {
                 ODocument messageDoc = docs.get(0);
                 message = MessageMapper.buildMessage(messageDoc);
@@ -92,7 +105,8 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
             }
         }
         finally {
-           db.close();
+           //db.close();
+           db.shutdown();
         }
         return message;
     }

@@ -19,6 +19,9 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +44,8 @@ public class InvitationDaoImpl implements InvitationDao {
         String sql = "create edge EdgeInvite from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set category = 'invitation', createTime = sysdate(), content = '" + command.getContent() + "'";
         logger.debug(sql);
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             Object obj = db.command(cmd).execute();
@@ -49,7 +53,8 @@ public class InvitationDaoImpl implements InvitationDao {
             return obj.toString();
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
     }
 
@@ -58,9 +63,15 @@ public class InvitationDaoImpl implements InvitationDao {
         logger.debug(sql);
 
         Invitation invitation = null;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 invitation = InvitationMapper.buildInvitation(doc);
@@ -71,7 +82,8 @@ public class InvitationDaoImpl implements InvitationDao {
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return invitation;
     }
@@ -81,16 +93,23 @@ public class InvitationDaoImpl implements InvitationDao {
         logger.debug(sql);
 
         List<Invitation> invitations = new ArrayList();
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
             for(ODocument doc : docs) {
                 Invitation invitation = InvitationMapper.buildInvitation(doc);
                 invitations.add(invitation);
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return invitations;
     }
@@ -99,13 +118,15 @@ public class InvitationDaoImpl implements InvitationDao {
         String sql = "update " + invitation.getId() + " set category = 'declined', updateTime = sysdate()";
         logger.debug(sql);
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
          }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
     }
 
@@ -114,7 +135,8 @@ public class InvitationDaoImpl implements InvitationDao {
         String sql = "update " + invitation.getId() + " set category = 'accepted', updateTime = sysdate()";
         logger.debug(sql);
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
@@ -133,7 +155,8 @@ public class InvitationDaoImpl implements InvitationDao {
             db.command(cmd).execute();
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
     }
 

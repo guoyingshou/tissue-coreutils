@@ -13,6 +13,9 @@ import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
@@ -29,14 +32,22 @@ public class ContentDaoImpl implements ContentDao {
     protected OrientDataSource dataSource;
 
     public void update(ContentCommand command) {
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
+
+            OrientVertex v = db.getVertex(command.getId());
+            v.setProperty("content", command.getContent());
+
+            /**
             ODocument doc = db.load(new ORecordId(command.getId()));
             doc.field("content", command.getContent());
             doc.save();
+            */
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
     }
 
@@ -44,13 +55,15 @@ public class ContentDaoImpl implements ContentDao {
         String sql = "update " + rid + " set deleted = true";
         logger.debug(sql);
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
     }
 }

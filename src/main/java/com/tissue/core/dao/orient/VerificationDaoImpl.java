@@ -15,6 +15,9 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +33,12 @@ public class VerificationDaoImpl implements VerificationDao {
     protected OrientDataSource dataSource;
 
     public String create(VerificationCommand command) {
-        OGraphDatabase db = dataSource.getDB();
         String verificationId = null;
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
+            
             ODocument doc = new ODocument("Verification");
             doc.field("code", command.getCode());
             doc.field("account", new ORecordId(command.getAccount().getId()));
@@ -42,7 +48,8 @@ public class VerificationDaoImpl implements VerificationDao {
             verificationId = doc.getIdentity().toString();
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return verificationId;
     }
@@ -52,16 +59,23 @@ public class VerificationDaoImpl implements VerificationDao {
         logger.debug(sql);
 
         Verification verification = null;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql));
+            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql));
+            
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 verification = VerificationMapper.buildVerification(doc);
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return verification;
     }
@@ -70,13 +84,15 @@ public class VerificationDaoImpl implements VerificationDao {
         String sql = "delete from " + verificationId;
         logger.debug(sql);
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
     }
 

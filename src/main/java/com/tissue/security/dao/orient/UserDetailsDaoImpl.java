@@ -17,7 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,17 +43,24 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
         logger.debug(sql);
 
         UserDetailsImpl userDetails = null;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            OSQLSynchQuery<ODocument> query = new OSQLSynchQuery(sql);
-            List<ODocument> result = db.command(query).execute(username);
-            if(!result.isEmpty()) {
-                ODocument doc = result.get(0);
+            //OSQLSynchQuery<ODocument> query = new OSQLSynchQuery(sql);
+            //List<ODocument> result = db.command(query).execute(username);
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+ 
+            if(!docs.isEmpty()) {
+                ODocument doc = docs.get(0);
                 userDetails = UserDetailsMapper.buildUser(doc);
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
 
         return userDetails;

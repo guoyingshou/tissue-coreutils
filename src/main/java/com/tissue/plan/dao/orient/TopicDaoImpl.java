@@ -19,6 +19,9 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
@@ -35,10 +38,13 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
 
     public String create(TopicCommand command) {
         String id = null;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = TopicMapper.convertTopic(command);
-            db.save(doc);
+            doc.save();
+            //db.save(doc);
 
             id = doc.getIdentity().toString();
             String accountId = command.getAccount().getId();
@@ -50,7 +56,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             db.command(cmd).execute();
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return id;
     }
@@ -64,9 +71,14 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         logger.debug(sql);
 
         Topic topic = null;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+//            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
 
             if(!docs.isEmpty()) {
                 ODocument topicDoc = docs.get(0);
@@ -74,25 +86,11 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
 
                 AccountMapper.setupCreatorAndTimestamp(topic, topicDoc);
                 TopicMapper.setupPlans(topic, topicDoc);
-
-                /**
-                ODocument doc = docs.get(0);
-                ODocument topicDoc = doc.field("topic");
-                topic = TopicMapper.buildTopic(topicDoc);
-
-                Date createTime = doc.field("createTime", Date.class);
-                topic.setCreateTime(createTime);
-
-                TopicMapper.postProcessTopic(topic, topicDoc);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                topic.setAccount(account);
-                */
             }
         }
         finally {
-           db.close();
+           //db.close();
+           db.shutdown();
         }
         return topic;
     }
@@ -102,9 +100,15 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         logger.debug(sql);
 
         Topic topic = null;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+//            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
+
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 ODocument topicDoc = doc.field("topic");
@@ -115,7 +119,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return topic;
     }
@@ -125,37 +130,51 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         logger.debug(sql);
 
         Topic topic = null;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+//            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
+
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 ODocument topicDoc = doc.field("topic");
                 topic = TopicMapper.buildTopic(topicDoc);
 
                 TopicMapper.setupPlans(topic, topicDoc);
-
-                //TopicMapper.postProcessTopic(topic, topicDoc);
              }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return topic;
     }
 
     public void update(TopicCommand command) {
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
+            OrientVertex v = db.getVertex(command.getId());
+            v.setProperty("title", command.getTitle());
+            v.setProperty("content", command.getContent());
+            v.setProperty("tags", command.getTags());
+ 
+            /**
             ODocument doc = db.load(new ORecordId(command.getId()));
             doc.field("title", command.getTitle());
             doc.field("content", command.getContent());
             doc.field("tags", command.getTags());
             doc.field("updateTime", new Date());
             db.save(doc);
+            */
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
     }
 
@@ -167,9 +186,15 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+//            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
+
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
@@ -185,7 +210,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return topics;
     }
@@ -199,9 +225,15 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+//            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
+
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
@@ -217,7 +249,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return topics;
     }
@@ -227,12 +260,16 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      */
     public long getTopicsCount() {
         long count = 0L;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            count = db.countClass("topic");
+            //count = db.countClass("topic");
+            count = db.countVertices("topic");
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return count;
     }
@@ -246,9 +283,15 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+//            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
+
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
@@ -264,7 +307,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return topics;
     }
@@ -277,9 +321,15 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         logger.debug(sql);
 
         Set<String> tags = new TreeSet<String>();
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+//            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
+
             if((docs != null) && (docs.size() > 0)) {
                 Set<String> result = docs.get(0).field("tags", Set.class);
                 tags.addAll(result);
@@ -287,7 +337,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             return tags;
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
     }
 
@@ -297,9 +348,15 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         logger.debug(sql);
 
         long result = 0L;
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+//            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
+
             if(docs.size() > 0) {
                 ODocument countDoc = docs.get(0);
                 result = countDoc.field("count", long.class);
@@ -307,7 +364,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             return result;
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
     }
 
@@ -317,9 +375,16 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
-        OGraphDatabase db = dataSource.getDB();
+
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+//            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
+
+
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
@@ -335,7 +400,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             }
         }
         finally {
-           db.close();
+           //db.close();
+           db.shutdown();
         }
         return topics;
     }

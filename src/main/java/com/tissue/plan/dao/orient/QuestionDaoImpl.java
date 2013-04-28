@@ -24,6 +24,10 @@ import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
@@ -43,9 +47,14 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
         String sql = "select from " + id;
         logger.debug(sql);
 
-        OGraphDatabase db = dataSource.getDB();
+        //OGraphDatabase db = dataSource.getDB();
+        OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:4"));
+            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:4"));
+
+            OCommandSQL cmd = new OCommandSQL(sql);
+            List<ODocument> docs = db.command(cmd).execute();
+
             if(!docs.isEmpty()) {
                 ODocument questionDoc = docs.get(0);
                 question = QuestionMapper.buildQuestion(questionDoc);
@@ -98,7 +107,8 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
             }
         }
         finally {
-            db.close();
+            //db.close();
+            db.shutdown();
         }
         return question;
     }
