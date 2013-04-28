@@ -58,7 +58,7 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
     }
 
     public QuestionComment getQuestionComment(String questionCommentId) {
-        String sql = "select @this as questionComment, in_.out as account from " + questionCommentId;
+        String sql = "select from " + questionCommentId;
         logger.debug(sql);
 
         QuestionComment questionComment = null;
@@ -66,32 +66,20 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                ODocument questionCommentDoc = doc.field("questionComment");
+                ODocument questionCommentDoc = docs.get(0);
                 questionComment = QuestionCommentMapper.buildQuestionComment(questionCommentDoc);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                questionComment.setAccount(account);
+                AccountMapper.setupCreatorAndTimestamp(questionComment, questionCommentDoc);
 
                 ODocument questionDoc = questionCommentDoc.field("question");
                 Question question = QuestionMapper.buildQuestion(questionDoc);
-
-                ODocument edge = questionDoc.field("in_");
-                ODocument questionAccountDoc = edge.field("out");
-                Account questionAccount = AccountMapper.buildAccount(questionAccountDoc);
-                question.setAccount(questionAccount);
-
                 questionComment.setQuestion(question);
 
                 ODocument planDoc = questionDoc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
-                //PlanMapper.postProcessPlan(plan, planDoc);
                 question.setPlan(plan);
 
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.postProcessTopic(topic, topicDoc);
                 plan.setTopic(topic);
             }
         }

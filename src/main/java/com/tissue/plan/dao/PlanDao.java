@@ -8,6 +8,9 @@ public interface PlanDao {
 
     String create(PlanCommand planCommand);
 
+    /**
+     * For use by spring converter.
+     */
     Plan getPlan(String planId);
 
     void addMember(String planId, String accountId);

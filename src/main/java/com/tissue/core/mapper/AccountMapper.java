@@ -1,8 +1,9 @@
 package com.tissue.core.mapper;
 
-import com.tissue.core.command.UserCommand;
 import com.tissue.core.Account;
 import com.tissue.core.User;
+import com.tissue.core.UserGeneratedContent;
+import com.tissue.core.command.UserCommand;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -54,4 +55,15 @@ public class AccountMapper {
 
         return account;
     }
+
+    public static void setupCreatorAndTimestamp(UserGeneratedContent content, ODocument doc) {
+        Date ctime = doc.field("in_.createTime", Date.class);
+        content.setCreateTime(ctime);
+
+        ODocument accountDoc = doc.field("in_.out");
+        Account account = buildAccount(accountDoc);
+
+        content.setAccount(account);
+    }
+
 }

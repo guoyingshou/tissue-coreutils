@@ -65,7 +65,7 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
     }
 
     public Message getMessage(String messageId) {
-        String sql = "select @this as message, in_.out as account, createTime from " + messageId;
+        String sql = "select from " + messageId;
         logger.debug(sql);
 
         Message message = null;
@@ -73,18 +73,10 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-
-                ODocument messageDoc = doc.field("message");
+                ODocument messageDoc = docs.get(0);
                 message = MessageMapper.buildMessage(messageDoc);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                message.setAccount(account);
-
-                Date ctime = doc.field("createTime", Date.class);
-                message.setCreateTime(ctime);
-
+                AccountMapper.setupCreatorAndTimestamp(message, messageDoc);
+                
                 ODocument articleDoc = messageDoc.field("article");
                 Article article = ArticleMapper.buildArticle(articleDoc);
                 message.setArticle(article);
@@ -95,7 +87,7 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
 
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.postProcessTopic(topic, topicDoc);
+                TopicMapper.setupPlans(topic, topicDoc);
                 plan.setTopic(topic);
             }
         }

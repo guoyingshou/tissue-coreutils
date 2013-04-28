@@ -66,7 +66,7 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
     }
 
     public AnswerComment getAnswerComment(String answerCommentId) {
-        String sql = "select @this as answerComment, in_.out as account from " + answerCommentId;
+        String sql = "select from " + answerCommentId;
         logger.debug(sql);
 
         AnswerComment answerComment = null;
@@ -74,13 +74,9 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                ODocument answerCommentDoc = doc.field("answerComment");
+                ODocument answerCommentDoc = docs.get(0);
                 answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                answerComment.setAccount(account);
+                AccountMapper.setupCreatorAndTimestamp(answerComment, answerCommentDoc);
 
                 ODocument answerDoc = answerCommentDoc.field("answer");
                 Answer answer = AnswerMapper.buildAnswer(answerDoc);
@@ -96,6 +92,7 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
 
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
+                //TopicMapper.setupPlans(topic, topicDoc);
                 plan.setTopic(topic);
             }
         }

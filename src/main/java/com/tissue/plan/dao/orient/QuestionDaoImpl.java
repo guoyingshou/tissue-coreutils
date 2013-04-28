@@ -39,23 +39,17 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
 
     public Question getQuestion(String id) {
         Question question = null;
-        String sql = "select @this as question, in_.out as account, in_.createTime as createTime from " + id;
+        //String sql = "select @this as question, in_.out as account, in_.createTime as createTime from " + id;
+        String sql = "select from " + id;
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:4"));
             if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                ODocument questionDoc = doc.field("question");
+                ODocument questionDoc = docs.get(0);
                 question = QuestionMapper.buildQuestion(questionDoc);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                question.setAccount(account);
-
-                Date ctime0 = doc.field("createTime", Date.class);
-                question.setCreateTime(ctime0);
+                AccountMapper.setupCreatorAndTimestamp(question, questionDoc);
 
                 ODocument planDoc = questionDoc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
@@ -63,7 +57,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
 
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.postProcessTopic(topic, topicDoc);
+                TopicMapper.setupPlans(topic, topicDoc);
                 plan.setTopic(topic);
 
                 List<ODocument> commentsDoc = questionDoc.field("comments");
@@ -72,16 +66,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                         Object deleted = commentDoc.field("deleted");
                         if(deleted == null) {
                             QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
-
-                            ODocument edge1 = commentDoc.field("in_");
-                            Date ctime1 = edge1.field("createTime", Date.class);
-                            comment.setCreateTime(ctime1);
-
-                            ODocument commentAccountDoc = edge1.field("out");
-
-                            Account commentAccount = AccountMapper.buildAccount(commentAccountDoc);
-                            comment.setAccount(commentAccount);
-
+                            AccountMapper.setupCreatorAndTimestamp(comment, commentDoc);
                             question.addComment(comment);
                         }
                     }
@@ -93,15 +78,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                         Object deleted = answerDoc.field("deleted");
                         if(deleted == null) {
                             Answer answer = AnswerMapper.buildAnswer(answerDoc);
-
-                            ODocument edge1 = answerDoc.field("in_");
-                            Date ctime1 = edge1.field("createTime", Date.class);
-                            answer.setCreateTime(ctime1);
-
-                            ODocument answerAccountDoc = edge1.field("out");
-                            Account answerAccount = AccountMapper.buildAccount(answerAccountDoc);
-                            answer.setAccount(answerAccount);
-
+                            AccountMapper.setupCreatorAndTimestamp(answer, answerDoc);
                             question.addAnswer(answer);
 
                             List<ODocument> answerCommentsDoc = answerDoc.field("comments");
@@ -110,14 +87,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                                     deleted = answerCommentDoc.field("deleted");
                                     if(deleted == null) {
                                         AnswerComment answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
-                                        ODocument edge2 = answerCommentDoc.field("in_");
-                                        Date ctime2 = edge2.field("createTime", Date.class);
-                                        answerComment.setCreateTime(ctime2);
-
-                                        ODocument answerCommentAccountDoc = edge2.field("out");
-                                        Account answerCommentAccount = AccountMapper.buildAccount(answerCommentAccountDoc);
-                                        answerComment.setAccount(answerCommentAccount);
-
+                                        AccountMapper.setupCreatorAndTimestamp(answerComment, answerCommentDoc);
                                         answer.addComment(answerComment);
                                     }
                                 }

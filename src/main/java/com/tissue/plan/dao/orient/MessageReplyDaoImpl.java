@@ -65,7 +65,7 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
     }
 
     public MessageReply getMessageReply(String messageReplyId) {
-        String sql = "select @this as reply, in_.out as account, createTime from " + messageReplyId;
+        String sql = "select from " + messageReplyId;
         logger.debug(sql);
 
         MessageReply messageReply = null;
@@ -73,16 +73,9 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                ODocument replyDoc = doc.field("reply");
+                ODocument replyDoc = docs.get(0);
                 messageReply = MessageReplyMapper.buildMessageReply(replyDoc);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                messageReply.setAccount(account);
-
-                Date ctime = doc.field("createTime", Date.class);
-                messageReply.setCreateTime(ctime);
+                AccountMapper.setupCreatorAndTimestamp(messageReply, replyDoc);
 
                 ODocument messageDoc = replyDoc.field("message");
                 Message message = MessageMapper.buildMessage(messageDoc);
@@ -98,7 +91,6 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
 
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.postProcessTopic(topic, topicDoc);
                 plan.setTopic(topic);
             }
         }

@@ -78,7 +78,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     public List<Post> getLatestPosts(int limit) {
         List<Post> posts = new ArrayList();
 
-        String sql = "select in as post, out as account, createTime from EdgeCreatePost where in.deleted is null and in.plan.topic.deleted is null and in.type in ['concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + limit;
+        String sql = "select in as post, createTime from EdgeCreatePost where in.deleted is null and in.plan.topic.deleted is null and in.type in ['concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + limit;
 
         logger.debug(sql);
 
@@ -88,13 +88,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
                 Post post = PostMapper.buildPost(postDoc);
-
-                Date ctime = doc.field("createTime", Date.class);
-                post.setCreateTime(ctime);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                post.setAccount(account);
+                AccountMapper.setupCreatorAndTimestamp(post, postDoc);
 
                 posts.add(post);
             }
@@ -125,7 +119,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByUser(String userId, int page, int size) {
-        String sql = "select in as post, out as account, createTime from EdgeCreatePost where in.deleted is null and in.type in ['concept', 'note', 'tutorial', 'question'] and out.user in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select in as post, createTime from EdgeCreatePost where in.deleted is null and in.type in ['concept', 'note', 'tutorial', 'question'] and out.user in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
 
         logger.debug(sql);
 
@@ -136,13 +130,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
                 Post post = PostMapper.buildPost(postDoc);
-
-                Date ctime = doc.field("createTime", Date.class);
-                post.setCreateTime(ctime);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                post.setAccount(account);
+                AccountMapper.setupCreatorAndTimestamp(post, postDoc);
 
                 posts.add(post);
             }
@@ -174,7 +162,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
     public List<Post> getPagedPostsByPlan(String planId, int page, int size) {
         List<Post> posts = new ArrayList();
-        String sql = "select in as post, out as account, createTime from EdgeCreatePost where in.deleted is null and in.plan in " + planId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select in as post, createTime from EdgeCreatePost where in.deleted is null and in.plan in " + planId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
 
         OGraphDatabase db = dataSource.getDB();
         try {
@@ -182,13 +170,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
                 Post post = PostMapper.buildPost(postDoc);
-
-                Date ctime = doc.field("createTime", Date.class);
-                post.setCreateTime(ctime);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                post.setAccount(account);
+                AccountMapper.setupCreatorAndTimestamp(post, postDoc);
 
                 posts.add(post);
             }
@@ -218,7 +200,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
     public List<Post> getPagedPostsByTopic(String topicId, int page, int size) {
         List<Post> posts = new ArrayList();
-        String sql = "select in as post, out as account, createTime from EdgeCreatePost where in.deleted is null and in.plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+        String sql = "select in as post, createTime from EdgeCreatePost where in.deleted is null and in.plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
 
         logger.debug(sql);
 
@@ -228,13 +210,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
                 Post post = PostMapper.buildPost(postDoc);
-
-                Date ctime = doc.field("createTime", Date.class);
-                post.setCreateTime(ctime);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                post.setAccount(account);
+                AccountMapper.setupCreatorAndTimestamp(post, postDoc);
 
                 posts.add(post);
             }
@@ -266,7 +242,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     public List<Post> getPagedPostsByType(String topicId, String type, int page, int size) {
         List<Post> posts = new ArrayList<Post>();
 
-        String sql = "select in as post, out as account, createTime from EdgeCreatePost where in.deleted is null and in.type = '" + type + "' and in.plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+        String sql = "select in as post, createTime from EdgeCreatePost where in.deleted is null and in.type = '" + type + "' and in.plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
         logger.debug(sql);
 
         OGraphDatabase db = dataSource.getDB();
@@ -275,13 +251,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
                 Post post = PostMapper.buildPost(postDoc);
-
-                Date ctime = doc.field("createTime", Date.class);
-                post.setCreateTime(ctime);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                post.setAccount(account);
+                AccountMapper.setupCreatorAndTimestamp(post, postDoc);
 
                 posts.add(post);
             }

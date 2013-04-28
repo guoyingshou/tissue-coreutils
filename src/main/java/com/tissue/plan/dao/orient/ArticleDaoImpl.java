@@ -37,7 +37,7 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
     private static Logger logger = LoggerFactory.getLogger(ArticleDaoImpl.class);
 
     public Article getArticle(String id) {
-        String sql = "select @this as article, in_.out as account, in_.createTime as createTime from " + id;
+        String sql = "select from " + id;
         logger.debug(sql);
 
         Article article = null;
@@ -45,16 +45,9 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:4"));
             if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                ODocument articleDoc = doc.field("article");
+                ODocument articleDoc = docs.get(0);
                 article = ArticleMapper.buildArticle(articleDoc);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                article.setAccount(account);
-
-                Date ctime0 = doc.field("createTime", Date.class);
-                article.setCreateTime(ctime0);
+                AccountMapper.setupCreatorAndTimestamp(article, articleDoc);
 
                 ODocument planDoc = articleDoc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
@@ -62,7 +55,8 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
 
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.postProcessTopic(topic, topicDoc);
+                TopicMapper.setupPlans(topic, topicDoc);
+
                 plan.setTopic(topic);
 
                 List<ODocument> messagesDoc = articleDoc.field("messages");
@@ -71,15 +65,7 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
                         Object deleted = messageDoc.field("deleted");
                         if(deleted == null) {
                             Message message = MessageMapper.buildMessage(messageDoc);
-
-                            ODocument edge1 = messageDoc.field("in_");
-                            Date ctime1 = edge1.field("createTime", Date.class);
-                            message.setCreateTime(ctime1);
-
-                            ODocument messageAccountDoc = edge1.field("out");
-                            Account messageAccount = AccountMapper.buildAccount(messageAccountDoc);
-                            message.setAccount(messageAccount);
-
+                            AccountMapper.setupCreatorAndTimestamp(message, messageDoc);
                             article.addMessage(message);
 
                             List<ODocument> repliesDoc = messageDoc.field("replies");
@@ -88,15 +74,7 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
                                     deleted = replyDoc.field("deleted", String.class);
                                     if(deleted == null) {
                                         MessageReply reply = MessageReplyMapper.buildMessageReply(replyDoc);
-
-                                        ODocument edge2 = replyDoc.field("in_");
-                                        Date ctime2 = edge2.field("createTime", Date.class);
-                                        reply.setCreateTime(ctime2);
-
-                                        ODocument replyAccountDoc = edge2.field("out");
-                                        Account replyAccount = AccountMapper.buildAccount(replyAccountDoc);
-                                        reply.setAccount(replyAccount);
-
+                                        AccountMapper.setupCreatorAndTimestamp(reply, replyDoc);
                                         message.addReply(reply);
                                     }
                                 }

@@ -18,7 +18,6 @@ public class PlanMapper {
     public static ODocument convertPlan(PlanCommand plan) {
         ODocument doc = new ODocument("Plan");
         doc.field("duration", plan.getDuration());
-        //doc.field("count", 0);
         return doc;
     }
 
@@ -33,34 +32,16 @@ public class PlanMapper {
         return plan;
     }
 
-    public static void postProcessPlan(Plan plan, ODocument doc) {
-        Object inDoc = doc.field("in_");
+    /**
+     * Setup createTime and creator of the plan.
+     */
+    public static void setupCreatorAndTimestamp(Plan plan, ODocument planDoc) {
+        Date ctime = planDoc.field("in_[category='plan'].createTime", Date.class);
+        plan.setCreateTime(ctime);
 
-        if(inDoc instanceof ODocument) {
-            ODocument inEdgeDoc = (ODocument)inDoc;
-            Date ctime = inEdgeDoc.field("createTime", Date.class);
-            plan.setCreateTime(ctime);
-
-            ODocument accountDoc = inEdgeDoc.field("out");
-            Account account = AccountMapper.buildAccount(accountDoc);
-            plan.setAccount(account);
-        }
-        else {
-            Set<ODocument> inEdgeDocs = (Set)inDoc;
-            for(ODocument inEdgeDoc : inEdgeDocs) {
-                String category = inEdgeDoc.field("category");
-                if("plan".equals(category)) {
-                    Date ctime = inEdgeDoc.field("createTime", Date.class);
-                    plan.setCreateTime(ctime);
-
-                    ODocument accountDoc = inEdgeDoc.field("out");
-                    Account account = AccountMapper.buildAccount(accountDoc);
-                    plan.setAccount(account);
- 
-                    break;
-                }
-            }
-        }
+        ODocument accountDoc = planDoc.field("in_[category='plan'].out");
+        Account account = AccountMapper.buildAccount(accountDoc);
+        plan.setAccount(account);
     }
-
+ 
 }

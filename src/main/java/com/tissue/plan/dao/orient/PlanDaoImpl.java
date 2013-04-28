@@ -1,6 +1,7 @@
 package com.tissue.plan.dao.orient;
 
 import com.tissue.core.datasources.OrientDataSource;
+import com.tissue.core.mapper.AccountMapper;
 import com.tissue.plan.command.PlanCommand;
 import com.tissue.plan.mapper.TopicMapper;
 import com.tissue.plan.mapper.PlanMapper;
@@ -67,25 +68,26 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public Plan getPlan(String planId) {
-        Plan plan = null;
-        String sql = "select @this as plan, in_[category='plan'].createTime as createTime from " + planId;
+
+        String sql = "select from " + planId;
         logger.debug(sql);
 
+        Plan plan = null;
         OGraphDatabase db = dataSource.getDB();
         try {
-
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-
             if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0).field("plan");
+                ODocument planDoc = docs.get(0);
+                plan = PlanMapper.buildPlan(planDoc);
 
-                plan = PlanMapper.buildPlan(doc);
-                Date createTime = doc.field("createTime", Date.class);
-                plan.setCreateTime(createTime);
+                PlanMapper.setupCreatorAndTimestamp(plan, planDoc);
 
-                ODocument topicDoc = doc.field("topic");
+                ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.postProcessTopic(topic, topicDoc);
+
+                AccountMapper.setupCreatorAndTimestamp(topic, topicDoc);
+                TopicMapper.setupPlans(topic, topicDoc);
+
                 plan.setTopic(topic);
             }
         }
@@ -103,14 +105,6 @@ public class PlanDaoImpl implements PlanDao {
 
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
- 
-            /**
-            sql = "update " + planId + " increment count = 1";
-            logger.debug(sql);
-
-            cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
-            */
         }
         finally {
             db.close();

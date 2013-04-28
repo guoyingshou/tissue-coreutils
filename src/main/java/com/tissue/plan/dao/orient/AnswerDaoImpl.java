@@ -69,7 +69,7 @@ public class AnswerDaoImpl extends ContentDaoImpl implements AnswerDao {
     }
 
     public Answer getAnswer(String answerId) {
-        String sql = "select @this as answer, in_.out as account, createTime from " + answerId;
+        String sql = "select from " + answerId;
         logger.debug(sql);
 
         Answer answer = null;
@@ -77,14 +77,9 @@ public class AnswerDaoImpl extends ContentDaoImpl implements AnswerDao {
         try {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
             if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-               
-                ODocument answerDoc = doc.field("answer");
+                ODocument answerDoc = docs.get(0);
                 answer = AnswerMapper.buildAnswer(answerDoc);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                answer.setAccount(account);
+                AccountMapper.setupCreatorAndTimestamp(answer, answerDoc);
 
                 ODocument questionDoc = answerDoc.field("question");
                 Question question = QuestionMapper.buildQuestion(questionDoc);
@@ -96,7 +91,7 @@ public class AnswerDaoImpl extends ContentDaoImpl implements AnswerDao {
 
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.postProcessTopic(topic, topicDoc);
+                TopicMapper.setupPlans(topic, topicDoc);
                 plan.setTopic(topic);
 
             }

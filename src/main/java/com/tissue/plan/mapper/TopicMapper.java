@@ -51,15 +51,20 @@ public class TopicMapper {
         return topic;
     }
 
-    public static void postProcessTopic(Topic topic, ODocument topicDoc) {
+    /**
+     * Add plans that belongs to the given topic.
+     */
+    public static void setupPlans(Topic topic, ODocument topicDoc) {
         List<ODocument> plansDoc = topicDoc.field("plans");
 
         if(plansDoc != null) {
             for(ODocument planDoc :plansDoc) {
                 Plan plan = PlanMapper.buildPlan(planDoc);
-                PlanMapper.postProcessPlan(plan, planDoc);
+                PlanMapper.setupCreatorAndTimestamp(plan, planDoc);
+                
                 topic.addPlan(plan);
             }
         }
     }
+
 }

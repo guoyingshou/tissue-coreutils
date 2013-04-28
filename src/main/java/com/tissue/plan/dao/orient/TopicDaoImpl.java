@@ -59,7 +59,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      * Get a topic with all fields available.
      */
     public Topic getTopic(String topicId) {
-        String sql = "select @this as topic, in_.out as account, in_.createTime as createTime from " + topicId;
+        //String sql = "select @this as topic, in_.out as account, in_.createTime as createTime from " + topicId;
+        String sql = "select from " + topicId;
         logger.debug(sql);
 
         Topic topic = null;
@@ -68,6 +69,13 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
 
             if(!docs.isEmpty()) {
+                ODocument topicDoc = docs.get(0);
+                topic = TopicMapper.buildTopic(topicDoc);
+
+                AccountMapper.setupCreatorAndTimestamp(topic, topicDoc);
+                TopicMapper.setupPlans(topic, topicDoc);
+
+                /**
                 ODocument doc = docs.get(0);
                 ODocument topicDoc = doc.field("topic");
                 topic = TopicMapper.buildTopic(topicDoc);
@@ -80,6 +88,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
                 ODocument accountDoc = doc.field("account");
                 Account account = AccountMapper.buildAccount(accountDoc);
                 topic.setAccount(account);
+                */
             }
         }
         finally {
@@ -100,7 +109,9 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
                 ODocument doc = docs.get(0);
                 ODocument topicDoc = doc.field("topic");
                 topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.postProcessTopic(topic, topicDoc);
+
+                //TopicMapper.setupCreatorAndTimestamp(topic, topicDoc);
+                TopicMapper.setupPlans(topic, topicDoc);
             }
         }
         finally {
@@ -121,7 +132,10 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
                 ODocument doc = docs.get(0);
                 ODocument topicDoc = doc.field("topic");
                 topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.postProcessTopic(topic, topicDoc);
+
+                TopicMapper.setupPlans(topic, topicDoc);
+
+                //TopicMapper.postProcessTopic(topic, topicDoc);
              }
         }
         finally {
@@ -149,8 +163,6 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      * Get topics with the largest members.
      */
     public List<Topic> getTrendingTopics(int num) {
-
-        //String sql = "select topic, topic.in_.out as account, topic.in_.createTime as createTime from Plan where topic.deleted is null order by count desc limit " + num;
         String sql = "select in_.size() as memberCount, topic, topic.in_.out as account, topic.in_.createTime as createTime from Plan where topic.deleted is null order by memberCount desc limit " + num;
         logger.debug(sql);
 

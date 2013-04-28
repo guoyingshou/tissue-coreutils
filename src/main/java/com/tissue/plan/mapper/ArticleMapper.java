@@ -31,33 +31,16 @@ public class ArticleMapper {
         String type = doc.field("type", String.class);
         article.setType(type);
 
+        /**
         Date createTime = doc.field("createTime", Date.class);
         article.setCreateTime(createTime);
+        */
 
         Boolean deleted = doc.field("deleted", Boolean.class);
         if(deleted != null) {
             article.setDeleted(deleted);
         }
  
-        ODocument edgeCreatePostDoc = doc.field("in_");
-        ODocument accountDoc = edgeCreatePostDoc.field("out");
-        Account account = AccountMapper.buildAccount(accountDoc);
-        article.setAccount(account);
- 
-        //creator
-        /**
-        Set<ODocument> edgeCreatePostDocs = doc.field("in");
-        for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
-
-            Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
-            article.setCreateTime(createTime);
-
-            ODocument accountDoc = edgeCreatePostDoc.field("out");
-            Account account = AccountMapper.buildAccount(accountDoc);
-            article.setAccount(account);
-        }
-        */
-
         return article;
     }
 }
