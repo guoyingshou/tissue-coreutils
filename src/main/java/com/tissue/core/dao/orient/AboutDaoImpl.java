@@ -32,7 +32,6 @@ public class AboutDaoImpl extends ContentDaoImpl implements AboutDao {
     public String create(ContentCommand command) {
         String id = null;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = AboutMapper.convertAbout(command);
@@ -46,7 +45,6 @@ public class AboutDaoImpl extends ContentDaoImpl implements AboutDao {
             db.command(cmd).execute();
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return id;
@@ -57,21 +55,16 @@ public class AboutDaoImpl extends ContentDaoImpl implements AboutDao {
         logger.debug(sql);
 
         List<About> abouts = new ArrayList();
-        //OGraphDatabase db = dataSource.getDB();
+
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 About about = AboutMapper.buildAbout(doc);
                 abouts.add(about);
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return abouts;

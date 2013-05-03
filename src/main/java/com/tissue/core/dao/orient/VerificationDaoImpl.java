@@ -35,7 +35,6 @@ public class VerificationDaoImpl implements VerificationDao {
     public String create(VerificationCommand command) {
         String verificationId = null;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
             
@@ -48,7 +47,6 @@ public class VerificationDaoImpl implements VerificationDao {
             verificationId = doc.getIdentity().toString();
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return verificationId;
@@ -60,21 +58,15 @@ public class VerificationDaoImpl implements VerificationDao {
 
         Verification verification = null;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql));
-            
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 verification = VerificationMapper.buildVerification(doc);
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return verification;
@@ -84,14 +76,12 @@ public class VerificationDaoImpl implements VerificationDao {
         String sql = "delete from " + verificationId;
         logger.debug(sql);
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
         finally {
-            //db.close();
             db.shutdown();
         }
     }

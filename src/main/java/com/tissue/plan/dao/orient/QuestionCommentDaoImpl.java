@@ -36,12 +36,10 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
     public String create(QuestionCommentCommand command) {
         String id = null;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = QuestionCommentMapper.convertQuestionComment(command);
             doc.save();
-            //db.save(doc);
         
             id = doc.getIdentity().toString();
             String userId = command.getAccount().getId();
@@ -57,7 +55,6 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
  
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return id;
@@ -69,13 +66,9 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
 
         QuestionComment questionComment = null;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             if(!docs.isEmpty()) {
                 ODocument questionCommentDoc = docs.get(0);
                 questionComment = QuestionCommentMapper.buildQuestionComment(questionCommentDoc);
@@ -95,7 +88,6 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
             }
         }
         finally {
-           //db.close();
            db.shutdown();
         }
         return questionComment;

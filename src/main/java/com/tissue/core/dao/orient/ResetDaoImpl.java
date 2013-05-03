@@ -34,7 +34,6 @@ public class ResetDaoImpl implements ResetDao {
     public String create(ResetCommand command) {
         String resetId = null;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
 
@@ -47,7 +46,6 @@ public class ResetDaoImpl implements ResetDao {
             resetId = doc.getIdentity().toString();
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return resetId;
@@ -59,21 +57,15 @@ public class ResetDaoImpl implements ResetDao {
 
         Reset reset = null;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql));
-
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
-             if(!docs.isEmpty()) {
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
+            if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 reset = ResetMapper.buildReset(doc);
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return reset;
@@ -83,14 +75,12 @@ public class ResetDaoImpl implements ResetDao {
         String sql = "delete from " + resetId;
         logger.debug(sql);
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
         finally {
-            //db.close();
             db.shutdown();
         }
     }

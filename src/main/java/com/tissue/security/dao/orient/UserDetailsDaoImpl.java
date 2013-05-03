@@ -44,11 +44,9 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
 
         UserDetailsImpl userDetails = null;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //OSQLSynchQuery<ODocument> query = new OSQLSynchQuery(sql);
-            //List<ODocument> result = db.command(query).execute(username);
+            List<ODocument> result = db.command(new OSQLSynchQuery(sql)).execute(username);
 
             OCommandSQL cmd = new OCommandSQL(sql);
             List<ODocument> docs = db.command(cmd).execute();
@@ -59,7 +57,6 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
 

@@ -50,19 +50,13 @@ public class ActivityDaoImpl implements ActivityDao {
 
         List<Activity> activities = new ArrayList();
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
-
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             ActivityStreamMapper mapper = new ActivityStreamMapper();
             activities = mapper.process(docs);
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return activities;
@@ -90,19 +84,14 @@ public class ActivityDaoImpl implements ActivityDao {
 
         logger.debug(sql);
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
 
             ActivityStreamMapper mapper = new ActivityStreamMapper();
             activities = mapper.process(docs);
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return activities;
@@ -118,19 +107,14 @@ public class ActivityDaoImpl implements ActivityDao {
 
         List<Activity> activities = new ArrayList();
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
 
             ActivityStreamMapper mapper = new ActivityStreamMapper();
             activities = mapper.process(docs);
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return activities;
@@ -149,19 +133,14 @@ public class ActivityDaoImpl implements ActivityDao {
 
         List<Activity> activities = new ArrayList();
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-//            List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
 
             ActivityStreamMapper mapper = new ActivityStreamMapper();
             activities = mapper.process(docs);
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return activities;

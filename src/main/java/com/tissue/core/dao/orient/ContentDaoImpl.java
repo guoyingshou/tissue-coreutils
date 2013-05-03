@@ -32,21 +32,13 @@ public class ContentDaoImpl implements ContentDao {
     protected OrientDataSource dataSource;
 
     public void update(ContentCommand command) {
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
 
             OrientVertex v = db.getVertex(command.getId());
             v.setProperty("content", command.getContent());
-
-            /**
-            ODocument doc = db.load(new ORecordId(command.getId()));
-            doc.field("content", command.getContent());
-            doc.save();
-            */
         }
         finally {
-            //db.close();
             db.shutdown();
         }
     }
@@ -55,14 +47,12 @@ public class ContentDaoImpl implements ContentDao {
         String sql = "update " + rid + " set deleted = true";
         logger.debug(sql);
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
         finally {
-            //db.close();
             db.shutdown();
         }
     }

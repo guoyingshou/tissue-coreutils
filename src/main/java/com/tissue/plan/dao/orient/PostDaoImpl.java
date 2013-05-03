@@ -36,11 +36,9 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     public String create(PostCommand command) {
         String id = null;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = PostMapper.convertPost(command);
-            //db.save(doc);
             doc.save();
 
             id = doc.getIdentity().toString();
@@ -62,29 +60,19 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return id;
     }
 
     public void update(PostCommand command) {
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
             OrientVertex v = db.getVertex(command.getId());
             v.setProperty("title", command.getTitle());
             v.setProperty("content", command.getContent());
-
-            /**
-            ODocument doc = db.load(new ORecordId(command.getId()));
-            doc.field("title", command.getTitle());
-            doc.field("content", command.getContent());
-            doc.save();
-            */
         }
         finally {
-            //db.close();
             db.shutdown();
         }
     }
@@ -96,14 +84,9 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
         logger.debug(sql);
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
                 Post post = PostMapper.buildPost(postDoc);
@@ -113,7 +96,6 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return posts;
@@ -125,21 +107,15 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
         long count = 0;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 count = doc.field("count", long.class);
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return count;
@@ -151,15 +127,9 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
         List<Post> posts = new ArrayList();
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
                 Post post = PostMapper.buildPost(postDoc);
@@ -169,7 +139,6 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return posts;
@@ -181,21 +150,15 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
         String sql = "select count(*) from Post where deleted is null and plan in " + planId;
         logger.debug(sql);
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 count = doc.field("count", long.class);
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return count;
@@ -205,14 +168,9 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
         List<Post> posts = new ArrayList();
         String sql = "select in as post, createTime from EdgeCreatePost where in.deleted is null and in.plan in " + planId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
                 Post post = PostMapper.buildPost(postDoc);
@@ -222,7 +180,6 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return posts;
@@ -234,21 +191,15 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
         long count = 0;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 count = doc.field("count", long.class);
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return count;
@@ -260,14 +211,9 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
         List<Post> posts = new ArrayList();
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
                 Post post = PostMapper.buildPost(postDoc);
@@ -277,7 +223,6 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return posts;
@@ -288,22 +233,15 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
         logger.debug(sql);
 
         long count = 0;
-
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             if(!docs.isEmpty()) {
                 ODocument doc = docs.get(0);
                 count = doc.field("count", long.class);
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return count;
@@ -316,14 +254,9 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
         List<Post> posts = new ArrayList<Post>();
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
-
+            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
                 Post post = PostMapper.buildPost(postDoc);
@@ -333,7 +266,6 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return posts;
