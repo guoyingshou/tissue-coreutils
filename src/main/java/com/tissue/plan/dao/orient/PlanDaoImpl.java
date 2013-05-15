@@ -1,5 +1,6 @@
 package com.tissue.plan.dao.orient;
 
+import com.tissue.core.Account;
 import com.tissue.core.datasources.OrientDataSource;
 import com.tissue.core.mapper.AccountMapper;
 import com.tissue.plan.command.PlanCommand;
@@ -159,12 +160,33 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public List<Plan> getPlansByAccount(String accountId) {
-        String sql = "select from plan where in_.out in " + accountId;
+        String sql = "select @this as plan, in_EdgeCreatePlan.createTime as createTime, in_EdgeCreatePlan.out as account from plan where in_EdgeCreatePlan.out in " + accountId;
         logger.debug(sql);
 
         List<Plan> plans = new ArrayList();
         OrientGraph db = dataSource.getDB();
         try {
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            for(ODocument doc : docs) {
+                ODocument planDoc = doc.field("plan");
+                Plan plan = PlanMapper.buildPlan(planDoc);
+
+                Date createTime = doc.field("createTime", Date.class);
+                plan.setCreateTime(createTime);
+
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                plan.setAccount(account);
+
+                ODocument topicDoc = planDoc.field("topic");
+                Topic topic = TopicMapper.buildTopic(topicDoc);
+                plan.setTopic(topic);
+
+                plans.add(plan);
+             }
+
+
+            /**
             List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 Plan plan = PlanMapper.buildPlan(doc);
@@ -175,6 +197,7 @@ public class PlanDaoImpl implements PlanDao {
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
             }
+            */
         }
         finally {
             db.shutdown();

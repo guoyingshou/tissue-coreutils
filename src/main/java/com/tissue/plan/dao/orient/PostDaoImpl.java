@@ -19,6 +19,7 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+import com.tinkerpop.blueprints.Vertex;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -86,6 +87,10 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
         OrientGraph db = dataSource.getDB();
         try {
+
+            Iterable<Vertex> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            System.out.println(docs);
+            /**
             List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
@@ -94,6 +99,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
                 posts.add(post);
             }
+            */
         }
         finally {
             db.shutdown();

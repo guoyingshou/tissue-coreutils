@@ -23,6 +23,8 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 
+import com.tinkerpop.blueprints.Vertex;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +48,16 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> result = db.command(new OSQLSynchQuery(sql)).execute(username);
+            //List<ODocument> result = db.command(new OSQLSynchQuery(sql)).execute(username);
+            Iterable<Vertex> docs = db.command(new OSQLSynchQuery(sql)).execute(username);
 
+            System.out.println("++++ " + docs);
+            
+            for(Vertex doc : docs) {
+                userDetails = UserDetailsMapper.buildUser(doc);
+                break;
+            }
+            /**
             OCommandSQL cmd = new OCommandSQL(sql);
             List<ODocument> docs = db.command(cmd).execute();
  
@@ -55,6 +65,7 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
                 ODocument doc = docs.get(0);
                 userDetails = UserDetailsMapper.buildUser(doc);
             }
+            */
         }
         finally {
             db.shutdown();

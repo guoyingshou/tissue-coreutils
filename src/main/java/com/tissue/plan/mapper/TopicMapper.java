@@ -7,6 +7,7 @@ import com.tissue.plan.Topic;
 import com.tissue.plan.Plan;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.tinkerpop.blueprints.Vertex;
 
 import java.util.Date;
 import java.util.List;
@@ -27,6 +28,28 @@ public class TopicMapper {
         doc.field("tags", tags);
 
         return doc;
+    }
+
+    public static Topic buildTopic(Vertex v) {
+
+        Topic topic = new Topic();
+        topic.setId(v.getId().toString());
+
+        String title = v.getProperty("title");
+        topic.setTitle(title);
+
+        String content = v.getProperty("content");
+        topic.setContent(content);
+
+        Set<String> tags = v.getProperty("tags");
+        topic.setTags(tags);
+
+        Boolean deleted = v.getProperty("deleted");
+        if(deleted != null) {
+            topic.setDeleted(deleted); 
+        }
+
+        return topic;
     }
 
     public static Topic buildTopic(ODocument doc) {

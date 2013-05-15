@@ -8,6 +8,8 @@ import com.tissue.core.command.UserCommand;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
+import com.tinkerpop.blueprints.Vertex;
+
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
@@ -35,6 +37,34 @@ public class AccountMapper {
         return doc;
     }
 
+    public static Account buildAccount(Vertex v) {
+        Account account = new Account();
+        account.setId(v.getId().toString());
+
+        String username = v.getProperty("username");
+        account.setUsername(username);
+
+        String email = v.getProperty("email");
+        account.setEmail(email);
+
+        Set<String> roles = v.getProperty("roles");
+        account.setRoles(roles);
+
+        /**
+        ODocument v2 = v.getProperty("user");
+        User user = UserMapper.buildUser(v2);
+        account.setUser(user);
+        */
+ 
+        /**
+        ODocument userDoc = doc.field("user");
+        User user = UserMapper.buildUser(userDoc);
+        account.setUser(user);
+        */
+
+        return account;
+    }
+
     public static Account buildAccount(ODocument doc) {
         Account account = new Account();
         String rid = doc.getIdentity().toString();
@@ -49,9 +79,11 @@ public class AccountMapper {
         Set<String> roles = doc.field("roles", Set.class);
         account.setRoles(roles);
 
+        /**
         ODocument userDoc = doc.field("user");
         User user = UserMapper.buildUser(userDoc);
         account.setUser(user);
+        */
 
         return account;
     }

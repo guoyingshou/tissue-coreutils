@@ -1,6 +1,7 @@
 package com.tissue.core.dao.orient;
 
 import com.tissue.core.Account;
+import com.tissue.core.User;
 import com.tissue.core.datasources.OrientDataSource;
 import com.tissue.core.dao.AccountDao;
 import com.tissue.core.command.UserCommand;
@@ -20,6 +21,7 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.Vertex;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.HashSet;
 import java.nio.charset.Charset;
 import com.google.common.hash.Hashing;
 
@@ -40,10 +43,32 @@ public class AccountDaoImpl implements AccountDao {
     protected OrientDataSource dataSource;
 
     public String create(UserCommand command) {
-        String accountId;
+        //String accountId;
 
         OrientGraph db = dataSource.getDB();
         try {
+
+            Vertex v = db.addVertex("class:Account");
+            v.setProperty("username", command.getAccount().getUsername());
+            v.setProperty("password", Hashing.md5().hashString(command.getAccount().getPassword(), Charset.forName("utf-8")).toString());
+            v.setProperty("email", command.getAccount().getEmail());
+            v.setProperty("createTime", new Date());
+
+            Set<String> roles = new HashSet();
+            roles.add("ROLE_USER");
+            v.setProperty("roles", roles);
+
+            Vertex v2 = db.addVertex("class:User");
+            v2.setProperty("displayName", command.getDisplayName());
+            v2.setProperty("headline", command.getHeadline());
+            v2.setProperty("inviteLimit", 32);
+            //v2.setProperty("status", command.getStatus());
+ 
+            db.addEdge("class:AccountUser", v, v2, "AccountUser");
+
+            return v.getId().toString();
+
+            /**
             ODocument accountDoc = AccountMapper.convertAccount(command);
             accountDoc.save();
 
@@ -57,11 +82,12 @@ public class AccountDaoImpl implements AccountDao {
             accountDoc.save();
 
             accountId = accountDoc.getIdentity().toString();
+            */
         }
         finally {
            db.shutdown();
         }
-        return accountId;
+        //return accountId;
     }
  
     public void updateEmail(EmailCommand command) {
@@ -94,6 +120,27 @@ public class AccountDaoImpl implements AccountDao {
     }
 
     public Account getAccount(String accountId) {
+
+        OrientGraph db = dataSource.getDB();
+        try {
+            Vertex v = db.getVertex(accountId);
+            Account account = AccountMapper.buildAccount(v);
+
+            String sql = "select flatten(out('AccountUser')) as user from " + accountId;
+            Iterable<Vertex> vertices = db.command(new OSQLSynchQuery(sql)).execute();
+            for(Vertex uv : vertices) {
+                User user = UserMapper.buildUser(uv);
+                account.setUser(user);
+                break;
+            }
+
+            return account;
+        }
+        finally {
+            db.shutdown();
+        }
+
+         /**
         String sql = "select from " + accountId;
         logger.debug(sql);
 
@@ -110,6 +157,7 @@ public class AccountDaoImpl implements AccountDao {
             db.shutdown();
         }
         return account;
+        */
     }
 
     public Account getAccountByEmail(String email) {
@@ -140,10 +188,18 @@ public class AccountDaoImpl implements AccountDao {
 
         OrientGraph db = dataSource.getDB();
         try {
+            Iterable<Vertex> vertices = db.command(new OSQLSynchQuery(sql)).execute();
+            for(Vertex v : vertices) {
+                exist = true;
+                break;
+            }
+                    
+            /**
             List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             if(docs.size() > 0) {
                exist = true;
             }
+            */
         }
         finally {
             db.shutdown();
@@ -159,10 +215,18 @@ public class AccountDaoImpl implements AccountDao {
 
         OrientGraph db = dataSource.getDB();
         try {
+            Iterable<Vertex> vertices = db.command(new OSQLSynchQuery(sql)).execute();
+            for(Vertex v : vertices) {
+                exist = true;
+                break;
+            }
+
+             /**
             List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             if(docs.size() > 0) {
                exist = true;
             }
+            */
         }
         finally {
             db.shutdown();
