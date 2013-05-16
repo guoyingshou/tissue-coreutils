@@ -74,7 +74,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
 
         OrientGraph db = dataSource.getDB();
         try {
-            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:4")).execute();
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
                 topic = TopicMapper.buildTopic(topicDoc);
@@ -90,6 +90,23 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
                 
                 account.setUser(user);
                 topic.setAccount(account);
+
+                List<ODocument> planDocs = topicDoc.field("plans");
+                if(planDocs != null) {
+                    for(ODocument planDoc : planDocs) {
+                        Plan plan = PlanMapper.buildPlan(planDoc);
+
+                        ODocument planAccountDoc = planDoc.field("in_EdgeCreatePlan.out");
+                        Account planAccount = AccountMapper.buildAccount(planAccountDoc);
+                        plan.setAccount(planAccount);
+
+                        ODocument planUserDoc = planAccountDoc.field("out_AccountUser.");
+                        User planUser = UserMapper.buildUser(planUserDoc);
+                        planAccount.setUser(planUser);
+
+                        topic.addPlan(plan);
+                    }
+                }
             }
         }
         finally {

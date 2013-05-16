@@ -1,7 +1,9 @@
 package com.tissue.plan.dao.orient;
 
 import com.tissue.core.Account;
+import com.tissue.core.User;
 import com.tissue.core.mapper.AccountMapper;
+import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.dao.orient.ContentDaoImpl;
 import com.tissue.plan.dao.ArticleDao;
 import com.tissue.plan.mapper.TopicMapper;
@@ -41,18 +43,28 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
     private static Logger logger = LoggerFactory.getLogger(ArticleDaoImpl.class);
 
     public Article getArticle(String id) {
-        String sql = "select from " + id;
+        String sql = "select @this as article, in_EdgeCreatePost.createTime as createTime, in_EdgeCreatePost.out as account, in_EdgeCreatePost.out.out_AccountUser as user from " + id;
         logger.debug(sql);
 
         Article article = null;
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:4")).execute();
-            if(!docs.isEmpty()) {
-                ODocument articleDoc = docs.get(0);
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            for(ODocument doc : docs) {
+                ODocument articleDoc = doc.field("article");
                 article = ArticleMapper.buildArticle(articleDoc);
-                AccountMapper.setupCreatorAndTimestamp(article, articleDoc);
+
+                Date createTime = doc.field("createTime", Date.class);
+                article.setCreateTime(createTime);
+
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                article.setAccount(account);
+
+                ODocument userDoc = accountDoc.field("out_AccountUser");
+                User user = UserMapper.buildUser(userDoc);
+                account.setUser(user);
 
                 ODocument planDoc = articleDoc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
@@ -60,9 +72,21 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
 
                 ODocument topicDoc = planDoc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.setupPlans(topic, topicDoc);
-
                 plan.setTopic(topic);
+
+                List<ODocument> topicPlanDocs = topicDoc.field("plans");
+                for(ODocument topicPlanDoc : topicPlanDocs) {
+                    Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
+                    topic.addPlan(topicPlan);
+
+                    ODocument topicPlanAccountDoc = topicPlanDoc.field("in_EdgeCreatePlan.out");
+                    Account topicPlanAccount = AccountMapper.buildAccount(topicPlanAccountDoc);
+                    topicPlan.setAccount(topicPlanAccount);
+
+                    ODocument topicPlanUserDoc = topicPlanDoc.field("in_EdgeCreatePlan.out.out_AccountUser");
+                    User topicPlanUser = UserMapper.buildUser(topicPlanUserDoc);
+                    topicPlanAccount.setUser(topicPlanUser);
+                }
 
                 List<ODocument> messagesDoc = articleDoc.field("messages");
                 if(messagesDoc != null) {

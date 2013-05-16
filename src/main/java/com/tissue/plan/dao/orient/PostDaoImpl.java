@@ -1,7 +1,9 @@
 package com.tissue.plan.dao.orient;
 
 import com.tissue.core.Account;
+import com.tissue.core.User;
 import com.tissue.core.mapper.AccountMapper;
+import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.dao.orient.ContentDaoImpl;
 import com.tissue.plan.dao.PostDao;
 import com.tissue.plan.command.PostCommand;
@@ -79,27 +81,14 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getLatestPosts(int limit) {
-        List<Post> posts = new ArrayList();
 
-        String sql = "select in as post, createTime from EdgeCreatePost where in.deleted is null and in.plan.topic.deleted is null and in.type in ['concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + limit;
-
+        String sql = "select in as post, createTime, out as account, out.out_AccountUser as user from EdgeCreatePost where in.deleted is null and in.plan.topic.deleted is null and in.type in ['concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + limit;
         logger.debug(sql);
 
+        List<Post> posts = new ArrayList();
         OrientGraph db = dataSource.getDB();
         try {
-
-            Iterable<Vertex> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            System.out.println(docs);
-            /**
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            for(ODocument doc : docs) {
-                ODocument postDoc = doc.field("post");
-                Post post = PostMapper.buildPost(postDoc);
-                AccountMapper.setupCreatorAndTimestamp(post, postDoc);
-
-                posts.add(post);
-            }
-            */
+            posts = buildPosts(db, sql);
         }
         finally {
             db.shutdown();
@@ -115,9 +104,8 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
+            for(ODocument doc : docs) {
                 count = doc.field("count", long.class);
             }
         }
@@ -158,9 +146,8 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
+            for(ODocument doc : docs) {
                 count = doc.field("count", long.class);
             }
         }
@@ -171,19 +158,12 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByPlan(String planId, int page, int size) {
-        List<Post> posts = new ArrayList();
-        String sql = "select in as post, createTime from EdgeCreatePost where in.deleted is null and in.plan in " + planId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select in as post, createTime, out as account, out.out_AccountUser as user from EdgeCreatePost where in.deleted is null and in.plan in " + planId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
 
+        List<Post> posts = new ArrayList();
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            for(ODocument doc : docs) {
-                ODocument postDoc = doc.field("post");
-                Post post = PostMapper.buildPost(postDoc);
-                AccountMapper.setupCreatorAndTimestamp(post, postDoc);
-
-                posts.add(post);
-            }
+            posts = buildPosts(db, sql);
         }
         finally {
             db.shutdown();
@@ -199,9 +179,8 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
+            for(ODocument doc : docs) {
                 count = doc.field("count", long.class);
             }
         }
@@ -212,21 +191,14 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByTopic(String topicId, int page, int size) {
-        String sql = "select in as post, createTime from EdgeCreatePost where in.deleted is null and in.plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+        String sql = "select in as post, createTime, out as account, out.out_AccountUser as user from EdgeCreatePost where in.deleted is null and in.plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
         logger.debug(sql);
 
         List<Post> posts = new ArrayList();
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            for(ODocument doc : docs) {
-                ODocument postDoc = doc.field("post");
-                Post post = PostMapper.buildPost(postDoc);
-                AccountMapper.setupCreatorAndTimestamp(post, postDoc);
-
-                posts.add(post);
-            }
+            posts = buildPosts(db, sql);
         }
         finally {
             db.shutdown();
@@ -241,9 +213,8 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
         long count = 0;
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
+            for(ODocument doc : docs) {
                 count = doc.field("count", long.class);
             }
         }
@@ -255,21 +226,14 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
     public List<Post> getPagedPostsByType(String topicId, String type, int page, int size) {
 
-        String sql = "select in as post, createTime from EdgeCreatePost where in.deleted is null and in.type = '" + type + "' and in.plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+        String sql = "select in as post, createTime, out as account, out.out_AccountUser as user from EdgeCreatePost where in.deleted is null and in.type = '" + type + "' and in.plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
         logger.debug(sql);
 
         List<Post> posts = new ArrayList<Post>();
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            for(ODocument doc : docs) {
-                ODocument postDoc = doc.field("post");
-                Post post = PostMapper.buildPost(postDoc);
-                AccountMapper.setupCreatorAndTimestamp(post, postDoc);
-
-                posts.add(post);
-            }
+            posts = buildPosts(db, sql);
         }
         finally {
             db.shutdown();
@@ -277,4 +241,27 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
         return posts;
     }
 
+    private List<Post> buildPosts(OrientGraph db, String sql) {
+        List<Post> posts = new ArrayList<Post>();
+
+        Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+        for(ODocument doc : docs) {
+            ODocument postDoc = doc.field("post");
+            Post post = PostMapper.buildPost(postDoc);
+
+            Date createTime = doc.field("createTime", Date.class);
+            post.setCreateTime(createTime);
+
+            ODocument accountDoc = doc.field("account");
+            Account account = AccountMapper.buildAccount(accountDoc);
+            post.setAccount(account);
+
+            ODocument userDoc = doc.field("user");
+            User user = UserMapper.buildUser(userDoc);
+            account.setUser(user);
+
+            posts.add(post);
+        }
+        return posts;
+    }
 }
