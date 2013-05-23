@@ -51,14 +51,14 @@ public class AboutDaoImpl extends ContentDaoImpl implements AboutDao {
     }
 
     public List<About> getAbouts() {
-        String sql = "select from about";
+        String sql = "select @this as about from about";
         logger.debug(sql);
 
         List<About> abouts = new ArrayList();
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 About about = AboutMapper.buildAbout(doc);
                 abouts.add(about);

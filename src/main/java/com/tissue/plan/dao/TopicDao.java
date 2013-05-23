@@ -14,9 +14,9 @@ public interface TopicDao extends ContentDao {
 
     Topic getTopic(String topicId);
 
-    Topic getTopicByPlan(String planId);
+    //Topic getTopicByPlan(String planId);
 
-    Topic getTopicByPost(String postId);
+    //Topic getTopicByPost(String postId);
 
     List<Topic> getTrendingTopics(int num);
 

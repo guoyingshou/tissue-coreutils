@@ -37,35 +37,31 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     private static Logger logger = LoggerFactory.getLogger(PostDaoImpl.class);
 
     public String create(PostCommand command) {
-        String id = null;
+
+        String accountId = command.getAccount().getId();
+        String planId = command.getPlan().getId();
 
         OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = PostMapper.convertPost(command);
             doc.save();
-
-            id = doc.getIdentity().toString();
-            String accountId = command.getAccount().getId();
- 
-            String sql = "create edge EdgeCreatePost from " + accountId + " to " + id + " set createTime = sysdate(), category = '" + command.getType() + "'";
+            String postId = doc.getIdentity().toString();
+            
+            String sql = "create edge EdgeCreatePost from " + accountId + " to " + postId + " set createTime = sysdate(), category = '" + command.getType() + "'";
             logger.debug(sql);
-
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
 
-            if(command.getPlan() != null) {
-                String planId = command.getPlan().getId();
-                sql = "update " + id + " set plan = " + planId;
-                logger.debug(sql);
+            sql = "create edge Parent from " + postId + " to " + planId;
+            logger.debug(sql);
+            cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
 
-                cmd = new OCommandSQL(sql);
-                db.command(cmd).execute();
-            }
+            return postId;
         }
         finally {
             db.shutdown();
         }
-        return id;
     }
 
     public void update(PostCommand command) {
@@ -82,7 +78,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
     public List<Post> getLatestPosts(int limit) {
 
-        String sql = "select in as post, createTime, out as account, out.out_AccountUser as user from EdgeCreatePost where in.deleted is null and in.plan.topic.deleted is null and in.type in ['concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + limit;
+        String sql = "select in as post, createTime, out as account, out.out_UserAccounts as user from EdgeCreatePost where in.deleted is null and in.plan.topic.deleted is null and in.type in ['concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + limit;
         logger.debug(sql);
 
         List<Post> posts = new ArrayList();
@@ -127,7 +123,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             for(ODocument doc : docs) {
                 ODocument postDoc = doc.field("post");
                 Post post = PostMapper.buildPost(postDoc);
-                AccountMapper.setupCreatorAndTimestamp(post, postDoc);
+                //AccountMapper.setupCreatorAndTimestamp(post, postDoc);
 
                 posts.add(post);
             }
@@ -141,7 +137,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     public long getPostsCountByPlan(String planId) {
         long count = 0;
 
-        String sql = "select count(*) from Post where deleted is null and plan in " + planId;
+        String sql = "select count(*) from Post where deleted is null and out_Parent in " + planId;
         logger.debug(sql);
 
         OrientGraph db = dataSource.getDB();
@@ -158,7 +154,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByPlan(String planId, int page, int size) {
-        String sql = "select in as post, createTime, out as account, out.out_AccountUser as user from EdgeCreatePost where in.deleted is null and in.plan in " + planId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select in as post, createTime, out as account, out.out_UserAccounts as user from EdgeCreatePost where in.deleted is null and in.out_Parent in " + planId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
 
         List<Post> posts = new ArrayList();
         OrientGraph db = dataSource.getDB();
@@ -172,7 +168,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
  
     public long getPostsCountByTopic(String topicId) {
-        String sql = "select count(*) from Post where deleted is null and plan.topic in " + topicId;
+        String sql = "select count(*) from Post where deleted is null and out_Parent.out_Parent in " + topicId;
         logger.debug(sql);
 
         long count = 0;
@@ -191,7 +187,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByTopic(String topicId, int page, int size) {
-        String sql = "select in as post, createTime, out as account, out.out_AccountUser as user from EdgeCreatePost where in.deleted is null and in.plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+        String sql = "select createTime, in as post, out as account, out.out_UserAccounts as user from EdgeCreatePost where in.deleted is null and in.out_Parent.out_Parent in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
         logger.debug(sql);
 
         List<Post> posts = new ArrayList();
@@ -207,7 +203,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public long getPostsCountByType(String topicId, String type) {
-        String sql = "select count(*) from Post where deleted is null and plan.topic in " + topicId + " and type = '" + type + "'";
+        String sql = "select count(*) from Post where deleted is null and out_Parent.out_Parent in " + topicId + " and type = '" + type + "'";
         logger.debug(sql);
 
         long count = 0;
@@ -226,7 +222,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
     public List<Post> getPagedPostsByType(String topicId, String type, int page, int size) {
 
-        String sql = "select in as post, createTime, out as account, out.out_AccountUser as user from EdgeCreatePost where in.deleted is null and in.type = '" + type + "' and in.plan.topic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+        String sql = "select in as post, createTime, out as account, out.out_UserAccounts as user from EdgeCreatePost where in.deleted is null and in.type = '" + type + "' and in.out_Parent.out_Parent in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
         logger.debug(sql);
 
         List<Post> posts = new ArrayList<Post>();

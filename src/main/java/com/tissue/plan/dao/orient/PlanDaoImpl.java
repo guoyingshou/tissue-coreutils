@@ -39,43 +39,34 @@ public class PlanDaoImpl implements PlanDao {
 
     public String create(PlanCommand plan) {
 
-        String userId = plan.getAccount().getId();
+        String accountId = plan.getAccount().getId();
         String topicId = plan.getTopic().getId();
 
-        String id = null;
-        
         OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = PlanMapper.convertPlan(plan);
             doc.save();
+            String planId = doc.getIdentity().toString();
 
-            id = doc.getIdentity().toString();
-            String sql = "create edge EdgeCreatePlan from " + userId + " to " + id + " set createTime = sysdate(), category = 'plan'";
+            String sql = "create edge PlanAccount from " + planId + " to " + accountId + " set createTime = sysdate(), category = 'plan'";
             logger.debug(sql);
-
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "update " + id + " set topic = " + topicId;
+            sql = "create edge PlansTopic from " + planId + " to " + topicId;
             logger.debug(sql);
-
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "update " + topicId + " add plans = " + id;
-            logger.debug(sql);
-
-            cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
+            return planId;
         }
         finally {
             db.shutdown();
         }
-        return id;
     }
 
     public Plan getPlan(String planId) {
-        String sql = "select @this as plan, in_EdgeCreatePlan.createTime as createTime, in_EdgeCreatePlan.out as account, in_EdgeCreatePlan.out.out_AccountUser as user from " + planId;
+        String sql = "select @this as plan, out_PlanAccount.createTime as createTime, out_PlanAccount.in as account, out_PlanAccount.in.out_AccountsUser as user, out_PlansTopic as topic, out('PlansTopic').in('PlansTopic') as topicPlans from " + planId;
 
         logger.debug(sql);
 
@@ -98,19 +89,19 @@ public class PlanDaoImpl implements PlanDao {
                 User user = UserMapper.buildUser(userDoc);
                 account.setUser(user);
 
-                ODocument topicDoc = planDoc.field("topic");
+                ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
 
-                List<ODocument> topicPlanDocs = topicDoc.field("plans");
+                List<ODocument> topicPlanDocs = doc.field("topicPlans");
                 for(ODocument topicPlanDoc : topicPlanDocs) {
                     Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
 
-                    ODocument topicPlanAccountDoc = topicPlanDoc.field("in_EdgeCreatePlan.out");
+                    ODocument topicPlanAccountDoc = topicPlanDoc.field("out_PlanAccount.in");
                     Account topicPlanAccount = AccountMapper.buildAccount(topicPlanAccountDoc);
                     topicPlan.setAccount(topicPlanAccount);
 
-                    ODocument topicPlanUserDoc = topicPlanDoc.field("in_EdgeCreatePlan.out.out_AccountUser");
+                    ODocument topicPlanUserDoc = topicPlanAccountDoc.field("out_AccountsUser");
                     User topicPlanUser = UserMapper.buildUser(topicPlanUserDoc);
                     topicPlanAccount.setUser(topicPlanUser);
 
@@ -127,7 +118,7 @@ public class PlanDaoImpl implements PlanDao {
     public void addMember(String planId, String accountId) {
         OrientGraph db = dataSource.getDB();
         try {
-            String sql = "create edge EdgeJoinPlan from " + accountId + " to " + planId + " set createTime = sysdate(), category ='member'";
+            String sql = "create edge PlanMembers from " + planId + " to " + accountId + " set createTime = sysdate(), category ='member'";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -139,7 +130,7 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public Boolean isMember(String planId, String accountId) {
-        String sql = "select from " + planId + " where " + accountId + " in set(in_EdgeCreatePlan.out, in_EdgeJoinPlan.out)";
+        String sql = "select from " + planId + " where " + accountId + " in set(out_PlanAccount.in, out_PlanMembers.in)";
         logger.debug(sql);
 
         Boolean isMember = false;
@@ -201,26 +192,12 @@ public class PlanDaoImpl implements PlanDao {
                 Account account = AccountMapper.buildAccount(accountDoc);
                 plan.setAccount(account);
 
-                ODocument topicDoc = planDoc.field("topic");
+                ODocument topicDoc = planDoc.field("out_Parent");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
 
                 plans.add(plan);
              }
-
-
-            /**
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            for(ODocument doc : docs) {
-                Plan plan = PlanMapper.buildPlan(doc);
-                PlanMapper.setupCreatorAndTimestamp(plan, doc);
-                plans.add(plan);
-
-                ODocument topicDoc = doc.field("topic");
-                Topic topic = TopicMapper.buildTopic(topicDoc);
-                plan.setTopic(topic);
-            }
-            */
         }
         finally {
             db.shutdown();

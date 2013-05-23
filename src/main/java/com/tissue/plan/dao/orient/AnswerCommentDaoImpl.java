@@ -80,7 +80,7 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
             if(!docs.isEmpty()) {
                 ODocument answerCommentDoc = docs.get(0);
                 answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
-                AccountMapper.setupCreatorAndTimestamp(answerComment, answerCommentDoc);
+                //AccountMapper.setupCreatorAndTimestamp(answerComment, answerCommentDoc);
 
                 ODocument answerDoc = answerCommentDoc.field("answer");
                 Answer answer = AnswerMapper.buildAnswer(answerDoc);

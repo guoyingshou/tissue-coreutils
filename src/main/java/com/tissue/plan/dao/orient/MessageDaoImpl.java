@@ -80,7 +80,7 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
             if(!docs.isEmpty()) {
                 ODocument messageDoc = docs.get(0);
                 message = MessageMapper.buildMessage(messageDoc);
-                AccountMapper.setupCreatorAndTimestamp(message, messageDoc);
+                //AccountMapper.setupCreatorAndTimestamp(message, messageDoc);
                 
                 ODocument articleDoc = messageDoc.field("article");
                 Article article = ArticleMapper.buildArticle(articleDoc);

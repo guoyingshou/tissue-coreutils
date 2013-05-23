@@ -80,7 +80,7 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
             if(!docs.isEmpty()) {
                 ODocument replyDoc = docs.get(0);
                 messageReply = MessageReplyMapper.buildMessageReply(replyDoc);
-                AccountMapper.setupCreatorAndTimestamp(messageReply, replyDoc);
+                //AccountMapper.setupCreatorAndTimestamp(messageReply, replyDoc);
 
                 ODocument messageDoc = replyDoc.field("message");
                 Message message = MessageMapper.buildMessage(messageDoc);

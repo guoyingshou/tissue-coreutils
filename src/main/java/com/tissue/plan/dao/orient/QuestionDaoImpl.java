@@ -1,7 +1,9 @@
 package com.tissue.plan.dao.orient;
 
 import com.tissue.core.Account;
+import com.tissue.core.User;
 import com.tissue.core.mapper.AccountMapper;
+import com.tissue.core.mapper.UserMapper;
 import com.tissue.plan.dao.QuestionDao;
 import com.tissue.plan.mapper.TopicMapper;
 import com.tissue.plan.mapper.PlanMapper;
@@ -42,34 +44,60 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
     private static Logger logger = LoggerFactory.getLogger(QuestionDaoImpl.class);
 
     public Question getQuestion(String id) {
-        Question question = null;
-        String sql = "select from " + id;
+        String sql = "select @this as question, in_EdgeCreatePost.createTime as createTime, in_EdgeCreatePost.out as account, in_EdgeCreatePost.out.out_UserAccounts as user, out_Parent as plan, out_Parent.out_Parent as topic, out('Parent').out('Parent').in('Parent') as topicPlans from " + id;
         logger.debug(sql);
+
+        Question question = null;
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:4")).execute();
-            if(!docs.isEmpty()) {
-                ODocument questionDoc = docs.get(0);
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            for(ODocument doc : docs) {
+                ODocument questionDoc = doc.field("question");
                 question = QuestionMapper.buildQuestion(questionDoc);
-                AccountMapper.setupCreatorAndTimestamp(question, questionDoc);
 
-                ODocument planDoc = questionDoc.field("plan");
+                Date createTime = doc.field("createTime", Date.class);
+                question.setCreateTime(createTime);
+
+                ODocument accountDoc = doc.field("account");
+                Account account = AccountMapper.buildAccount(accountDoc);
+                question.setAccount(account);
+
+                ODocument userDoc = doc.field("user");
+                User user = UserMapper.buildUser(userDoc);
+                account.setUser(user);
+
+                ODocument planDoc = doc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
                 question.setPlan(plan);
 
-                ODocument topicDoc = planDoc.field("topic");
+                ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.setupPlans(topic, topicDoc);
                 plan.setTopic(topic);
 
+                List<ODocument> topicPlanDocs = doc.field("topicPlans");
+                for(ODocument topicPlanDoc : topicPlanDocs) {
+                    Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
+
+                    ODocument topicPlanAccountDoc = topicPlanDoc.field("in_EdgeCreatePlan.out");
+                    Account topicPlanAccount = AccountMapper.buildAccount(topicPlanAccountDoc);
+                    topicPlan.setAccount(topicPlanAccount);
+
+                    ODocument topicPlanUserDoc = topicPlanAccountDoc.field("out_UserAccounts");
+                    User topicPlanUser = UserMapper.buildUser(topicPlanUserDoc);
+                    topicPlanAccount.setUser(topicPlanUser);
+
+                    topic.addPlan(topicPlan);
+                }
+
+                /**
                 List<ODocument> commentsDoc = questionDoc.field("comments");
                 if(commentsDoc != null) {
                     for(ODocument commentDoc : commentsDoc) {
                         Object deleted = commentDoc.field("deleted");
                         if(deleted == null) {
                             QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
-                            AccountMapper.setupCreatorAndTimestamp(comment, commentDoc);
+                            //AccountMapper.setupCreatorAndTimestamp(comment, commentDoc);
                             question.addComment(comment);
                         }
                     }
@@ -81,7 +109,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                         Object deleted = answerDoc.field("deleted");
                         if(deleted == null) {
                             Answer answer = AnswerMapper.buildAnswer(answerDoc);
-                            AccountMapper.setupCreatorAndTimestamp(answer, answerDoc);
+                            //AccountMapper.setupCreatorAndTimestamp(answer, answerDoc);
                             question.addAnswer(answer);
 
                             List<ODocument> answerCommentsDoc = answerDoc.field("comments");
@@ -90,7 +118,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                                     deleted = answerCommentDoc.field("deleted");
                                     if(deleted == null) {
                                         AnswerComment answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
-                                        AccountMapper.setupCreatorAndTimestamp(answerComment, answerCommentDoc);
+                                        //AccountMapper.setupCreatorAndTimestamp(answerComment, answerCommentDoc);
                                         answer.addComment(answerComment);
                                     }
                                 }
@@ -98,6 +126,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                         }
                     }
                 }
+                */
             }
         }
         finally {

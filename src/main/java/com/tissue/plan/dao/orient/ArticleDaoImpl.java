@@ -43,7 +43,7 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
     private static Logger logger = LoggerFactory.getLogger(ArticleDaoImpl.class);
 
     public Article getArticle(String id) {
-        String sql = "select @this as article, in_EdgeCreatePost.createTime as createTime, in_EdgeCreatePost.out as account, in_EdgeCreatePost.out.out_AccountUser as user from " + id;
+        String sql = "select @this as article, in_EdgeCreatePost.createTime as createTime, in_EdgeCreatePost.out as account, in_EdgeCreatePost.out.out_UserAccounts as user, out_Parent as plan, out_Parent.out_Parent as topic, out('Parent').out('Parent').in('Parent') as topicPlans from " + id;
         logger.debug(sql);
 
         Article article = null;
@@ -62,19 +62,19 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
                 Account account = AccountMapper.buildAccount(accountDoc);
                 article.setAccount(account);
 
-                ODocument userDoc = accountDoc.field("out_AccountUser");
+                ODocument userDoc = doc.field("user");
                 User user = UserMapper.buildUser(userDoc);
                 account.setUser(user);
 
-                ODocument planDoc = articleDoc.field("plan");
+                ODocument planDoc = doc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
                 article.setPlan(plan);
 
-                ODocument topicDoc = planDoc.field("topic");
+                ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
 
-                List<ODocument> topicPlanDocs = topicDoc.field("plans");
+                List<ODocument> topicPlanDocs = doc.field("topicPlans");
                 for(ODocument topicPlanDoc : topicPlanDocs) {
                     Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
                     topic.addPlan(topicPlan);
@@ -83,18 +83,19 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
                     Account topicPlanAccount = AccountMapper.buildAccount(topicPlanAccountDoc);
                     topicPlan.setAccount(topicPlanAccount);
 
-                    ODocument topicPlanUserDoc = topicPlanDoc.field("in_EdgeCreatePlan.out.out_AccountUser");
+                    ODocument topicPlanUserDoc = topicPlanDoc.field("in_EdgeCreatePlan.out.out_UserAccounts");
                     User topicPlanUser = UserMapper.buildUser(topicPlanUserDoc);
                     topicPlanAccount.setUser(topicPlanUser);
                 }
 
+                /**
                 List<ODocument> messagesDoc = articleDoc.field("messages");
                 if(messagesDoc != null) {
                     for(ODocument messageDoc : messagesDoc) {
                         Object deleted = messageDoc.field("deleted");
                         if(deleted == null) {
                             Message message = MessageMapper.buildMessage(messageDoc);
-                            AccountMapper.setupCreatorAndTimestamp(message, messageDoc);
+                            //AccountMapper.setupCreatorAndTimestamp(message, messageDoc);
                             article.addMessage(message);
 
                             List<ODocument> repliesDoc = messageDoc.field("replies");
@@ -103,7 +104,7 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
                                     deleted = replyDoc.field("deleted", String.class);
                                     if(deleted == null) {
                                         MessageReply reply = MessageReplyMapper.buildMessageReply(replyDoc);
-                                        AccountMapper.setupCreatorAndTimestamp(reply, replyDoc);
+                                        //AccountMapper.setupCreatorAndTimestamp(reply, replyDoc);
                                         message.addReply(reply);
                                     }
                                 }
@@ -111,6 +112,7 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
                         }
                     }
                 }
+                */
             }
         }
         finally {

@@ -34,30 +34,29 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
     private static Logger logger = LoggerFactory.getLogger(QuestionCommentDaoImpl.class);
 
     public String create(QuestionCommentCommand command) {
-        String id = null;
+
+        String accountId = command.getAccount().getId();
+        String questionId = command.getQuestion().getId();
 
         OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = QuestionCommentMapper.convertQuestionComment(command);
             doc.save();
-        
-            id = doc.getIdentity().toString();
-            String userId = command.getAccount().getId();
-            String qId = command.getQuestion().getId();
+            String questionCommentId = doc.getIdentity().toString();
 
-            String sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set category = 'questionComment', createTime = sysdate()";
+            String sql = "create edge EdgeCreatePost from " + accountId + " to " + questionCommentId + " set category = 'questionComment', createTime = sysdate()";
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "update " + qId + " add comments = " + id;
+            sql = "create edge QuestionComments from " + questionCommentId + " to " + questionId;
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
- 
+
+            return questionCommentId;
         }
         finally {
             db.shutdown();
         }
-        return id;
     }
 
     public QuestionComment getQuestionComment(String questionCommentId) {
@@ -72,7 +71,7 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
             if(!docs.isEmpty()) {
                 ODocument questionCommentDoc = docs.get(0);
                 questionComment = QuestionCommentMapper.buildQuestionComment(questionCommentDoc);
-                AccountMapper.setupCreatorAndTimestamp(questionComment, questionCommentDoc);
+                //AccountMapper.setupCreatorAndTimestamp(questionComment, questionCommentDoc);
 
                 ODocument questionDoc = questionCommentDoc.field("question");
                 Question question = QuestionMapper.buildQuestion(questionDoc);

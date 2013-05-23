@@ -43,51 +43,25 @@ public class AccountDaoImpl implements AccountDao {
     protected OrientDataSource dataSource;
 
     public String create(UserCommand command) {
-        //String accountId;
-
         OrientGraph db = dataSource.getDB();
         try {
-
-            Vertex v = db.addVertex("class:Account");
-            v.setProperty("username", command.getAccount().getUsername());
-            v.setProperty("password", Hashing.md5().hashString(command.getAccount().getPassword(), Charset.forName("utf-8")).toString());
-            v.setProperty("email", command.getAccount().getEmail());
-            v.setProperty("createTime", new Date());
-
-            Set<String> roles = new HashSet();
-            roles.add("ROLE_USER");
-            v.setProperty("roles", roles);
-
-            Vertex v2 = db.addVertex("class:User");
-            v2.setProperty("displayName", command.getDisplayName());
-            v2.setProperty("headline", command.getHeadline());
-            v2.setProperty("inviteLimit", 32);
-            //v2.setProperty("status", command.getStatus());
- 
-            db.addEdge("class:AccountUser", v, v2, "AccountUser");
-
-            return v.getId().toString();
-
-            /**
             ODocument accountDoc = AccountMapper.convertAccount(command);
             accountDoc.save();
+            String accountId = accountDoc.getIdentity().toString();
 
             ODocument userDoc = UserMapper.convertUser(command);
-            List accounts = new ArrayList();
-            accounts.add(accountDoc.getIdentity());
-            userDoc.field("accounts", accounts);
             userDoc.save();
+            String userId = userDoc.getIdentity().toString();
 
-            accountDoc.field("user", userDoc.getIdentity());
-            accountDoc.save();
+            String sql = "create Edge AccountsUser from " + accountId + " to " + userId;
+            OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
 
-            accountId = accountDoc.getIdentity().toString();
-            */
+            return accountId;
         }
         finally {
            db.shutdown();
         }
-        //return accountId;
     }
  
     public void updateEmail(EmailCommand command) {
@@ -121,63 +95,55 @@ public class AccountDaoImpl implements AccountDao {
 
     public Account getAccount(String accountId) {
 
+        String sql = "select @this as account, out('AccountsUser') as user from " + accountId;
         OrientGraph db = dataSource.getDB();
         try {
-            Vertex v = db.getVertex(accountId);
-            Account account = AccountMapper.buildAccount(v);
+            Account account = null;
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
+            for(ODocument doc : docs) {
+                ODocument accountDoc = doc.field("account");
+                account = AccountMapper.buildAccount(accountDoc);
 
-            String sql = "select flatten(out('AccountUser')) as user from " + accountId;
-            Iterable<Vertex> vertices = db.command(new OSQLSynchQuery(sql)).execute();
-            for(Vertex uv : vertices) {
-                User user = UserMapper.buildUser(uv);
-                account.setUser(user);
+                List<ODocument> userDocs = doc.field("user");
+                for(ODocument userDoc : userDocs) {
+                    User user = UserMapper.buildUser(userDoc);
+                    account.setUser(user);
+                    break;
+                }
                 break;
             }
-
             return account;
         }
         finally {
             db.shutdown();
         }
-
-         /**
-        String sql = "select from " + accountId;
-        logger.debug(sql);
-
-        Account account = null;
-        OrientGraph db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                account = AccountMapper.buildAccount(doc);
-            }
-        }
-        finally {
-            db.shutdown();
-        }
-        return account;
-        */
     }
 
     public Account getAccountByEmail(String email) {
-        String sql = "select from account where email = '" + email + "'";
+        String sql = "select @this as account, out('AccountsUser') as user from account where email = '" + email + "'";
         logger.debug(sql);
-
-        Account account = null;
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                account = AccountMapper.buildAccount(doc);
+            Account account = null;
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
+            for(ODocument doc : docs) {
+                ODocument accountDoc = doc.field("account");
+                account = AccountMapper.buildAccount(accountDoc);
+
+                List<ODocument> userDocs = doc.field("user");
+                for(ODocument userDoc : userDocs) {
+                    User user = UserMapper.buildUser(userDoc);
+                    account.setUser(user);
+                    break;
+                }
+                break;
             }
+            return account;
         }
         finally {
             db.shutdown();
         }
-        return account;
     }
 
     public boolean isUsernameExist(String username) {
@@ -193,13 +159,6 @@ public class AccountDaoImpl implements AccountDao {
                 exist = true;
                 break;
             }
-                    
-            /**
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(docs.size() > 0) {
-               exist = true;
-            }
-            */
         }
         finally {
             db.shutdown();
@@ -220,13 +179,6 @@ public class AccountDaoImpl implements AccountDao {
                 exist = true;
                 break;
             }
-
-             /**
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(docs.size() > 0) {
-               exist = true;
-            }
-            */
         }
         finally {
             db.shutdown();
