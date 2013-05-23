@@ -174,14 +174,14 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      * Get topics with the largest members.
      */
     public List<Topic> getTrendingTopics(int num) {
-        String sql = "select in_.size() as memberCount, topic, topic.in_.out as account, topic.in_.createTime as createTime from Plan where topic.deleted is null order by memberCount desc limit " + num;
+        String sql = "select out_PlanMembers.size() as memberCount, out_PlansTopic as topic, out_PlansTopic.out_TopicAccount.in as account, out_PlanAccount.createTime as createTime from Plan where out_PlansTopic.in.deleted is null order by memberCount desc limit " + num;
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:1")).execute();
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
@@ -192,7 +192,12 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
                 ODocument accountDoc = doc.field("account");
                 Account account = AccountMapper.buildAccount(accountDoc);
                 topic.setAccount(account);
-topics.add(topic);
+
+                ODocument userDoc = accountDoc.field("out_AccountsUser");
+                User user = UserMapper.buildUser(userDoc);
+                account.setUser(user);
+
+                topics.add(topic);
             }
         }
         finally {
@@ -341,7 +346,7 @@ topics.add(topic);
 
     public List<Topic> getPagedTopicsByTag(String tag, int page, int size) {
 
-        String sql = "select in as topic, out as account, out.out_UserAccounts as user, createTime from EdgeCreateTopic where in.deleted is null and in.tags in '" + tag + "' order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select out as topic, in as account, in.out_AccountsUser as user, createTime from TopicAccount where out.deleted is null and out.tags in '" + tag + "' order by createTime desc skip " + (page - 1) * size + " limit " + size;
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();

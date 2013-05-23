@@ -43,7 +43,8 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
     private static Logger logger = LoggerFactory.getLogger(ArticleDaoImpl.class);
 
     public Article getArticle(String id) {
-        String sql = "select @this as article, in_EdgeCreatePost.createTime as createTime, in_EdgeCreatePost.out as account, in_EdgeCreatePost.out.out_UserAccounts as user, out_Parent as plan, out_Parent.out_Parent as topic, out('Parent').out('Parent').in('Parent') as topicPlans from " + id;
+        String sql = "select @this as article, out_PostAccount.createTime as createTime, out_PostAccount.in as account, out_PostAccount.in.out_AccountsUser as user, out_PostsPlan as plan, out_PostsPlan.out_PlansTopic as topic, out('PostsPlan').out('PlansTopic').in('PlansTopic') as topicPlans from " + id;
+
         logger.debug(sql);
 
         Article article = null;
@@ -79,11 +80,11 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
                     Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
                     topic.addPlan(topicPlan);
 
-                    ODocument topicPlanAccountDoc = topicPlanDoc.field("in_EdgeCreatePlan.out");
+                    ODocument topicPlanAccountDoc = topicPlanDoc.field("out_PlanAccount.in");
                     Account topicPlanAccount = AccountMapper.buildAccount(topicPlanAccountDoc);
                     topicPlan.setAccount(topicPlanAccount);
 
-                    ODocument topicPlanUserDoc = topicPlanDoc.field("in_EdgeCreatePlan.out.out_UserAccounts");
+                    ODocument topicPlanUserDoc = topicPlanAccountDoc.field("out_AccountsUser");
                     User topicPlanUser = UserMapper.buildUser(topicPlanUserDoc);
                     topicPlanAccount.setUser(topicPlanUser);
                 }

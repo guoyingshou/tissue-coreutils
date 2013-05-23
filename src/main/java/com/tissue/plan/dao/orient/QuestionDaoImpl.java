@@ -44,7 +44,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
     private static Logger logger = LoggerFactory.getLogger(QuestionDaoImpl.class);
 
     public Question getQuestion(String id) {
-        String sql = "select @this as question, in_EdgeCreatePost.createTime as createTime, in_EdgeCreatePost.out as account, in_EdgeCreatePost.out.out_UserAccounts as user, out_Parent as plan, out_Parent.out_Parent as topic, out('Parent').out('Parent').in('Parent') as topicPlans from " + id;
+        String sql = "select @this as question, out_PostAccount.createTime as createTime, out_PostAccount.in as account, out_PostAccount.in.out_AccountsUser as user, out_PostsPlan as plan, out_PostsPlan.out_PlansTopic as topic, out('PostsPlan').out('PlansTopic').in('PlansTopic') as topicPlans from " + id;
         logger.debug(sql);
 
         Question question = null;
@@ -79,11 +79,11 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                 for(ODocument topicPlanDoc : topicPlanDocs) {
                     Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
 
-                    ODocument topicPlanAccountDoc = topicPlanDoc.field("in_EdgeCreatePlan.out");
+                    ODocument topicPlanAccountDoc = topicPlanDoc.field("out_PlanAccount.in");
                     Account topicPlanAccount = AccountMapper.buildAccount(topicPlanAccountDoc);
                     topicPlan.setAccount(topicPlanAccount);
 
-                    ODocument topicPlanUserDoc = topicPlanAccountDoc.field("out_UserAccounts");
+                    ODocument topicPlanUserDoc = topicPlanAccountDoc.field("out_AccountsUser");
                     User topicPlanUser = UserMapper.buildUser(topicPlanUserDoc);
                     topicPlanAccount.setUser(topicPlanUser);
 
