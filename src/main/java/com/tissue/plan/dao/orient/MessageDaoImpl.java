@@ -39,61 +39,65 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
     private static Logger logger = LoggerFactory.getLogger(MessageDaoImpl.class);
 
     public String create(MessageCommand command) {
-        String id = null;
+        String postId = command.getArticle().getId();
+        String accountId = command.getAccount().getId();
 
         OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = MessageMapper.convertMessage(command);
             doc.save();
+            String messageId = doc.getIdentity().toString();
 
-            id = doc.getIdentity().toString();
-            String postId = command.getArticle().getId();
-            String userId = command.getAccount().getId();
-
-            String sql = "update " + id + " set article = " + postId;
+            String sql = "create edge MessagesArticle from " + messageId + " to " + postId;
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set category = 'message', createTime = sysdate()";
+            sql = "create edge PostAccount from " + messageId + " to " + accountId + " set category = 'message', createTime = sysdate()";
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
- 
-            sql = "update " + postId + " add messages = " + id;
-            cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
+
+            return messageId;
         }
         finally {
             db.shutdown();
         }
-        return id;
     }
 
     public Message getMessage(String messageId) {
-        String sql = "select from " + messageId;
+        String sql = "select @this as message, " + 
+                     "out_PostAccount as account, " + 
+                     "out_MessagesArticle as article, " + 
+                     "out_MessagesArticle.out_PostsPlan as plan, " + 
+                     "out_MessagesArticle.out_PostsPlan.out_PlansTopic as topic, " + 
+                     "out('MessagesArticle').out('PostsPlan').out('PlansTopic').in('PlansTopic') as topicPlans " +
+                     "from " + messageId;
         logger.debug(sql);
 
         Message message = null;
-
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument messageDoc = docs.get(0);
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:2")).execute();
+            for(ODocument doc : docs) {
+                ODocument messageDoc = doc.field("message");
                 message = MessageMapper.buildMessage(messageDoc);
-                //AccountMapper.setupCreatorAndTimestamp(message, messageDoc);
                 
-                ODocument articleDoc = messageDoc.field("article");
+                ODocument articleDoc = doc.field("article");
                 Article article = ArticleMapper.buildArticle(articleDoc);
                 message.setArticle(article);
 
-                ODocument planDoc = articleDoc.field("plan");
+                ODocument planDoc = doc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
                 article.setPlan(plan);
 
-                ODocument topicDoc = planDoc.field("topic");
+                ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.setupPlans(topic, topicDoc);
                 plan.setTopic(topic);
+
+                List<ODocument> topicPlanDocs = doc.field("topicPlans");
+                for(ODocument topicPlanDoc : topicPlanDocs) {
+                    Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
+                    topic.addPlan(topicPlan);
+                }
             }
         }
         finally {

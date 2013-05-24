@@ -32,6 +32,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -43,7 +44,15 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
     private static Logger logger = LoggerFactory.getLogger(ArticleDaoImpl.class);
 
     public Article getArticle(String id) {
-        String sql = "select @this as article, out_PostAccount.createTime as createTime, out_PostAccount.in as account, out_PostAccount.in.out_AccountsUser as user, out_PostsPlan as plan, out_PostsPlan.out_PlansTopic as topic, out('PostsPlan').out('PlansTopic').in('PlansTopic') as topicPlans from " + id;
+        String sql = "select @this as article, " + 
+                     "out_PostAccount.createTime as createTime, " +
+                     "out_PostAccount.in as account, " + 
+                     "out_PostAccount.in.out_AccountsUser as user, " + 
+                     "out_PostsPlan as plan, " + 
+                     "out_PostsPlan.out_PlansTopic as topic, " + 
+                     "out('PostsPlan').out('PlansTopic').in('PlansTopic') as topicPlans, " +
+                     "in('MessagesArticle') as messages " + 
+                     "from " + id;
 
         logger.debug(sql);
 
@@ -51,7 +60,7 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
 
         OrientGraph db = dataSource.getDB();
         try {
-            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:4")).execute();
             for(ODocument doc : docs) {
                 ODocument articleDoc = doc.field("article");
                 article = ArticleMapper.buildArticle(articleDoc);
@@ -89,6 +98,56 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
                     topicPlanAccount.setUser(topicPlanUser);
                 }
 
+                List<ODocument> messageDocs = doc.field("messages");
+                for(ODocument messageDoc : messageDocs) {
+                    Object deleted = messageDoc.field("deleted");
+                    if(deleted == null) {
+                        Message message = MessageMapper.buildMessage(messageDoc);
+                        article.addMessage(message);
+
+                        Date messageCreateTime = messageDoc.field("out_PostAccount.createTime", Date.class);
+                        message.setCreateTime(messageCreateTime);
+
+                        ODocument messageAccountDoc = messageDoc.field("out_PostAccount.in");
+                        Account messageAccount = AccountMapper.buildAccount(messageAccountDoc);
+                        message.setAccount(messageAccount);
+
+                        ODocument messageUserDoc = messageAccountDoc.field("out_AccountsUser");
+                        User messageUser = UserMapper.buildUser(messageUserDoc);
+                        messageAccount.setUser(messageUser);
+
+                        Set<ODocument> replyDocs = new HashSet<ODocument>();
+                        Object obj = messageDoc.field("in_RepliesMessage");
+                        if(obj != null) {
+                            if(obj instanceof ODocument) {
+                                replyDocs.add((ODocument)obj);
+                            }
+                            else {
+                                replyDocs = (Set)obj;
+                            }
+
+                            for(ODocument replyDoc : replyDocs) {
+                                deleted = replyDoc.field("deleted");
+                                if(deleted == null) {
+                                    MessageReply reply = MessageReplyMapper.buildMessageReply(replyDoc);
+                                    message.addReply(reply);
+
+                                    Date replyCreateTime = replyDoc.field("out_PostAccount.createTime");
+                                    reply.setCreateTime(replyCreateTime);
+                                
+                                    ODocument replyAccountDoc = replyDoc.field("out_PostAccount.in");
+                                    Account replyAccount = AccountMapper.buildAccount(replyAccountDoc);
+                                    reply.setAccount(replyAccount);
+
+                                    ODocument replyUserDoc = replyAccountDoc.field("out_AccountsUser");
+                                    User replyUser = UserMapper.buildUser(replyUserDoc);
+                                    replyAccount.setUser(replyUser);
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 /**
                 List<ODocument> messagesDoc = articleDoc.field("messages");
                 if(messagesDoc != null) {

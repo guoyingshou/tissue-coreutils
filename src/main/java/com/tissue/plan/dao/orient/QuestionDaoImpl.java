@@ -44,7 +44,14 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
     private static Logger logger = LoggerFactory.getLogger(QuestionDaoImpl.class);
 
     public Question getQuestion(String id) {
-        String sql = "select @this as question, out_PostAccount.createTime as createTime, out_PostAccount.in as account, out_PostAccount.in.out_AccountsUser as user, out_PostsPlan as plan, out_PostsPlan.out_PlansTopic as topic, out('PostsPlan').out('PlansTopic').in('PlansTopic') as topicPlans from " + id;
+        String sql = "select @this as question, " + 
+                     "out_PostAccount.createTime as createTime, " +
+                     "out_PostAccount.in as account, " +
+                     "out_PostAccount.in.out_AccountsUser as user, " +
+                     "out_PostsPlan as plan, " + 
+                     "out_PostsPlan.out_PlansTopic as topic, " +
+                     "out('PostsPlan').out('PlansTopic').in('PlansTopic') as topicPlans " +
+                     "from " + id;
         logger.debug(sql);
 
         Question question = null;

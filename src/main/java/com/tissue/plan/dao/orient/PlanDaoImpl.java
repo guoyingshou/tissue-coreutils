@@ -174,7 +174,11 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public List<Plan> getPlansByAccount(String accountId) {
-        String sql = "select @this as plan, in_EdgeCreatePlan.createTime as createTime, in_EdgeCreatePlan.out as account from plan where in_EdgeCreatePlan.out in " + accountId;
+        String sql = "select @this as plan, " +
+                     "out_PlanAccount.createTime as createTime, " + 
+                     "out_PlanAccount.in as account, " +
+                     "out_PlansTopic as topic " + 
+                     "from plan where out_PlanAccount.in in " + accountId;
         logger.debug(sql);
 
         List<Plan> plans = new ArrayList();
@@ -192,7 +196,7 @@ public class PlanDaoImpl implements PlanDao {
                 Account account = AccountMapper.buildAccount(accountDoc);
                 plan.setAccount(account);
 
-                ODocument topicDoc = planDoc.field("out_Parent");
+                ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
 

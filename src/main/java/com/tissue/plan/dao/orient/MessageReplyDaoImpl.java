@@ -39,35 +39,34 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
     private static Logger logger = LoggerFactory.getLogger(MessageReplyDaoImpl.class);
 
     public String create(MessageReplyCommand command) {
-        String id = null;
+        String messageId = command.getMessage().getId();
+        String accountId = command.getAccount().getId();
 
         OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = MessageReplyMapper.convertMessageReply(command);
             doc.save();
+            String replyId = doc.getIdentity().toString();
 
-            id = doc.getIdentity().toString();
-            String msgId = command.getMessage().getId();
-            String userId = command.getAccount().getId();
-
-            String sql = "update " + id + " set message = " + msgId;
+            String sql = "create edge RepliesMessage from " + replyId + " to " + messageId;
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set category = 'messageReply', createTime = sysdate()";
+            sql = "create edge PostAccount from " + replyId + " to " + accountId + " set category = 'messageReply', createTime = sysdate()";
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
-        
-            sql = "update " + msgId + " add replies = " + id;
-            cmd = new OCommandSQL(sql);
-            db.command(cmd).execute();
+
+            return replyId;
         }
         finally {
             db.shutdown();
         }
-        return id;
     }
 
+    /**
+     * Get the message reply given it's ID.
+     * When trying to delete the reply, the access manager need to check permissions by retrieving all nessary info.
+     */
     public MessageReply getMessageReply(String messageReplyId) {
         String sql = "select from " + messageReplyId;
         logger.debug(sql);

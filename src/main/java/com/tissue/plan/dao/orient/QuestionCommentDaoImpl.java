@@ -35,8 +35,8 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
 
     public String create(QuestionCommentCommand command) {
 
-        String accountId = command.getAccount().getId();
         String questionId = command.getQuestion().getId();
+        String accountId = command.getAccount().getId();
 
         OrientGraph db = dataSource.getDB();
         try {
@@ -44,11 +44,11 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
             doc.save();
             String questionCommentId = doc.getIdentity().toString();
 
-            String sql = "create edge EdgeCreatePost from " + accountId + " to " + questionCommentId + " set category = 'questionComment', createTime = sysdate()";
+            String sql = "create edge PostAccount from " + questionCommentId + " to " + accountId + " set category = 'questionComment', createTime = sysdate()";
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge QuestionComments from " + questionCommentId + " to " + questionId;
+            sql = "create edge CommentsQuetions from " + questionCommentId + " to " + questionId;
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
 
