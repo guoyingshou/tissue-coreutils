@@ -2,6 +2,7 @@ package com.tissue.plan;
 
 import com.tissue.core.TimeFormat;
 import com.tissue.core.Account;
+import com.tissue.core.Node;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -9,56 +10,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Plan {
+public class Plan extends Node {
 
-    protected String id;
     private Integer duration;
 
-    protected Date createTime;
-    private boolean deleted = false;
-
-    protected Account account;
     private Topic topic;
     private List<Account> members;
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public boolean isOwner(String viewerAccountId) {
-        if((viewerAccountId != null) && viewerAccountId.equals(account.getId())) {
-            return true;
-        }
-        return false;
-    }
 
     public void setDuration(Integer duration) {
         this.duration = duration;

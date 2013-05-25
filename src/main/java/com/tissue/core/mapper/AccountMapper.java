@@ -2,6 +2,7 @@ package com.tissue.core.mapper;
 
 import com.tissue.core.Account;
 import com.tissue.core.User;
+import com.tissue.core.Node;
 import com.tissue.core.UserGeneratedContent;
 import com.tissue.core.command.UserCommand;
 
@@ -49,19 +50,20 @@ public class AccountMapper {
         Set<String> roles = doc.field("roles", Set.class);
         account.setRoles(roles);
 
+        ODocument userDoc = doc.field("out_AccountsUser");
+        User user = UserMapper.buildUser(userDoc);
+        account.setUser(user);
+
         return account;
     }
 
-    /**
-    public static void setupCreatorAndTimestamp(UserGeneratedContent content, ODocument doc) {
-        Date ctime = doc.field("in_.createTime", Date.class);
-        content.setCreateTime(ctime);
+    public static void setAccount(Node target, ODocument doc) {
+        Date createTime = doc.field("out_Owner.createTime", Date.class);
+        target.setCreateTime(createTime);
 
-        ODocument accountDoc = doc.field("in_.out");
+        ODocument accountDoc = doc.field("out_Owner.in");
         Account account = buildAccount(accountDoc);
-
-        content.setAccount(account);
+        target.setAccount(account);
     }
-    */
 
 }

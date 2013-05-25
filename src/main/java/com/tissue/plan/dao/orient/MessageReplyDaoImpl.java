@@ -52,7 +52,7 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge PostAccount from " + replyId + " to " + accountId + " set category = 'messageReply', createTime = sysdate()";
+            sql = "create edge Owner from " + replyId + " to " + accountId + " set category = 'messageReply', createTime = sysdate()";
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
 
@@ -68,18 +68,22 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
      * When trying to delete the reply, the access manager need to check permissions by retrieving all nessary info.
      */
     public MessageReply getMessageReply(String messageReplyId) {
-        String sql = "select from " + messageReplyId;
+        String sql = "select @this as reply, " +
+                     "out_RepliesMessage as message, " +
+                     "out_RepliesMessage.out_MessagesArticle as article " +
+                     "out_RepliesMessage.out_MessagesArticle.out_PostsPlan as plan, " +
+                     "out_RepliesMessage.out_MessagesArticle.out_PostsPlan.out_PlansTopic as topic " +
+                     "from " + messageReplyId;
         logger.debug(sql);
 
         MessageReply messageReply = null;
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument replyDoc = docs.get(0);
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            for(ODocument doc : docs) {
+                ODocument replyDoc = doc.field("reply");
                 messageReply = MessageReplyMapper.buildMessageReply(replyDoc);
-                //AccountMapper.setupCreatorAndTimestamp(messageReply, replyDoc);
 
                 ODocument messageDoc = replyDoc.field("message");
                 Message message = MessageMapper.buildMessage(messageDoc);

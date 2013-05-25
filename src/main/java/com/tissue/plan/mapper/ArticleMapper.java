@@ -31,16 +31,25 @@ public class ArticleMapper {
         String type = doc.field("type", String.class);
         article.setType(type);
 
-        /**
-        Date createTime = doc.field("createTime", Date.class);
-        article.setCreateTime(createTime);
-        */
-
         Boolean deleted = doc.field("deleted", Boolean.class);
         if(deleted != null) {
             article.setDeleted(deleted);
         }
+
+        AccountMapper.setAccount(article, doc);
  
         return article;
     }
+
+    /**
+    public static void setAccount(Article article, ODocument doc) {
+        Date createTime = doc.field("out_PostAccount.createTime", Date.class);
+        article.setCreateTime(createTime);
+
+        ODocument accountDoc = doc.field("out_PostAccount.in");
+        Account account = AccountMapper.buildAccount(accountDoc);
+
+        article.setAccount(account);
+    }
+    */
 }

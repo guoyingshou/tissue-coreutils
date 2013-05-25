@@ -29,20 +29,8 @@ public class MessageMapper {
         String content = doc.field("content", String.class);
         message.setContent(content);
 
-        /**
-        Set<ODocument> edgeCreatePostDocs = doc.field("in");
-        for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
-            Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
-            message.setCreateTime(createTime);
-
-            ODocument accountDoc = edgeCreatePostDoc.field("out");
-            Account account = AccountMapper.buildAccount(accountDoc);
-            message.setAccount(account);
-            break;
-        }
-        */
-
+        AccountMapper.setAccount(message, doc);
         return message;
     }
-
+    
 }

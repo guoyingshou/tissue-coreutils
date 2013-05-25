@@ -48,7 +48,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             String topicId = doc.getIdentity().toString();
             String accountId = command.getAccount().getId();
 
-            String sql = "create edge TopicAccount from " + topicId + " to " + accountId + " set category = 'topic', createTime = sysdate()";
+            String sql = "create edge Owner from " + topicId + " to " + accountId + " set category = 'topic', createTime = sysdate()";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -65,7 +65,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      * Get a topic with all fields available.
      */
     public Topic getTopic(String topicId) {
-        String sql = "select @this as topic, out_TopicAccount.createTime as createTime, out_TopicAccount.in as account, out_TopicAccount.in.out_AccountsUser as user, in('PlansTopic') as plans from " + topicId;
+        String sql = "select @this as topic from " + topicId;
         logger.debug(sql);
 
         Topic topic = null;
@@ -76,32 +76,6 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
                 topic = TopicMapper.buildTopic(topicDoc);
-
-                Date createTime = doc.field("createTime", Date.class);
-                topic.setCreateTime(createTime);
- 
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                topic.setAccount(account);
-
-                ODocument userDoc = doc.field("user");
-                User user = UserMapper.buildUser(userDoc);
-                account.setUser(user);
-
-                List<ODocument> planDocs = doc.field("plans");
-                for(ODocument planDoc : planDocs) {
-                    Plan plan = PlanMapper.buildPlan(planDoc);
-
-                    ODocument planAccountDoc = planDoc.field("out_PlanAccount");
-                    Account planAccount = AccountMapper.buildAccount(planAccountDoc);
-                    plan.setAccount(planAccount);
-
-                    ODocument planUserDoc = planAccountDoc.field("in.out_AccountsUser");
-                    User planUser = UserMapper.buildUser(planUserDoc);
-                    planAccount.setUser(planUser);
-
-                    topic.addPlan(plan);
-                }
             }
         }
         finally {
@@ -174,29 +148,32 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      * Get topics with the largest members.
      */
     public List<Topic> getTrendingTopics(int num) {
-        String sql = "select out_PlanMembers.size() as memberCount, out_PlansTopic as topic, out_PlansTopic.out_TopicAccount.in as account, out_PlanAccount.createTime as createTime from Plan where out_PlansTopic.in.deleted is null order by memberCount desc limit " + num;
-        logger.debug(sql);
+        /**
+        String sql = "select out_PlanMembers.size() as memberCount, " +
+                     "out_PlansTopic as topic, " +
+                     "out_PlansTopic.out_TopicAccount.in as account, " + 
+                     "out_PlanAccount.createTime as createTime " + 
+                     "from Plan " +
+                     "where out_PlansTopic.in.deleted is null " + 
+                     "order by memberCount desc " + 
+                     "limit " + num;
+                     */
+        String sql = "select out_Member.size() as memberCount, " +
+                     "out_PlansTopic as topic " +
+                     "from Plan " +
+                     "where out_PlansTopic.in.deleted is null " + 
+                     "order by memberCount desc " + 
+                     "limit " + num;
+         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
 
         OrientGraph db = dataSource.getDB();
         try {
-            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:1")).execute();
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:2")).execute();
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
-                Topic topic = TopicMapper.buildTopic(topicDoc);
-
-                Date createTime = doc.field("createTime", Date.class);
-                topic.setCreateTime(createTime);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                topic.setAccount(account);
-
-                ODocument userDoc = accountDoc.field("out_AccountsUser");
-                User user = UserMapper.buildUser(userDoc);
-                account.setUser(user);
-
+                Topic topic = TopicMapper.buildPlainTopic(topicDoc);
                 topics.add(topic);
             }
         }
@@ -210,8 +187,11 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      * Get featured topics.
      */
     public List<Topic> getFeaturedTopics(int num) {
-
-        String sql = "select in as topic, out as account, out.out_UserAccounts as user, createTime from EdgeCreateTopic where in.deleted is null and in.type = 'featured' order by createTime desc limit " + num;
+        String sql = "select out as topic, createTime " +
+                     "from TopicAccount " +
+                     "where out.deleted is null and out.type = 'featured' " +
+                     "order by createTime desc " +
+                     "limit " + num;
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
@@ -221,18 +201,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
-                Topic topic = TopicMapper.buildTopic(topicDoc);
-
-                Date createTime = doc.field("createTime", Date.class);
-                topic.setCreateTime(createTime);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                topic.setAccount(account);
-
-                ODocument userDoc = doc.field("user");
-                User user = UserMapper.buildUser(userDoc);
-                account.setUser(user);
+                Topic topic = TopicMapper.buildPlainTopic(topicDoc);
 
                 topics.add(topic);
             }
@@ -264,7 +233,12 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      */
     public List<Topic> getPagedTopics(int page, int size) {
 
-        String sql = "select in as account, out as topic, in.out_AccountsUser as user, createTime from TopicAccount where out.deleted is null order by createTime desc skip " + ((page -1) * size) + " limit " + size;
+        String sql = "select out as topic, createTime " +
+                     "from Owner " +
+                     "where out.deleted is null " +
+                     "order by createTime desc " +
+                     "skip " + ((page -1) * size) + 
+                     " limit " + size;
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
@@ -273,22 +247,8 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         try {
             Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
-                System.out.println("in topic dao: " + doc);
-
                 ODocument topicDoc = doc.field("topic");
-                Topic topic = TopicMapper.buildTopic(topicDoc);
-
-                Date createTime = doc.field("createTime", Date.class);
-                topic.setCreateTime(createTime);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-
-                ODocument userDoc = doc.field("user");
-                User user = UserMapper.buildUser(userDoc);
-                account.setUser(user);
-
-                topic.setAccount(account);
+                Topic topic = TopicMapper.buildPlainTopic(topicDoc);
 
                 topics.add(topic);
             }
@@ -346,7 +306,12 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
 
     public List<Topic> getPagedTopicsByTag(String tag, int page, int size) {
 
-        String sql = "select out as topic, in as account, in.out_AccountsUser as user, createTime from TopicAccount where out.deleted is null and out.tags in '" + tag + "' order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select out as topic, createTime " +
+                     "from Owner " +
+                     "where out.deleted is null and out.tags in '" + tag + 
+                     "' order by createTime desc " +
+                     "skip " + (page - 1) * size + 
+                     " limit " + size;
         logger.debug(sql);
 
         List<Topic> topics = new ArrayList();
@@ -356,19 +321,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 ODocument topicDoc = doc.field("topic");
-                Topic topic = TopicMapper.buildTopic(topicDoc);
-
-                Date createTime = doc.field("createTime", Date.class);
-                topic.setCreateTime(createTime);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-
-                ODocument userDoc = doc.field("user");
-                User user = UserMapper.buildUser(userDoc);
-                account.setUser(user);
-
-                topic.setAccount(account);
+                Topic topic = TopicMapper.buildPlainTopic(topicDoc);
 
                 topics.add(topic);
             }

@@ -22,28 +22,15 @@ public class AnswerMapper {
         return doc;
     }
 
-    public static Answer buildAnswer(ODocument answerDoc) {
+    public static Answer buildAnswer(ODocument doc) {
         Answer answer = new Answer();
-        answer.setId(answerDoc.getIdentity().toString());
+        answer.setId(doc.getIdentity().toString());
 
-        String answerContent = answerDoc.field("content", String.class);
+        String answerContent = doc.field("content", String.class);
         answer.setContent(answerContent);
 
-        /**
-        Set<ODocument> edgeCreatePostDocs = answerDoc.field("in");
-        for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
-            String category = edgeCreatePostDoc.field("category", String.class);
-            if("answer".equals(category)) {
-                Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
-                answer.setCreateTime(createTime);
+        AccountMapper.setAccount(answer, doc);
 
-                ODocument accountDoc = edgeCreatePostDoc.field("out");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                answer.setAccount(account);
-                break;
-            }
-        }
-        */
         return answer;
     }
 

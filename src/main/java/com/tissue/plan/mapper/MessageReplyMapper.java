@@ -30,18 +30,7 @@ public class MessageReplyMapper {
         String content = doc.field("content", String.class);
         reply.setContent(content);
 
-        /**
-        Set<ODocument> edgeCreatePostDocs = doc.field("in");
-        for(ODocument edgeCreatePostDoc : edgeCreatePostDocs) {
-            Date createTime = edgeCreatePostDoc.field("createTime", Date.class);
-            reply.setCreateTime(createTime);
-
-            ODocument accountDoc = edgeCreatePostDoc.field("out");
-            Account account = AccountMapper.buildAccount(accountDoc);
-            reply.setAccount(account);
-            break;
-        }
-        */
+        AccountMapper.setAccount(reply, doc);
 
         return reply;
     }

@@ -48,7 +48,7 @@ public class PlanDaoImpl implements PlanDao {
             doc.save();
             String planId = doc.getIdentity().toString();
 
-            String sql = "create edge PlanAccount from " + planId + " to " + accountId + " set createTime = sysdate(), category = 'plan'";
+            String sql = "create edge Owner from " + planId + " to " + accountId + " set createTime = sysdate(), category = 'plan'";
             logger.debug(sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
@@ -66,9 +66,10 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public Plan getPlan(String planId) {
-        String sql = "select @this as plan, out_PlanAccount.createTime as createTime, out_PlanAccount.in as account, out_PlanAccount.in.out_AccountsUser as user, out_PlansTopic as topic, out('PlansTopic').in('PlansTopic') as topicPlans from " + planId;
-
-        logger.debug(sql);
+        String sql = "select @this as plan, " +
+                     "out_PlansTopic as topic " +
+                     "from " + planId;
+         logger.debug(sql);
 
         Plan plan = null;
         OrientGraph db = dataSource.getDB();
@@ -78,35 +79,9 @@ public class PlanDaoImpl implements PlanDao {
                 ODocument planDoc = doc.field("plan");
                 plan = PlanMapper.buildPlan(planDoc);
 
-                Date createTime = doc.field("createTime", Date.class);
-                plan.setCreateTime(createTime);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                plan.setAccount(account);
-
-                ODocument userDoc = doc.field("user");
-                User user = UserMapper.buildUser(userDoc);
-                account.setUser(user);
-
                 ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
-
-                List<ODocument> topicPlanDocs = doc.field("topicPlans");
-                for(ODocument topicPlanDoc : topicPlanDocs) {
-                    Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
-
-                    ODocument topicPlanAccountDoc = topicPlanDoc.field("out_PlanAccount.in");
-                    Account topicPlanAccount = AccountMapper.buildAccount(topicPlanAccountDoc);
-                    topicPlan.setAccount(topicPlanAccount);
-
-                    ODocument topicPlanUserDoc = topicPlanAccountDoc.field("out_AccountsUser");
-                    User topicPlanUser = UserMapper.buildUser(topicPlanUserDoc);
-                    topicPlanAccount.setUser(topicPlanUser);
-
-                    topic.addPlan(topicPlan);
-                }
             }
         }
         finally {
@@ -118,7 +93,7 @@ public class PlanDaoImpl implements PlanDao {
     public void addMember(String planId, String accountId) {
         OrientGraph db = dataSource.getDB();
         try {
-            String sql = "create edge PlanMembers from " + planId + " to " + accountId + " set createTime = sysdate(), category ='member'";
+            String sql = "create edge Member from " + planId + " to " + accountId + " set createTime = sysdate(), category ='member'";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -130,7 +105,7 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public Boolean isMember(String planId, String accountId) {
-        String sql = "select from " + planId + " where " + accountId + " in set(out_PlanAccount.in, out_PlanMembers.in)";
+        String sql = "select from " + planId + " where " + accountId + " in set(out_Owner.in, out_Member.in)";
         logger.debug(sql);
 
         Boolean isMember = false;
@@ -175,10 +150,9 @@ public class PlanDaoImpl implements PlanDao {
 
     public List<Plan> getPlansByAccount(String accountId) {
         String sql = "select @this as plan, " +
-                     "out_PlanAccount.createTime as createTime, " + 
-                     "out_PlanAccount.in as account, " +
                      "out_PlansTopic as topic " + 
-                     "from plan where out_PlanAccount.in in " + accountId;
+                     "from plan " +
+                     "where out_Owner.in in " + accountId;
         logger.debug(sql);
 
         List<Plan> plans = new ArrayList();
@@ -189,15 +163,8 @@ public class PlanDaoImpl implements PlanDao {
                 ODocument planDoc = doc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
 
-                Date createTime = doc.field("createTime", Date.class);
-                plan.setCreateTime(createTime);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                plan.setAccount(account);
-
                 ODocument topicDoc = doc.field("topic");
-                Topic topic = TopicMapper.buildTopic(topicDoc);
+                Topic topic = TopicMapper.buildPlainTopic(topicDoc);
                 plan.setTopic(topic);
 
                 plans.add(plan);

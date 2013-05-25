@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.HashSet;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
@@ -52,7 +53,7 @@ public class TopicMapper {
         return topic;
     }
 
-    public static Topic buildTopic(ODocument doc) {
+    public static Topic buildPlainTopic(ODocument doc) {
 
         Topic topic = new Topic();
         topic.setId(doc.getIdentity().toString());
@@ -71,23 +72,38 @@ public class TopicMapper {
             topic.setDeleted(deleted); 
         }
 
+        AccountMapper.setAccount(topic, doc);
+
+        return topic;
+    }
+
+    public static Topic buildTopic(ODocument doc) {
+        Topic topic = buildPlainTopic(doc);
+        setPlans(topic, doc);
+
         return topic;
     }
 
     /**
      * Add plans that belongs to the given topic.
      */
-    public static void setupPlans(Topic topic, ODocument topicDoc) {
-        List<ODocument> plansDoc = topicDoc.field("plans");
+    public static void setPlans(Topic topic, ODocument doc) {
+        Object obj = doc.field("in_PlansTopic");
+        if(obj == null) {
+            return;
+        }
 
-        if(plansDoc != null) {
-            for(ODocument planDoc :plansDoc) {
-                Plan plan = PlanMapper.buildPlan(planDoc);
-                PlanMapper.setupCreatorAndTimestamp(plan, planDoc);
-                
-                topic.addPlan(plan);
-            }
+        Set<ODocument> planDocs = new HashSet();
+        if(obj instanceof ODocument) {
+            planDocs.add((ODocument)obj);
+        }
+        else {
+            planDocs = (Set)obj;
+        }
+
+        for(ODocument planDoc :planDocs) {
+            Plan plan = PlanMapper.buildPlan(planDoc);
+            topic.addPlan(plan);
         }
     }
-
 }

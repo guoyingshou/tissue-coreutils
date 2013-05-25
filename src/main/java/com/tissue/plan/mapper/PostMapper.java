@@ -45,7 +45,19 @@ public class PostMapper {
             post.setDeleted(deleted);
         }
  
+        AccountMapper.setAccount(post, doc);
+
         return post;
     }
 
+    /**
+    public static void setAccount(Post post, ODocument doc) {
+        Date createTime = doc.field("out_PostAccount.createTime", Date.class);
+        post.setCreateTime(createTime);
+
+        ODocument accountDoc = doc.field("out_PostAccount.in");
+        Account account = AccountMapper.buildAccount(accountDoc);
+        post.setAccount(account);
+    }
+    */
 }

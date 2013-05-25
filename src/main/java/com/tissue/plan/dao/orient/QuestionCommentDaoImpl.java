@@ -44,11 +44,11 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
             doc.save();
             String questionCommentId = doc.getIdentity().toString();
 
-            String sql = "create edge PostAccount from " + questionCommentId + " to " + accountId + " set category = 'questionComment', createTime = sysdate()";
+            String sql = "create edge Owner from " + questionCommentId + " to " + accountId + " set category = 'questionComment', createTime = sysdate()";
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge CommentsQuetions from " + questionCommentId + " to " + questionId;
+            sql = "create edge CommentsQuestion from " + questionCommentId + " to " + questionId;
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
 
@@ -60,28 +60,31 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
     }
 
     public QuestionComment getQuestionComment(String questionCommentId) {
-        String sql = "select from " + questionCommentId;
+        String sql = "select @this as comment, " +
+                     "out_CommentsQuestion as question, " + 
+                     "out_CommentsQuestion.out_PostsPlan as plan, " + 
+                     "out_CommentsQuestion.out_PostsPlan.out_PlansTopic as topic, " +
+                     "from " + questionCommentId;
         logger.debug(sql);
 
         QuestionComment questionComment = null;
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument questionCommentDoc = docs.get(0);
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            for(ODocument doc : docs) {
+                ODocument questionCommentDoc = doc.field("comment");
                 questionComment = QuestionCommentMapper.buildQuestionComment(questionCommentDoc);
-                //AccountMapper.setupCreatorAndTimestamp(questionComment, questionCommentDoc);
 
-                ODocument questionDoc = questionCommentDoc.field("question");
+                ODocument questionDoc = doc.field("question");
                 Question question = QuestionMapper.buildQuestion(questionDoc);
                 questionComment.setQuestion(question);
 
-                ODocument planDoc = questionDoc.field("plan");
+                ODocument planDoc = doc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
                 question.setPlan(plan);
 
-                ODocument topicDoc = planDoc.field("topic");
+                ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
             }

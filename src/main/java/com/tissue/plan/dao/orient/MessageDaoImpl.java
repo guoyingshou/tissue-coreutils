@@ -52,7 +52,7 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge PostAccount from " + messageId + " to " + accountId + " set category = 'message', createTime = sysdate()";
+            sql = "create edge Owner from " + messageId + " to " + accountId + " set category = 'message', createTime = sysdate()";
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
 
@@ -65,11 +65,9 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
 
     public Message getMessage(String messageId) {
         String sql = "select @this as message, " + 
-                     "out_PostAccount as account, " + 
                      "out_MessagesArticle as article, " + 
                      "out_MessagesArticle.out_PostsPlan as plan, " + 
-                     "out_MessagesArticle.out_PostsPlan.out_PlansTopic as topic, " + 
-                     "out('MessagesArticle').out('PostsPlan').out('PlansTopic').in('PlansTopic') as topicPlans " +
+                     "out_MessagesArticle.out_PostsPlan.out_PlansTopic as topic " + 
                      "from " + messageId;
         logger.debug(sql);
 
@@ -92,12 +90,6 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
                 ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
-
-                List<ODocument> topicPlanDocs = doc.field("topicPlans");
-                for(ODocument topicPlanDoc : topicPlanDocs) {
-                    Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
-                    topic.addPlan(topicPlan);
-                }
             }
         }
         finally {

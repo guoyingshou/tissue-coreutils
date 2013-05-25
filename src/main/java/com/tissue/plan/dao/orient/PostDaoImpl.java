@@ -47,7 +47,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             doc.save();
             String postId = doc.getIdentity().toString();
             
-            String sql = "create edge PostAccount from " + postId + " to " + accountId + " set createTime = sysdate(), category = '" + command.getType() + "'";
+            String sql = "create edge Owner from " + postId + " to " + accountId + " set createTime = sysdate(), category = '" + command.getType() + "'";
             logger.debug(sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
@@ -77,9 +77,14 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getLatestPosts(int limit) {
-
-        String sql = "select out as post, createTime, in as account, in.out_AccountsUser as user from PostAccount where out.deleted is null and out.out_PostsPlan.out_PlansTopic.deleted is null and out.type in ['concept', 'note', 'tutorial', 'question'] order by createTime desc limit " + limit;
-        logger.debug(sql);
+        String sql = "select out as post, createTime " +
+                     "from Owner " + 
+                     "where out.deleted is null " +
+                     "and out.out_PostsPlan.out_PlansTopic.deleted is null " +
+                     "and out.type in ['concept', 'note', 'tutorial', 'question'] " +
+                     "order by createTime desc " +
+                     "limit " + limit;
+         logger.debug(sql);
 
         List<Post> posts = new ArrayList();
         OrientGraph db = dataSource.getDB();
@@ -112,7 +117,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByUser(String userId, int page, int size) {
-        String sql = "select out as post, createTime from PostAccount where out.deleted is null and out.type in ['concept', 'note', 'tutorial', 'question'] and in.out_AccountsUser in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
+        String sql = "select out as post, createTime from Owner where out.deleted is null and out.type in ['concept', 'note', 'tutorial', 'question'] and in.out_AccountsUser in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
         logger.debug(sql);
 
         List<Post> posts = new ArrayList();
@@ -153,8 +158,14 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByPlan(String planId, int page, int size) {
-        String sql = "select out as post, createTime, in as account, in.out_AccountsUser as user from PostAccount where out.deleted is null and out.out_PostsPlan in " + planId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
-
+        String sql = "select out as post, createTime " +
+                     //"in as account, in.out_AccountsUser as user " +
+                     "from Owner " +
+                     "where out.deleted is null " +
+                     "and out.out_PostsPlan in " + planId + 
+                     " order by createTime desc " +
+                     " skip " + (page - 1) * size + 
+                     " limit " + size;
         List<Post> posts = new ArrayList();
         OrientGraph db = dataSource.getDB();
         try {
@@ -186,7 +197,13 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByTopic(String topicId, int page, int size) {
-        String sql = "select createTime, out as post, in as account, in.out_AccountsUser as user from PostAccount where in.deleted is null and out.out_PostsPlan.out_PlansTopic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+        String sql = "select createTime, out as post " +
+                     "from Owner " +
+                     "where in.deleted is null " +
+                     "and out.out_PostsPlan.out_PlansTopic in " + topicId + 
+                     " order by createTime desc " +
+                     "skip " + ((page - 1) * size) + 
+                     " limit " + size;
         logger.debug(sql);
 
         List<Post> posts = new ArrayList();
@@ -221,7 +238,14 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
     public List<Post> getPagedPostsByType(String topicId, String type, int page, int size) {
 
-        String sql = "select out as post, createTime, in as account, in.out_AccountsUser as user from PostAccount where out.deleted is null and out.type = '" + type + "' and out.out_PostsPlan.out_PlansTopic in " + topicId + " order by createTime desc skip " + ((page - 1) * size) + " limit " + size;
+        String sql = "select out as post, createTime " +
+                     "from Owner " +
+                     "where out.deleted is null " +
+                     "and out.type = '" + type + 
+                     "' and out.out_PostsPlan.out_PlansTopic in " + topicId + 
+                     " order by createTime desc " +
+                     " skip " + ((page - 1) * size) + 
+                     " limit " + size;
         logger.debug(sql);
 
         List<Post> posts = new ArrayList<Post>();
@@ -243,17 +267,6 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
         for(ODocument doc : docs) {
             ODocument postDoc = doc.field("post");
             Post post = PostMapper.buildPost(postDoc);
-
-            Date createTime = doc.field("createTime", Date.class);
-            post.setCreateTime(createTime);
-
-            ODocument accountDoc = doc.field("account");
-            Account account = AccountMapper.buildAccount(accountDoc);
-            post.setAccount(account);
-
-            ODocument userDoc = doc.field("user");
-            User user = UserMapper.buildUser(userDoc);
-            account.setUser(user);
 
             posts.add(post);
         }

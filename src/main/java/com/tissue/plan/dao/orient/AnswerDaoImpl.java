@@ -1,7 +1,9 @@
 package com.tissue.plan.dao.orient;
 
 import com.tissue.core.Account;
+import com.tissue.core.User;
 import com.tissue.core.mapper.AccountMapper;
+import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.dao.orient.ContentDaoImpl;
 import com.tissue.plan.command.AnswerCommand;
 import com.tissue.plan.mapper.TopicMapper;
@@ -46,12 +48,12 @@ public class AnswerDaoImpl extends ContentDaoImpl implements AnswerDao {
             doc.save();
             String answerId = doc.getIdentity().toString();
 
-            String sql = "create edge EdgeCreatePost from " + accountId + " to " + answerId + " set category = 'answer', createTime = sysdate()";
+            String sql = "create edge Owner from " + answerId + " to " + accountId + " set category = 'answer', createTime = sysdate()";
             logger.debug(sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge QuestionAnswers from " + answerId + " to " + questionId;
+            sql = "create edge AnswersQuestion from " + answerId + " to " + questionId;
             logger.debug(sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
@@ -64,32 +66,33 @@ public class AnswerDaoImpl extends ContentDaoImpl implements AnswerDao {
     }
 
     public Answer getAnswer(String answerId) {
-        String sql = "select from " + answerId;
+        String sql = "select @this as answer, " +
+                     "out_AnswersQuestion as question, " +
+                     "out_AnswersQuestion.out_PostsPlan as plan, " +
+                     "out_AnswersQuestion.out_PostsPlan.out_PlansTopic as topic " +
+                     "from " + answerId;
         logger.debug(sql);
 
         Answer answer = null;
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument answerDoc = docs.get(0);
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            for(ODocument doc : docs) {
+                ODocument answerDoc = doc.field("answer");
                 answer = AnswerMapper.buildAnswer(answerDoc);
-                //AccountMapper.setupCreatorAndTimestamp(answer, answerDoc);
 
-                ODocument questionDoc = answerDoc.field("question");
+                ODocument questionDoc = doc.field("question");
                 Question question = QuestionMapper.buildQuestion(questionDoc);
                 answer.setQuestion(question);
 
-                ODocument planDoc = questionDoc.field("plan");
+                ODocument planDoc = doc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
                 question.setPlan(plan);
 
-                ODocument topicDoc = planDoc.field("topic");
+                ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.setupPlans(topic, topicDoc);
                 plan.setTopic(topic);
-
             }
         }
         finally {

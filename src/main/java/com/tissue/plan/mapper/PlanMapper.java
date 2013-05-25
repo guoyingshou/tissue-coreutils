@@ -29,19 +29,9 @@ public class PlanMapper {
         Integer duration = doc.field("duration", Integer.class);
         plan.setDuration(duration);
 
+        AccountMapper.setAccount(plan, doc);
+
         return plan;
     }
 
-    /**
-     * Setup createTime and creator of the plan.
-     */
-    public static void setupCreatorAndTimestamp(Plan plan, ODocument planDoc) {
-        Date ctime = planDoc.field("in_[category='plan'].createTime", Date.class);
-        plan.setCreateTime(ctime);
-
-        ODocument accountDoc = planDoc.field("in_[category='plan'].out");
-        Account account = AccountMapper.buildAccount(accountDoc);
-        plan.setAccount(account);
-    }
- 
 }

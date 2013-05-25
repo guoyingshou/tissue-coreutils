@@ -1,7 +1,9 @@
 package com.tissue.plan.dao.orient;
 
 import com.tissue.core.Account;
+import com.tissue.core.User;
 import com.tissue.core.mapper.AccountMapper;
+import com.tissue.core.mapper.UserMapper;
 import com.tissue.core.dao.orient.ContentDaoImpl;
 import com.tissue.plan.command.AnswerCommentCommand;
 import com.tissue.plan.mapper.TopicMapper;
@@ -38,63 +40,65 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
     private static Logger logger = LoggerFactory.getLogger(AnswerCommentDaoImpl.class);
 
     public String create(AnswerCommentCommand command) {
-        String id = null;
+        String accountId = command.getAccount().getId();
+        String answerId = command.getAnswer().getId();
 
         OrientGraph db = dataSource.getDB();
         try {
             ODocument doc = AnswerCommentMapper.convertAnswerComment(command);
             doc.save();
+            String answerCommentId = doc.getIdentity().toString();
 
-            id = doc.getIdentity().toString();
-            String userId = command.getAccount().getId();
-            String answerId = command.getAnswer().getId();
-
-            String sql = "create edge EdgeCreatePost from " + userId + " to " + id + " set category = 'answerComment', createTime = sysdate()";
+            String sql = "create edge Owner from " + answerCommentId + " to " + accountId + " set category = 'answerComment', createTime = sysdate()";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "update " + answerId + " add comments = " + id;
+            sql = "create edge CommentsAnswer from " + answerCommentId + " to " + answerId;
             logger.debug(sql);
 
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
+
+            return answerId;
         }
         finally {
              db.shutdown();
         }
-
-        return id;
     }
 
     public AnswerComment getAnswerComment(String answerCommentId) {
-        String sql = "select from " + answerCommentId;
+        String sql = "select @this as comment, " +
+                     "out_CommentsAnswer as answer, " +
+                     "out_CommentsAnswer.out_AnswersQuestion as question, " +
+                     "out_CommentsAnswer.out_AnswersQuestion.out_PostsPlan as plan, " +
+                     "out_CommentsAnswer.out_AnswersQuestion.out_PostsPlan.out_PlansTopic as topic " +
+                     "from " + answerCommentId;
         logger.debug(sql);
 
         AnswerComment answerComment = null;
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument answerCommentDoc = docs.get(0);
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            for(ODocument doc : docs) {
+                ODocument answerCommentDoc = doc.field("comment");
                 answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
-                //AccountMapper.setupCreatorAndTimestamp(answerComment, answerCommentDoc);
 
-                ODocument answerDoc = answerCommentDoc.field("answer");
+                ODocument answerDoc = doc.field("answer");
                 Answer answer = AnswerMapper.buildAnswer(answerDoc);
                 answerComment.setAnswer(answer);
 
-                ODocument questionDoc = answerDoc.field("question");
+                ODocument questionDoc = doc.field("question");
                 Question question = QuestionMapper.buildQuestion(questionDoc);
                 answer.setQuestion(question);
 
-                ODocument planDoc = questionDoc.field("plan");
+                ODocument planDoc = doc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
                 question.setPlan(plan);
 
-                ODocument topicDoc = planDoc.field("topic");
+                ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
             }

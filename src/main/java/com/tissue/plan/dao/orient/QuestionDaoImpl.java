@@ -33,6 +33,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -45,12 +46,10 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
 
     public Question getQuestion(String id) {
         String sql = "select @this as question, " + 
-                     "out_PostAccount.createTime as createTime, " +
-                     "out_PostAccount.in as account, " +
-                     "out_PostAccount.in.out_AccountsUser as user, " +
+                     "in('CommentsQuestion') as comments, " +
+                     "in('AnswersQuestion') as answers, " +
                      "out_PostsPlan as plan, " + 
-                     "out_PostsPlan.out_PlansTopic as topic, " +
-                     "out('PostsPlan').out('PlansTopic').in('PlansTopic') as topicPlans " +
+                     "out_PostsPlan.out_PlansTopic as topic " +
                      "from " + id;
         logger.debug(sql);
 
@@ -63,17 +62,6 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                 ODocument questionDoc = doc.field("question");
                 question = QuestionMapper.buildQuestion(questionDoc);
 
-                Date createTime = doc.field("createTime", Date.class);
-                question.setCreateTime(createTime);
-
-                ODocument accountDoc = doc.field("account");
-                Account account = AccountMapper.buildAccount(accountDoc);
-                question.setAccount(account);
-
-                ODocument userDoc = doc.field("user");
-                User user = UserMapper.buildUser(userDoc);
-                account.setUser(user);
-
                 ODocument planDoc = doc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
                 question.setPlan(plan);
@@ -82,58 +70,46 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
 
-                List<ODocument> topicPlanDocs = doc.field("topicPlans");
-                for(ODocument topicPlanDoc : topicPlanDocs) {
-                    Plan topicPlan = PlanMapper.buildPlan(topicPlanDoc);
-
-                    ODocument topicPlanAccountDoc = topicPlanDoc.field("out_PlanAccount.in");
-                    Account topicPlanAccount = AccountMapper.buildAccount(topicPlanAccountDoc);
-                    topicPlan.setAccount(topicPlanAccount);
-
-                    ODocument topicPlanUserDoc = topicPlanAccountDoc.field("out_AccountsUser");
-                    User topicPlanUser = UserMapper.buildUser(topicPlanUserDoc);
-                    topicPlanAccount.setUser(topicPlanUser);
-
-                    topic.addPlan(topicPlan);
-                }
-
-                /**
-                List<ODocument> commentsDoc = questionDoc.field("comments");
+                List<ODocument> commentsDoc = doc.field("comments");
                 if(commentsDoc != null) {
                     for(ODocument commentDoc : commentsDoc) {
                         Object deleted = commentDoc.field("deleted");
                         if(deleted == null) {
                             QuestionComment comment = QuestionCommentMapper.buildQuestionComment(commentDoc);
-                            //AccountMapper.setupCreatorAndTimestamp(comment, commentDoc);
                             question.addComment(comment);
                         }
                     }
                 }
 
-                List<ODocument> answersDoc = questionDoc.field("answers");
+                List<ODocument> answersDoc = doc.field("answers");
                 if(answersDoc != null) {
                     for(ODocument answerDoc : answersDoc) {
                         Object deleted = answerDoc.field("deleted");
                         if(deleted == null) {
                             Answer answer = AnswerMapper.buildAnswer(answerDoc);
-                            //AccountMapper.setupCreatorAndTimestamp(answer, answerDoc);
                             question.addAnswer(answer);
 
-                            List<ODocument> answerCommentsDoc = answerDoc.field("comments");
-                            if(answerCommentsDoc != null) {
-                                for(ODocument answerCommentDoc : answerCommentsDoc) {
-                                    deleted = answerCommentDoc.field("deleted");
-                                    if(deleted == null) {
-                                        AnswerComment answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
-                                        //AccountMapper.setupCreatorAndTimestamp(answerComment, answerCommentDoc);
-                                        answer.addComment(answerComment);
-                                    }
+                            Set<ODocument> answerCommentDocs = new HashSet();
+                            Object obj = answerDoc.field("in_CommentsAnswer");
+                            if(obj != null) {
+                                if(obj instanceof ODocument) {
+                                    answerCommentDocs.add((ODocument)obj);
+                                }
+                                else {
+                                    answerCommentDocs = (Set)obj;
+                                }
+                            }
+
+                            for(ODocument answerCommentDoc : answerCommentDocs) {
+                                deleted = answerCommentDoc.field("deleted");
+                                if(deleted == null) {
+                                    AnswerComment answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
+                                    answer.addComment(answerComment);
                                 }
                             }
                         }
                     }
                 }
-                */
             }
         }
         finally {
