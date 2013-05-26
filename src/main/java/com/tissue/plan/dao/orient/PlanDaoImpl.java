@@ -125,20 +125,23 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public List<Plan> getPlansByUser(String userId) {
-        String sql = "select from plan where in_.out.user in " + userId;
+        String sql = "select @this as plan, out_PlansTopic as topic " + 
+                     "from Plan " +
+                     "where set(out_Owner.in.out_AccountsUser, out_Member.in.out_AccountsUser) in " + userId;
         logger.debug(sql);
 
         List<Plan> plans = new ArrayList();
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:2")).execute();
             for(ODocument doc : docs) {
-                Plan plan = PlanMapper.buildPlan(doc);
+                ODocument planDoc = doc.field("plan");
+                Plan plan = PlanMapper.buildPlan(planDoc);
                 plans.add(plan);
 
                 ODocument topicDoc = doc.field("topic");
-                Topic topic = TopicMapper.buildTopic(topicDoc);
+                Topic topic = TopicMapper.buildPlainTopic(topicDoc);
                 plan.setTopic(topic);
              }
         }

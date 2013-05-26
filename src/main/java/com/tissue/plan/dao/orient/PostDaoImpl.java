@@ -77,95 +77,14 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getLatestPosts(int limit) {
-        String sql = "select out as post, createTime " +
-                     "from Owner " + 
-                     "where out.deleted is null " +
-                     "and out.out_PostsPlan.out_PlansTopic.deleted is null " +
-                     "and out.type in ['concept', 'note', 'tutorial', 'question'] " +
+        String sql = "select @this as post, out_Owner.createTime as createTime, deleted " +
+                     "from Post " + 
+                     "where deleted is null " +
+                     "and out_PostsPlan.out_PlansTopic.deleted is null " +
                      "order by createTime desc " +
                      "limit " + limit;
-         logger.debug(sql);
-
-        List<Post> posts = new ArrayList();
-        OrientGraph db = dataSource.getDB();
-        try {
-            posts = buildPosts(db, sql);
-        }
-        finally {
-            db.shutdown();
-        }
-        return posts;
-    }
-
-    public long getPostsCountByUser(String userId) {
-        String sql = "select count(*) from Post where deleted is null and type in ['concept', 'note', 'tutorial', 'question'] and in.out_AccountsUser in " + userId;
         logger.debug(sql);
 
-        long count = 0;
-
-        OrientGraph db = dataSource.getDB();
-        try {
-            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
-            for(ODocument doc : docs) {
-                count = doc.field("count", long.class);
-            }
-        }
-        finally {
-            db.shutdown();
-        }
-        return count;
-    }
-
-    public List<Post> getPagedPostsByUser(String userId, int page, int size) {
-        String sql = "select out as post, createTime from Owner where out.deleted is null and out.type in ['concept', 'note', 'tutorial', 'question'] and in.out_AccountsUser in " + userId + " order by createTime desc skip " + (page - 1) * size + " limit " + size;
-        logger.debug(sql);
-
-        List<Post> posts = new ArrayList();
-
-        OrientGraph db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            for(ODocument doc : docs) {
-                ODocument postDoc = doc.field("post");
-                Post post = PostMapper.buildPost(postDoc);
-
-                posts.add(post);
-            }
-        }
-        finally {
-            db.shutdown();
-        }
-        return posts;
-    }
-
-    public long getPostsCountByPlan(String planId) {
-        long count = 0;
-
-        String sql = "select count(*) from Post where deleted is null and out_PostsPlan in " + planId;
-        logger.debug(sql);
-
-        OrientGraph db = dataSource.getDB();
-        try {
-            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
-            for(ODocument doc : docs) {
-                count = doc.field("count", long.class);
-            }
-        }
-        finally {
-            db.shutdown();
-        }
-        return count;
-    }
-
-    public List<Post> getPagedPostsByPlan(String planId, int page, int size) {
-        String sql = "select out as post, createTime " +
-                     //"in as account, in.out_AccountsUser as user " +
-                     "from Owner " +
-                     "where out.deleted is null " +
-                     "and out.out_PostsPlan in " + planId + 
-                     " order by createTime desc " +
-                     " skip " + (page - 1) * size + 
-                     " limit " + size;
         List<Post> posts = new ArrayList();
         OrientGraph db = dataSource.getDB();
         try {
@@ -197,10 +116,10 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByTopic(String topicId, int page, int size) {
-        String sql = "select createTime, out as post " +
-                     "from Owner " +
-                     "where in.deleted is null " +
-                     "and out.out_PostsPlan.out_PlansTopic in " + topicId + 
+        String sql = "select @this as post, out_Owner.createTime as createTime, deleted " +
+                     "from Post " +
+                     "where deleted is null " +
+                     "and out_PostsPlan.out_PlansTopic in " + topicId + 
                      " order by createTime desc " +
                      "skip " + ((page - 1) * size) + 
                      " limit " + size;
@@ -238,11 +157,11 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
     public List<Post> getPagedPostsByType(String topicId, String type, int page, int size) {
 
-        String sql = "select out as post, createTime " +
-                     "from Owner " +
-                     "where out.deleted is null " +
-                     "and out.type = '" + type + 
-                     "' and out.out_PostsPlan.out_PlansTopic in " + topicId + 
+        String sql = "select @this as post, out_Owner.createTime as createTime, deleted, type " +
+                     "from Post " +
+                     "where deleted is null " +
+                     "and type = '" + type + 
+                     "' and out_PostsPlan.out_PlansTopic in " + topicId + 
                      " order by createTime desc " +
                      " skip " + ((page - 1) * size) + 
                      " limit " + size;
@@ -253,6 +172,94 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
         OrientGraph db = dataSource.getDB();
         try {
             posts = buildPosts(db, sql);
+        }
+        finally {
+            db.shutdown();
+        }
+        return posts;
+    }
+
+    public long getPostsCountByPlan(String planId) {
+        long count = 0;
+
+        String sql = "select count(*) from Post where deleted is null and out_PostsPlan in " + planId;
+        logger.debug(sql);
+
+        OrientGraph db = dataSource.getDB();
+        try {
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
+            for(ODocument doc : docs) {
+                count = doc.field("count", long.class);
+            }
+        }
+        finally {
+            db.shutdown();
+        }
+        return count;
+    }
+
+    public List<Post> getPagedPostsByPlan(String planId, int page, int size) {
+        String sql = "select @this as post, out_Owner.createTime as createTime, deleted " +
+                     "from Post " +
+                     "where deleted is null " +
+                     "and out_PostsPlan in " + planId + 
+                     " order by createTime desc " +
+                     " skip " + (page - 1) * size + 
+                     " limit " + size;
+        List<Post> posts = new ArrayList();
+        OrientGraph db = dataSource.getDB();
+        try {
+            posts = buildPosts(db, sql);
+        }
+        finally {
+            db.shutdown();
+        }
+        return posts;
+    }
+
+    public long getPostsCountByUser(String userId) {
+        String sql = "select count(*) from Post " +
+                     "where deleted is null " +
+                     //"and type in ['concept', 'note', 'tutorial', 'question'] " +
+                     "and out_Owner.out_AccountsUser in " + userId;
+        logger.debug(sql);
+
+        long count = 0;
+
+        OrientGraph db = dataSource.getDB();
+        try {
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
+            for(ODocument doc : docs) {
+                count = doc.field("count", long.class);
+            }
+        }
+        finally {
+            db.shutdown();
+        }
+        return count;
+    }
+
+    public List<Post> getPagedPostsByUser(String userId, int page, int size) {
+        String sql = "select @this as post, out_Owner.createTime as createTime, deleted " +
+                     " from Post " +
+                     " where deleted is null " +
+                     " and out_Owner.in.out_AccountsUser in " + userId + 
+                     " order by createTime desc " +
+                     " skip " + (page - 1) * size + 
+                     " limit " + size;
+        logger.debug(sql);
+
+        List<Post> posts = new ArrayList();
+
+        OrientGraph db = dataSource.getDB();
+        try {
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            for(ODocument doc : docs) {
+                ODocument postDoc = doc.field("post");
+                Post post = PostMapper.buildPost(postDoc);
+
+                posts.add(post);
+            }
         }
         finally {
             db.shutdown();
@@ -272,4 +279,5 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
         }
         return posts;
     }
+
 }

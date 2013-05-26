@@ -58,9 +58,8 @@ public class UserDaoImpl implements UserDao {
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            for(ODocument doc : docs) {
                 user = UserMapper.buildUser(doc);
             }
         }
@@ -180,14 +179,15 @@ public class UserDaoImpl implements UserDao {
         String fromUsers = "[" + viewerAccount.getUser().getId() + ", " + ownerId + "]";
         String toUsers = "[" + viewerAccount.getUser().getId() + ", " + ownerId + "]";
 
-        String sql = "select from EdgeInvite where out.user in " + fromUsers + " and in in " + toUsers;
+        String sql = "select from Invite where out.user in " + fromUsers + " and in in " + toUsers;
         logger.debug(sql);
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(docs.size() > 0) {
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:1")).execute();
+            for(ODocument doc : docs) {
                invitable = false;
+               break;
             }
         }
         finally {

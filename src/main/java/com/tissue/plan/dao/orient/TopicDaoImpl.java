@@ -61,6 +61,19 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         }
     }
 
+    public void update(TopicCommand command) {
+        OrientGraph db = dataSource.getDB();
+        try {
+            OrientVertex v = db.getVertex(command.getId());
+            v.setProperty("title", command.getTitle());
+            v.setProperty("content", command.getContent());
+            v.setProperty("tags", command.getTags());
+        }
+        finally {
+            db.shutdown();
+        }
+    }
+
     /**
      * Get a topic with all fields available.
      */
@@ -85,79 +98,9 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
     }
 
     /**
-    public Topic getTopicByPlan(String planId) {
-        String sql = "select topic from " + planId;
-        logger.debug(sql);
-
-        Topic topic = null;
-
-        OrientGraph db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                ODocument topicDoc = doc.field("topic");
-                topic = TopicMapper.buildTopic(topicDoc);
-                TopicMapper.setupPlans(topic, topicDoc);
-            }
-        }
-        finally {
-            db.shutdown();
-        }
-        return topic;
-    }
-
-    public Topic getTopicByPost(String postId) {
-        String sql = "select plan.topic as topic from " + postId;
-        logger.debug(sql);
-
-        Topic topic = null;
-
-        OrientGraph db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                ODocument topicDoc = doc.field("topic");
-                topic = TopicMapper.buildTopic(topicDoc);
-
-                TopicMapper.setupPlans(topic, topicDoc);
-             }
-        }
-        finally {
-            db.shutdown();
-        }
-        return topic;
-    }
-    */
-
-    public void update(TopicCommand command) {
-        OrientGraph db = dataSource.getDB();
-        try {
-            OrientVertex v = db.getVertex(command.getId());
-            v.setProperty("title", command.getTitle());
-            v.setProperty("content", command.getContent());
-            v.setProperty("tags", command.getTags());
-        }
-        finally {
-            db.shutdown();
-        }
-    }
-
-    /**
      * Get topics with the largest members.
      */
     public List<Topic> getTrendingTopics(int num) {
-        /**
-        String sql = "select out_PlanMembers.size() as memberCount, " +
-                     "out_PlansTopic as topic, " +
-                     "out_PlansTopic.out_TopicAccount.in as account, " + 
-                     "out_PlanAccount.createTime as createTime " + 
-                     "from Plan " +
-                     "where out_PlansTopic.in.deleted is null " + 
-                     "order by memberCount desc " + 
-                     "limit " + num;
-                     */
         String sql = "select out_Member.size() as memberCount, " +
                      "out_PlansTopic as topic " +
                      "from Plan " +
@@ -187,9 +130,9 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      * Get featured topics.
      */
     public List<Topic> getFeaturedTopics(int num) {
-        String sql = "select out as topic, createTime " +
-                     "from TopicAccount " +
-                     "where out.deleted is null and out.type = 'featured' " +
+        String sql = "select deleted, type, @this as topic, out_Owner.createTime as createTime " +
+                     "from Topic " +
+                     "where deleted is null and type = 'featured' " +
                      "order by createTime desc " +
                      "limit " + num;
         logger.debug(sql);
@@ -233,9 +176,9 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      */
     public List<Topic> getPagedTopics(int page, int size) {
 
-        String sql = "select out as topic, createTime " +
-                     "from Owner " +
-                     "where out.deleted is null " +
+        String sql = "select @this as topic, out_Owner.createTime as createTime, deleted " +
+                     "from Topic " +
+                     "where deleted is null " +
                      "order by createTime desc " +
                      "skip " + ((page -1) * size) + 
                      " limit " + size;
@@ -306,9 +249,9 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
 
     public List<Topic> getPagedTopicsByTag(String tag, int page, int size) {
 
-        String sql = "select out as topic, createTime " +
-                     "from Owner " +
-                     "where out.deleted is null and out.tags in '" + tag + 
+        String sql = "select @this as topic, out_Owner.createTime as createTime, deleted, tags " +
+                     "from Topic " +
+                     "where deleted is null and tags in '" + tag + 
                      "' order by createTime desc " +
                      "skip " + (page - 1) * size + 
                      " limit " + size;

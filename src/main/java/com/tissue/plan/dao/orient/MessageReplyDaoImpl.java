@@ -70,7 +70,7 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
     public MessageReply getMessageReply(String messageReplyId) {
         String sql = "select @this as reply, " +
                      "out_RepliesMessage as message, " +
-                     "out_RepliesMessage.out_MessagesArticle as article " +
+                     "out_RepliesMessage.out_MessagesArticle as article, " +
                      "out_RepliesMessage.out_MessagesArticle.out_PostsPlan as plan, " +
                      "out_RepliesMessage.out_MessagesArticle.out_PostsPlan.out_PlansTopic as topic " +
                      "from " + messageReplyId;
@@ -85,19 +85,19 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
                 ODocument replyDoc = doc.field("reply");
                 messageReply = MessageReplyMapper.buildMessageReply(replyDoc);
 
-                ODocument messageDoc = replyDoc.field("message");
+                ODocument messageDoc = doc.field("message");
                 Message message = MessageMapper.buildMessage(messageDoc);
                 messageReply.setMessage(message);
 
-                ODocument articleDoc = messageDoc.field("article");
+                ODocument articleDoc = doc.field("article");
                 Article article = ArticleMapper.buildArticle(articleDoc);
                 message.setArticle(article);
 
-                ODocument planDoc = articleDoc.field("plan");
+                ODocument planDoc = doc.field("plan");
                 Plan plan = PlanMapper.buildPlan(planDoc);
                 article.setPlan(plan);
 
-                ODocument topicDoc = planDoc.field("topic");
+                ODocument topicDoc = doc.field("topic");
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
             }

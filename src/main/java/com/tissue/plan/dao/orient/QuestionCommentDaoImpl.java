@@ -63,7 +63,7 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
         String sql = "select @this as comment, " +
                      "out_CommentsQuestion as question, " + 
                      "out_CommentsQuestion.out_PostsPlan as plan, " + 
-                     "out_CommentsQuestion.out_PostsPlan.out_PlansTopic as topic, " +
+                     "out_CommentsQuestion.out_PostsPlan.out_PlansTopic as topic " +
                      "from " + questionCommentId;
         logger.debug(sql);
 
