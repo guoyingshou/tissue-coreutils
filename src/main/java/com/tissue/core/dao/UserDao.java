@@ -9,7 +9,7 @@ public interface UserDao {
 
     User getUser(String userId);
 
-    User getUserByAccount(String accountId);
+    //User getUserByAccount(String accountId);
 
     List<User> getNewUsers(String excludingAccountId, int limit);
 

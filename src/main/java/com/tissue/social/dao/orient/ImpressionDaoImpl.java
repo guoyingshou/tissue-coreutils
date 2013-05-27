@@ -39,7 +39,14 @@ public class ImpressionDaoImpl implements ImpressionDao {
     protected OrientDataSource dataSource;
 
     public void create(ImpressionCommand command) {
-        String sql = "create edge EdgeCreateImpression from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set category = 'impression', createTime = sysdate(), content = '" + command.getContent() + "'";
+        String accountId = command.getAccount().getId();
+        String userId = command.getTo().getId();
+        String content = command.getContent();
+
+        String sql = "create edge Impression " +
+                     "from " + accountId + 
+                     " to " + userId + 
+                     " set category = 'impression', createTime = sysdate(), content = '" + content + "'";
         logger.debug(sql);
 
         OrientGraph db = dataSource.getDB();
@@ -52,12 +59,24 @@ public class ImpressionDaoImpl implements ImpressionDao {
         }
     }
 
+    public void update(ImpressionCommand command) {
+        OrientGraph db = dataSource.getDB();
+        try {
+            OrientVertex v = db.getVertex(command.getId());
+            v.setProperty("content", command.getContent());
+        }
+        finally {
+            db.shutdown();
+        }
+    }
+
     public Impression getImpression(String impressionId) {
         String sql = "select from " + impressionId;
         logger.debug(sql);
 
         Impression impression = null;
 
+        /**
         OrientGraph db = dataSource.getDB();
         try {
             List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
@@ -69,18 +88,8 @@ public class ImpressionDaoImpl implements ImpressionDao {
         finally {
             db.shutdown();
         }
+        */
         return impression;
-    }
-
-    public void update(ImpressionCommand command) {
-        OrientGraph db = dataSource.getDB();
-        try {
-            OrientVertex v = db.getVertex(command.getId());
-            v.setProperty("content", command.getContent());
-        }
-        finally {
-            db.shutdown();
-        }
     }
 
     public void delete(String rid) {
@@ -98,17 +107,16 @@ public class ImpressionDaoImpl implements ImpressionDao {
     }
 
     public List<Impression> getImpressions(String userId) {
-        String sql = "select from EdgeCreateImpression where in in " + userId;
+        String sql = "select from Impression where in in " + userId;
         logger.debug(sql);
 
         List<Impression> impressions = new ArrayList();
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 Impression impression = ImpressionMapper.buildImpression(doc);
-
                 impressions.add(impression);
             }
         }

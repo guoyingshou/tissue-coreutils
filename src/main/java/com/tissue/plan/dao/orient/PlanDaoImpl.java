@@ -155,7 +155,7 @@ public class PlanDaoImpl implements PlanDao {
         String sql = "select @this as plan, " +
                      "out_PlansTopic as topic " + 
                      "from plan " +
-                     "where out_Owner.in in " + accountId;
+                     "where set(out_Owner.in, out_Member.in) in " + accountId;
         logger.debug(sql);
 
         List<Plan> plans = new ArrayList();

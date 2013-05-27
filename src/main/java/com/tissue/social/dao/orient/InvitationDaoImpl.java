@@ -41,10 +41,16 @@ public class InvitationDaoImpl implements InvitationDao {
     protected OrientDataSource dataSource;
 
     public String create(InvitationCommand command) {
-        String sql = "create edge EdgeInvite from " + command.getAccount().getId() + " to " + command.getTo().getId() + " set category = 'invitation', createTime = sysdate(), content = '" + command.getContent() + "'";
+        String accountId = command.getAccount().getId();
+        String userId = command.getTo().getId();
+        String content = command.getContent();
+
+        String sql = "create edge Invite " +
+                     "from " + accountId + 
+                     " to " + userId + 
+                     " set category = 'invitation', createTime = sysdate(), content = '" + content + "'";
         logger.debug(sql);
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -53,7 +59,6 @@ public class InvitationDaoImpl implements InvitationDao {
             return obj.toString();
         }
         finally {
-            //db.close();
             db.shutdown();
         }
     }
@@ -64,16 +69,10 @@ public class InvitationDaoImpl implements InvitationDao {
 
         Invitation invitation = null;
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql)).execute();
+            for(ODocument doc : docs) {
                 invitation = InvitationMapper.buildInvitation(doc);
 
                 ODocument toDoc = doc.field("in");
@@ -82,33 +81,34 @@ public class InvitationDaoImpl implements InvitationDao {
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return invitation;
     }
 
     public List<Invitation> getInvitationsReceived(String accountId) {
-        String sql = "select from EdgeInvite where category = 'invitation' and " + accountId + " in in.accounts";
+        /**
+        String sql = "select set(out_AccountsUser.in_Invite) as invitations " +
+                     "from " + accountId +
+                     " where out_AccountsUser.in_Invite.category = 'invitation'";
+                     */
+        String sql = "select @this as invite from Invite " +
+                     "where category = 'invitation' " +
+                     "and in.in_AccountsUser in " + accountId;
         logger.debug(sql);
 
         List<Invitation> invitations = new ArrayList();
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> docs = db.query(new OSQLSynchQuery(sql).setFetchPlan("*:3"));
-            
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
-
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:2")).execute();
             for(ODocument doc : docs) {
-                Invitation invitation = InvitationMapper.buildInvitation(doc);
+                ODocument inviteDoc = doc.field("invite");
+                Invitation invitation = InvitationMapper.buildInvitation(inviteDoc);
                 invitations.add(invitation);
             }
         }
         finally {
-            //db.close();
             db.shutdown();
         }
         return invitations;
@@ -118,14 +118,12 @@ public class InvitationDaoImpl implements InvitationDao {
         String sql = "update " + invitation.getId() + " set category = 'declined', updateTime = sysdate()";
         logger.debug(sql);
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
          }
         finally {
-            //db.close();
             db.shutdown();
         }
     }
@@ -135,7 +133,6 @@ public class InvitationDaoImpl implements InvitationDao {
         String sql = "update " + invitation.getId() + " set category = 'accepted', updateTime = sysdate()";
         logger.debug(sql);
 
-        //OGraphDatabase db = dataSource.getDB();
         OrientGraph db = dataSource.getDB();
         try {
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -144,7 +141,7 @@ public class InvitationDaoImpl implements InvitationDao {
             String fromId = invitation.getAccount().getUser().getId();
             String toId = invitation.getTo().getId();
 
-            sql = "create edge EdgeConnect from " + toId + " to " + fromId + " set category = 'friend', updateTime = sysdate()";
+            sql = "create edge Friend from " + toId + " to " + fromId + " set category = 'friend', updateTime = sysdate()";
             logger.debug(sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
@@ -155,7 +152,6 @@ public class InvitationDaoImpl implements InvitationDao {
             db.command(cmd).execute();
         }
         finally {
-            //db.close();
             db.shutdown();
         }
     }

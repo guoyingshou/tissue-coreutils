@@ -17,6 +17,9 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 
@@ -69,6 +72,7 @@ public class UserDaoImpl implements UserDao {
         return user;
     }
 
+    /**
     public User getUserByAccount(String accountId) {
         String sql = "select from user where accounts in " + accountId;
         logger.debug(sql);
@@ -88,19 +92,20 @@ public class UserDaoImpl implements UserDao {
         }
         return user;
     }
+    */
 
     public List<User> getFriends(String userId) {
-        String sql = "select set(in_[catetory='friend'].out, out_[category='friend'].in) as friends from " + userId;
+        String sql = "select set(in_Friend.out, out_Friend.in) as friends from " + userId;
         logger.debug(sql);
 
         List<User> friends = new ArrayList();
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                Set<ODocument> friendsDoc = docs.get(0).field("friends", Set.class);
-                for(ODocument doc : friendsDoc) {
-                    User user = UserMapper.buildUser(doc);
+            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            for(ODocument doc : docs) {
+                Set<ODocument> friendsDoc = doc.field("friends", Set.class);
+                for(ODocument friendDoc : friendsDoc) {
+                    User user = UserMapper.buildUser(friendDoc);
                     friends.add(user);
                 }
             }
@@ -112,17 +117,18 @@ public class UserDaoImpl implements UserDao {
     }
 
     public Boolean isFriend(String userId1, String userId2) {
-        String users = "[" + userId1 + "," + userId2 + "]";
-        String sql = "select from EdgeConnect where category in 'friend' and out in " + users + " and in in " + users;
+        String sql = "select from " +  userId1 + 
+                     " where set(in_Friend.out, out_Friend.in) in " + userId2;
         logger.debug(sql);
 
         Boolean friend = false;
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(docs.size() > 0) {
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql)).execute();
+            for(ODocument doc : docs) {
                friend = true;
+               break;
             }
         }
         finally {
@@ -176,15 +182,16 @@ public class UserDaoImpl implements UserDao {
     public Boolean isInvitable(String ownerId, Account viewerAccount) {
         Boolean invitable = true;
 
-        String fromUsers = "[" + viewerAccount.getUser().getId() + ", " + ownerId + "]";
-        String toUsers = "[" + viewerAccount.getUser().getId() + ", " + ownerId + "]";
+        String viewerAccountId = viewerAccount.getId();
 
-        String sql = "select from Invite where out.user in " + fromUsers + " and in in " + toUsers;
+        String sql = "select from " + viewerAccountId +
+                     " where set(out_Invite.in, out_AccountsUser.in_Invite.out.out_AccountsUser) in " + ownerId;
+                   
         logger.debug(sql);
 
         OrientGraph db = dataSource.getDB();
         try {
-            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:1")).execute();
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql)).execute();
             for(ODocument doc : docs) {
                invitable = false;
                break;
