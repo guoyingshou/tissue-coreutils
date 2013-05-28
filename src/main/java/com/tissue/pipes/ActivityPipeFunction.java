@@ -42,38 +42,4 @@ public abstract class ActivityPipeFunction implements PipeFunction<ODocument, Li
         return activity;
     }
 
-    /**
-    public List<Activity> compute(ODocument doc) {
-
-        String category = doc.field("category", String.class);
-        if("topic".equals(category)) {
-            Activity activity = new Activity();
-            activity.setLabel(category);
-
-            ActivityObject who = new ActivityObject();
-            activity.setWho(who);
-
-            ActivityObject what = new ActivityObject();
-            activity.setWhat(what);
-
-            Date createTime = doc.field("createTime", Date.class);
-            activity.setCreateTime(createTime);
-
-            ODocument userDoc = doc.field("user");
-            who.setId(userDoc.getIdentity().toString());
-
-            String displayName = userDoc.field("displayName", String.class);
-            who.setDisplayName(displayName);
-
-            ODocument whatDoc = doc.field("what");
-            what.setId(whatDoc.getIdentity().toString());
-
-            String title = whatDoc.field("title", String.class);
-            what.setDisplayName(title);
-
-            activities.add(activity);
-        }
-        return null;
-    }
-        */
 }

@@ -11,6 +11,6 @@ public interface ActivityDao {
 
     List<Activity> getActivities(String excludingAccountId, int num);
 
-    List<Activity> getActivitiesForNewUser(int num);
+    List<Activity> getActivities(int num);
 
 }

@@ -37,12 +37,12 @@ public class ActivityDaoImpl implements ActivityDao {
     protected OrientDataSource dataSource;
 
     /**
-     * Latest activities intended to by used by users who had signed in.
+     * Activities to be presented to anonymous users.
      */
-    public List<Activity> getActivities(String accountId, int num) {
-        String sql = "select out.user as user, in as what, category, createTime from EdgeAction" +
-                     " where in.deleted is null" +
-                     " and out not in " + accountId +
+    public List<Activity> getActivities(int num) {
+        String sql = "select in.out_AccountsUser as user, out as what, category, createTime " +
+                     "from Owner" +
+                     " where out.deleted is null" + 
                      " and category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer']" +
                      " order by createTime desc" +
                      " limit " + num;
@@ -53,6 +53,35 @@ public class ActivityDaoImpl implements ActivityDao {
         OrientGraph db = dataSource.getDB();
         try {
             List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+
+            ActivityStreamMapper mapper = new ActivityStreamMapper();
+            activities = mapper.process(docs);
+        }
+        finally {
+            db.shutdown();
+        }
+        return activities;
+    }
+
+
+    /**
+     * Get all activities except for the viewer's.
+     */
+    public List<Activity> getActivities(String accountId, int num) {
+        String sql = "select in.out_AccountsUser as user, out as what, category, createTime " +
+                     "from Owner" +
+                     " where out.deleted is null" +
+                     " and in not in " + accountId +
+                     " and category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer']" +
+                     " order by createTime desc" +
+                     " limit " + num;
+         logger.debug(sql);
+
+        List<Activity> activities = new ArrayList();
+
+        OrientGraph db = dataSource.getDB();
+        try {
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             ActivityStreamMapper mapper = new ActivityStreamMapper();
             activities = mapper.process(docs);
         }
@@ -65,28 +94,32 @@ public class ActivityDaoImpl implements ActivityDao {
     public List<Activity> getWatchedActivities(String accountId, int num) {
         List<Activity> activities = new ArrayList();
 
-        String sql = "select out.user as user, in as what, category, createTime from EdgeAction" + 
-                     " let $plans = (select from plan where in_.out in " + accountId + ")" +
+        String sql = "select in.out_AccountsUser as user, out as what, category, createTime " +
+                     "from Owner" + 
+                     //my plans
+                     " let $plans = (select from plan where set(out_Owner.in, out_Member.in) in " + accountId + ") " +
                      " where in.deleted is null " +
                      //except for myself
-                     " and out not in " + accountId + 
+                     " and in not in " + accountId + 
                      //friends'activities
-                     " and (out.user in (select set(user.in_[category='friend'].out, user.out_[category='friend'].in) from " + accountId + ")" + 
-                     //activities in the groups joined
-                     " or in.plan in $plans" + 
-                     " or in.article.plan in $plans" + 
-                     " or in.message.article.plan in $plans" + 
-                     " or in.question.plan in $plans" + 
-                     " or in.answer.question.plan in $plans" + 
-                     ")" + 
-                     " order by createTime desc limit " + num;
-
+                     " and (in in  (select set(out_Friend.in.in_AccountsUser, in_Friend.out.in_AccountsUser) " + 
+                                   "from user " +
+                                   "where in_AccountsUser in " + accountId + ")" + 
+                           //activities in the groups I joined
+                           " or out in $plans" + 
+                           " or out.out_PostsPlan in $plans" + 
+                           " or out.out_MessagesArticle.out_PostsPlan in $plans" + 
+                           " or out.out_AnswersQuestion.out_PostsPlan in $plans" + 
+                     ") " + 
+                     " order by createTime " + 
+                     "desc limit " + num;
+ 
 
         logger.debug(sql);
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
 
             ActivityStreamMapper mapper = new ActivityStreamMapper();
             activities = mapper.process(docs);
@@ -98,44 +131,18 @@ public class ActivityDaoImpl implements ActivityDao {
     }
 
     public List<Activity> getActivitiesByUser(String userId, int num) {
-        String sql = "select out.user as user, in as what, category, createTime from EdgeAction" +
-                     " where in.deleted is null" +
-                     " and out.user in " + userId +
+        String sql = "select in.out_AccountsUser as user, out as what, category, createTime from Owner" +
+                     " where out.deleted is null" +
+                     " and in.out_AccountsUser in " + userId +
                      " order by createTime desc" +
                      " limit " + num;
-        logger.debug(sql);
+         logger.debug(sql);
 
         List<Activity> activities = new ArrayList();
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-
-            ActivityStreamMapper mapper = new ActivityStreamMapper();
-            activities = mapper.process(docs);
-        }
-        finally {
-            db.shutdown();
-        }
-        return activities;
-    }
-
-    /**
-     * Activities to be presented to anonymous users.
-     */
-    public List<Activity> getActivitiesForNewUser(int num) {
-        String sql = "select out.user as user, in as what, category, createTime from EdgeAction" +
-                     " where in.deleted is null" + 
-                     " and category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer']" +
-                     " order by createTime desc" +
-                     " limit " + num;
-        logger.debug(sql);
-
-        List<Activity> activities = new ArrayList();
-
-        OrientGraph db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
 
             ActivityStreamMapper mapper = new ActivityStreamMapper();
             activities = mapper.process(docs);

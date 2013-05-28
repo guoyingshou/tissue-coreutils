@@ -26,30 +26,9 @@ public class PlanPipeFunction extends ActivityPipeFunction  {
             Activity activity = init(doc);
             activity.setLabel(category);
 
-            /**
-            ActivityObject who = new ActivityObject();
-            ActivityObject what = new ActivityObject();
-            activity.setWho(who);
-            activity.setWhat(what);
-
-            activity.setLabel(label);
-            Date createTime = doc.field("createTime", Date.class);
-            activity.setCreateTime(createTime);
-
-            //setup who
-            ODocument accountDoc = doc.field("out");
-            ODocument userDoc = accountDoc.field("user");
-            String displayName = userDoc.field("displayName", String.class);
-
-            who.setId(userDoc.getIdentity().toString());
-            who.setDisplayName(displayName);
-            */
-
             //setup what
-            //ODocument planDoc = doc.field("in_");
-
             ODocument whatDoc = doc.field("what");
-            ODocument topicDoc = whatDoc.field("topic");
+            ODocument topicDoc = whatDoc.field("out_PlansTopic");
             String title = topicDoc.field("title", String.class);
 
             activity.getWhat().setId(topicDoc.getIdentity().toString());

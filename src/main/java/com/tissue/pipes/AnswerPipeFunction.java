@@ -28,43 +28,11 @@ public class AnswerPipeFunction extends ActivityPipeFunction  {
             Activity activity = init(doc);
             activity.setLabel(category);
 
-            /**
-            ActivityObject who = new ActivityObject();
-            ActivityObject what = new ActivityObject();
-            ActivityObject where = new ActivityObject();
-
-            activity.setWho(who);
-            activity.setWhat(what);
-            activity.setWhere(where);
-
-            activity.setLabel(label);
-            Date createTime = doc.field("createTime", Date.class);
-            activity.setCreateTime(createTime);
-
-            //setup who
-            ODocument accountDoc = doc.field("out");
-            ODocument userDoc = accountDoc.field("user");
-            String displayName = userDoc.field("displayName", String.class);
-
-            who.setId(userDoc.getIdentity().toString());
-            who.setDisplayName(displayName);
-            */
-
-
-            //setup what
-            ODocument whatDoc = doc.field("what");
-            ODocument questionDoc = whatDoc.field("question");
-            String title = questionDoc.field("title", String.class);
-
+            ODocument questionDoc = doc.field("what.out_AnswersQuestion");
             activity.getWhat().setId(questionDoc.getIdentity().toString());
-            activity.getWhat().setDisplayName(title);
 
-            /**
-            //setup where
-            ODocument planDoc = questionDoc.field("plan");
-            ODocument topicDoc = planDoc.field("topic");
-            where.setId(topicDoc.getIdentity().toString());
-            */
+            String title = questionDoc.field("title", String.class);
+            activity.getWhat().setDisplayName(title);
 
             activities.add(activity);
         }

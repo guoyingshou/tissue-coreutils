@@ -52,7 +52,7 @@ public class ActivityStreamMapper {
 
     }
 
-    public List<Activity> process(List<ODocument> docs) {
+    public List<Activity> process(Iterable<ODocument> docs) {
         pipeline.setStarts(docs);
         while(pipeline.hasNext()) {
             pipeline.next();

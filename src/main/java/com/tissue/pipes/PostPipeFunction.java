@@ -26,40 +26,12 @@ public class PostPipeFunction extends ActivityPipeFunction  {
             Activity activity = init(doc);
             activity.setLabel(category);
 
-            /**
-            ActivityObject who = new ActivityObject();
-            ActivityObject what = new ActivityObject();
-            ActivityObject where = new ActivityObject();
-            activity.setWho(who);
-            activity.setWhat(what);
-            activity.setWhere(where);
-
-            activity.setLabel(label);
-            Date createTime = doc.field("createTime", Date.class);
-            activity.setCreateTime(createTime);
-
-            //setup who
-            ODocument accountDoc = doc.field("out");
-            ODocument userDoc = accountDoc.field("user");
-            String displayName = userDoc.field("displayName", String.class);
-
-            who.setId(userDoc.getIdentity().toString());
-            who.setDisplayName(displayName);
-            */
-
             //setup what
             ODocument whatDoc = doc.field("what");
             String title = whatDoc.field("title", String.class);
 
             activity.getWhat().setId(whatDoc.getIdentity().toString());
             activity.getWhat().setDisplayName(title);
-
-            /**
-            //setup where
-            ODocument planDoc = postDoc.field("plan");
-            ODocument topicDoc = planDoc.field("topic");
-            where.setId(topicDoc.getIdentity().toString());
-            */
 
             activities.add(activity);
         }

@@ -1,7 +1,6 @@
 package com.tissue.pipes;
 
 import com.tissue.social.Activity;
-//import com.tissue.social.ActivityObject;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.tinkerpop.pipes.PipeFunction;
@@ -28,41 +27,11 @@ public class QuestionCommentPipeFunction extends ActivityPipeFunction  {
             Activity activity = init(doc);
             activity.setLabel(category);
 
-            /**
-            ActivityObject who = new ActivityObject();
-            ActivityObject what = new ActivityObject();
-            ActivityObject where = new ActivityObject();
-            activity.setWho(who);
-            activity.setWhat(what);
-            activity.setWhere(where);
-
-            activity.setLabel(label);
-            Date createTime = doc.field("createTime", Date.class);
-            activity.setCreateTime(createTime);
-
-            //setup who
-            ODocument accountDoc = doc.field("out");
-            ODocument userDoc = accountDoc.field("user");
-            String displayName = userDoc.field("displayName", String.class);
-
-            who.setId(userDoc.getIdentity().toString());
-            who.setDisplayName(displayName);
-            */
-
-            //setup what
-            ODocument whatDoc = doc.field("what");
-            ODocument postDoc = whatDoc.field("question");
-            String title = postDoc.field("title", String.class);
-
+            ODocument postDoc = doc.field("what.out_CommentsQuestion");
             activity.getWhat().setId(postDoc.getIdentity().toString());
-            activity.getWhat().setDisplayName(title);
 
-            /**
-            //setup where
-            ODocument planDoc = postDoc.field("plan");
-            ODocument topicDoc = planDoc.field("topic");
-            where.setId(topicDoc.getIdentity().toString());
-            */
+            String title = postDoc.field("title", String.class);
+            activity.getWhat().setDisplayName(title);
 
             activities.add(activity);
         }
