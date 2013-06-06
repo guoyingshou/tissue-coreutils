@@ -72,28 +72,6 @@ public class UserDaoImpl implements UserDao {
         return user;
     }
 
-    /**
-    public User getUserByAccount(String accountId) {
-        String sql = "select from user where accounts in " + accountId;
-        logger.debug(sql);
-
-        User user = null;
-
-        OrientGraph db = dataSource.getDB();
-        try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                user = UserMapper.buildUser(doc);
-            }
-        }
-        finally {
-            db.shutdown();
-        }
-        return user;
-    }
-    */
-
     public List<User> getFriends(String userId) {
         String sql = "select set(in_Friend.out, out_Friend.in) as friends from " + userId;
         logger.debug(sql);
@@ -152,17 +130,21 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<User> getNewUsers(String excludingAccountId, int limit) {
-        String sql = "select user from account where user.status is null order by createTime desc limit " + limit;
+
+        StringBuilder buf = new StringBuilder("select out_AccountsUser as user from account where out_AccountsUser.status is null ");
         if(excludingAccountId != null) {
-            sql = "select user from account where user.status is null and @this not in " + excludingAccountId + " order by createTime desc limit " + limit;
+            buf.append(" and @this not in " + excludingAccountId);
         }
+        buf.append(" order by createTime desc limit " + limit);
+
+        String sql = buf.toString();
         logger.debug(sql);
 
         List<User> users = new ArrayList();
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             for(ODocument doc : docs) {
                 ODocument userDoc = doc.field("user");
                 User user = UserMapper.buildUser(userDoc);

@@ -60,9 +60,8 @@ public class VerificationDaoImpl implements VerificationDao {
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql)).execute();
+            for(ODocument doc : docs) {
                 verification = VerificationMapper.buildVerification(doc);
             }
         }

@@ -95,7 +95,7 @@ public class AccountDaoImpl implements AccountDao {
 
     public Account getAccount(String accountId) {
 
-        String sql = "select @this as account, out('AccountsUser') as user from " + accountId;
+        String sql = "select @this as account from " + accountId;
         OrientGraph db = dataSource.getDB();
         try {
             Account account = null;
@@ -104,12 +104,14 @@ public class AccountDaoImpl implements AccountDao {
                 ODocument accountDoc = doc.field("account");
                 account = AccountMapper.buildAccount(accountDoc);
 
+                /**
                 List<ODocument> userDocs = doc.field("user");
                 for(ODocument userDoc : userDocs) {
                     User user = UserMapper.buildUser(userDoc);
                     account.setUser(user);
                     break;
                 }
+                */
                 break;
             }
             return account;
@@ -120,23 +122,25 @@ public class AccountDaoImpl implements AccountDao {
     }
 
     public Account getAccountByEmail(String email) {
-        String sql = "select @this as account, out('AccountsUser') as user from account where email = '" + email + "'";
+        String sql = "select from account where email = '" + email + "'";
         logger.debug(sql);
 
         OrientGraph db = dataSource.getDB();
         try {
             Account account = null;
-            Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql)).execute();
             for(ODocument doc : docs) {
                 ODocument accountDoc = doc.field("account");
                 account = AccountMapper.buildAccount(accountDoc);
 
+                /**
                 List<ODocument> userDocs = doc.field("user");
                 for(ODocument userDoc : userDocs) {
                     User user = UserMapper.buildUser(userDoc);
                     account.setUser(user);
                     break;
                 }
+                */
                 break;
             }
             return account;

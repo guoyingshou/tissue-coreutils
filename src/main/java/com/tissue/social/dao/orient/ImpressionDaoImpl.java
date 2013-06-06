@@ -43,7 +43,7 @@ public class ImpressionDaoImpl implements ImpressionDao {
         String userId = command.getTo().getId();
         String content = command.getContent();
 
-        String sql = "create edge Impression " +
+        String sql = "create edge Impressions " +
                      "from " + accountId + 
                      " to " + userId + 
                      " set category = 'impression', createTime = sysdate(), content = '" + content + "'";
@@ -107,7 +107,7 @@ public class ImpressionDaoImpl implements ImpressionDao {
     }
 
     public List<Impression> getImpressions(String userId) {
-        String sql = "select from Impression where in in " + userId;
+        String sql = "select from Impressions where in in " + userId;
         logger.debug(sql);
 
         List<Impression> impressions = new ArrayList();

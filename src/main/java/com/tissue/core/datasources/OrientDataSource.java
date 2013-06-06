@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 @Component("dataSource")
 public class OrientDataSource {
 
-    //private OGraphDatabasePool pool;
-
     @Value("${orientdb_url}")
     private String orientdb_url;
 
@@ -33,18 +31,6 @@ public class OrientDataSource {
         return new OrientGraph(orientdb_url.trim(), db_username.trim(), db_password.trim());
     }
 
-    /**
-    public OGraphDatabase getDB() {
-        if(pool == null) {
-            pool = new OGraphDatabasePool(orientdb_url.trim(), db_username.trim(), db_password.trim());
-            pool.setup(db_min, db_max);
-        }
-        return pool.acquire();
-    }
-    */
-
     public void destroy() {
-        System.out.println("++++++++++ destroy in data souce");
-        //pool.close();
     }
 }

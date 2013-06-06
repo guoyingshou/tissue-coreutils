@@ -59,9 +59,8 @@ public class ResetDaoImpl implements ResetDao {
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql)).execute();
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql)).execute();
+            for(ODocument doc : docs) {
                 reset = ResetMapper.buildReset(doc);
             }
         }

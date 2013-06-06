@@ -52,8 +52,7 @@ public class ActivityDaoImpl implements ActivityDao {
 
         OrientGraph db = dataSource.getDB();
         try {
-            List<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
             ActivityStreamMapper mapper = new ActivityStreamMapper();
             activities = mapper.process(docs);
         }
