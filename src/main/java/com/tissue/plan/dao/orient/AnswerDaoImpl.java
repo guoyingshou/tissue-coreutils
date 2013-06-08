@@ -48,12 +48,12 @@ public class AnswerDaoImpl extends ContentDaoImpl implements AnswerDao {
             doc.save();
             String answerId = doc.getIdentity().toString();
 
-            String sql = "create edge Owner from " + answerId + " to " + accountId + " set category = 'answer', createTime = sysdate()";
+            String sql = "create edge Owns from " + accountId + " to " + answerId + " set category = 'answer', createTime = sysdate()";
             logger.debug(sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge AnswersQuestion from " + answerId + " to " + questionId;
+            sql = "create edge Contains from " + questionId + " to " + answerId;
             logger.debug(sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
@@ -67,9 +67,9 @@ public class AnswerDaoImpl extends ContentDaoImpl implements AnswerDao {
 
     public Answer getAnswer(String answerId) {
         String sql = "select @this as answer, " +
-                     "out_AnswersQuestion as question, " +
-                     "out_AnswersQuestion.out_PostsPlan as plan, " +
-                     "out_AnswersQuestion.out_PostsPlan.out_PlansTopic as topic " +
+                     "in_Contains as question, " +
+                     "in_Contains.in_Contains as plan, " +
+                     "in_Contains.in_Contains.in_Contains as topic " +
                      "from " + answerId;
         logger.debug(sql);
 

@@ -28,7 +28,7 @@ public class PlanPipeFunction extends ActivityPipeFunction  {
 
             //setup what
             ODocument whatDoc = doc.field("what");
-            ODocument topicDoc = whatDoc.field("out_PlansTopic");
+            ODocument topicDoc = whatDoc.field("in_Contains");
             String title = topicDoc.field("title", String.class);
 
             activity.getWhat().setId(topicDoc.getIdentity().toString());

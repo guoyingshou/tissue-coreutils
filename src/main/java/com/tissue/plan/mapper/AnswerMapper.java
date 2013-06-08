@@ -19,6 +19,7 @@ public class AnswerMapper {
     public static ODocument convertAnswer(AnswerCommand answer) {
         ODocument doc = new ODocument("Answer");
         doc.field("content", answer.getContent());
+        doc.field("type", "answer");
         return doc;
     }
 

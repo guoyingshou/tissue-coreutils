@@ -28,7 +28,7 @@ public class MessagePipeFunction extends ActivityPipeFunction  {
             Activity activity = init(doc);
             activity.setLabel(category);
 
-            ODocument articleDoc = doc.field("what.out_MessagesArticle");
+            ODocument articleDoc = doc.field("what.in_Contains");
             activity.getWhat().setId(articleDoc.getIdentity().toString());
 
             String title = articleDoc.field("title", String.class);

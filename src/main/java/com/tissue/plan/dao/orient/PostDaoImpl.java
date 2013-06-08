@@ -47,12 +47,12 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
             doc.save();
             String postId = doc.getIdentity().toString();
             
-            String sql = "create edge Owner from " + postId + " to " + accountId + " set createTime = sysdate(), category = '" + command.getType() + "'";
+            String sql = "create edge Owns from " + accountId + " to " + postId + " set createTime = sysdate(), category = '" + command.getType() + "'";
             logger.debug(sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
 
-            sql = "create edge PostsPlan from " + postId + " to " + planId;
+            sql = "create edge Contains from " + planId + " to " + postId;
             logger.debug(sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
@@ -77,10 +77,10 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getLatestPosts(int limit) {
-        String sql = "select @this as post, out_Owner.createTime as createTime, deleted " +
+        String sql = "select @this as post, in_Owns.createTime as createTime, deleted " +
                      "from Post " + 
                      "where deleted is null " +
-                     "and out_PostsPlan.out_PlansTopic.deleted is null " +
+                     "and in_Contains.in_Contains.deleted is null " +
                      "order by createTime desc " +
                      "limit " + limit;
         logger.debug(sql);
@@ -97,7 +97,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
  
     public long getPostsCountByTopic(String topicId) {
-        String sql = "select count(*) from Post where deleted is null and out_PostsPlan.out_PlansTopic in " + topicId;
+        String sql = "select count(*) from Post where deleted is null and in_Contains.in_Contains in " + topicId;
         logger.debug(sql);
 
         long count = 0;
@@ -116,10 +116,10 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByTopic(String topicId, int page, int size) {
-        String sql = "select @this as post, out_Owner.createTime as createTime, deleted " +
+        String sql = "select @this as post, in_Owns.createTime as createTime, deleted " +
                      "from Post " +
                      "where deleted is null " +
-                     "and out_PostsPlan.out_PlansTopic in " + topicId + 
+                     "and in_Contains.in_Contains in " + topicId + 
                      " order by createTime desc " +
                      "skip " + ((page - 1) * size) + 
                      " limit " + size;
@@ -138,7 +138,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public long getPostsCountByType(String topicId, String type) {
-        String sql = "select count(*) from Post where deleted is null and out_PostsPlan.out_PlansTopic in " + topicId + " and type = '" + type + "'";
+        String sql = "select count(*) from Post where deleted is null and in_Contains.in_Contains in " + topicId + " and type = '" + type + "'";
         logger.debug(sql);
 
         long count = 0;
@@ -157,11 +157,11 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
 
     public List<Post> getPagedPostsByType(String topicId, String type, int page, int size) {
 
-        String sql = "select @this as post, out_Owner.createTime as createTime, deleted, type " +
+        String sql = "select @this as post, in_Owns.createTime as createTime, deleted, type " +
                      "from Post " +
                      "where deleted is null " +
                      "and type = '" + type + 
-                     "' and out_PostsPlan.out_PlansTopic in " + topicId + 
+                     "' and in_Contains.in_Contains in " + topicId + 
                      " order by createTime desc " +
                      " skip " + ((page - 1) * size) + 
                      " limit " + size;
@@ -182,7 +182,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     public long getPostsCountByPlan(String planId) {
         long count = 0;
 
-        String sql = "select count(*) from Post where deleted is null and out_PostsPlan in " + planId;
+        String sql = "select count(*) from Post where deleted is null and in_Contains in " + planId;
         logger.debug(sql);
 
         OrientGraph db = dataSource.getDB();
@@ -199,10 +199,10 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByPlan(String planId, int page, int size) {
-        String sql = "select @this as post, out_Owner.createTime as createTime, deleted " +
+        String sql = "select @this as post, in_Owns.createTime as createTime, deleted " +
                      "from Post " +
                      "where deleted is null " +
-                     "and out_PostsPlan in " + planId + 
+                     "and in_Contains in " + planId + 
                      " order by createTime desc " +
                      " skip " + (page - 1) * size + 
                      " limit " + size;
@@ -221,7 +221,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
         String sql = "select count(*) from Post " +
                      "where deleted is null " +
                      //"and type in ['concept', 'note', 'tutorial', 'question'] " +
-                     "and out_Owner.out_AccountsUser in " + userId;
+                     "and in_Owns.out_AccountsUser in " + userId;
         logger.debug(sql);
 
         long count = 0;
@@ -240,10 +240,10 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
     }
 
     public List<Post> getPagedPostsByUser(String userId, int page, int size) {
-        String sql = "select @this as post, out_Owner.createTime as createTime, deleted " +
+        String sql = "select @this as post, in_Owns.createTime as createTime, deleted " +
                      " from Post " +
                      " where deleted is null " +
-                     " and out_Owner.in.out_AccountsUser in " + userId + 
+                     " and in_Owns.out.out_AccountsUser in " + userId + 
                      " order by createTime desc " +
                      " skip " + (page - 1) * size + 
                      " limit " + size;

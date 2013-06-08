@@ -28,7 +28,7 @@ public class AnswerPipeFunction extends ActivityPipeFunction  {
             Activity activity = init(doc);
             activity.setLabel(category);
 
-            ODocument questionDoc = doc.field("what.out_AnswersQuestion");
+            ODocument questionDoc = doc.field("what.in_Contains");
             activity.getWhat().setId(questionDoc.getIdentity().toString());
 
             String title = questionDoc.field("title", String.class);

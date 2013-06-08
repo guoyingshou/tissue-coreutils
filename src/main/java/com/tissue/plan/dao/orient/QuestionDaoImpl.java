@@ -46,10 +46,10 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
 
     public Question getQuestion(String id) {
         String sql = "select @this as question, " + 
-                     "in('CommentsQuestion') as comments, " +
-                     "in('AnswersQuestion') as answers, " +
-                     "out_PostsPlan as plan, " + 
-                     "out_PostsPlan.out_PlansTopic as topic " +
+                     //"in('CommentsQuestion') as comments, " +
+                     "out('Contains') as answersOrComments, " +
+                     "in_Contains as plan, " + 
+                     "in_Contains.in_Contains as topic " +
                      "from " + id;
         logger.debug(sql);
 
@@ -70,8 +70,48 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                 Topic topic = TopicMapper.buildTopic(topicDoc);
                 plan.setTopic(topic);
 
-                List<ODocument> commentsDoc = doc.field("comments");
-                if(commentsDoc != null) {
+                List<ODocument> answerOrCommentDocs = doc.field("answersOrComments");
+                if(answerOrCommentDocs != null) {
+                    for(ODocument answerOrCommentDoc : answerOrCommentDocs) {
+                        Object deleted = answerOrCommentDoc.field("deleted");
+                        if(deleted == null) {
+                            String type = answerOrCommentDoc.field("type", String.class);
+                            if("questionComment".equals(type)) {
+                                QuestionComment comment = QuestionCommentMapper.buildQuestionComment(answerOrCommentDoc);
+                                question.addComment(comment);
+                            }
+                            else if("answer".equals(type)) {
+                                Answer answer = AnswerMapper.buildAnswer(answerOrCommentDoc);
+                                question.addAnswer(answer);
+
+                                Set<ODocument> answerCommentDocs = new HashSet();
+
+                                Object obj = answerOrCommentDoc.field("out_Contains");
+                                if(obj != null) {
+                                    if(obj instanceof ODocument) {
+                                        answerCommentDocs.add((ODocument)obj);
+                                    }
+                                    else {
+                                        answerCommentDocs = (Set)obj;
+                                    }
+                                }
+
+                                for(ODocument answerCommentDoc : answerCommentDocs) {
+                                    deleted = answerCommentDoc.field("deleted");
+                                    if(deleted == null) {
+                                        AnswerComment answerComment = AnswerCommentMapper.buildAnswerComment(answerCommentDoc);
+                                        answer.addComment(answerComment);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //List<ODocument> commentsDoc = doc.field("comments");
+
+                /**
+                if(AnswerOrcommentDocs != null) {
                     for(ODocument commentDoc : commentsDoc) {
                         Object deleted = commentDoc.field("deleted");
                         if(deleted == null) {
@@ -81,7 +121,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                     }
                 }
 
-                List<ODocument> answersDoc = doc.field("answers");
+                //List<ODocument> answersDoc = doc.field("answers");
                 if(answersDoc != null) {
                     for(ODocument answerDoc : answersDoc) {
                         Object deleted = answerDoc.field("deleted");
@@ -110,6 +150,7 @@ public class QuestionDaoImpl extends PostDaoImpl implements QuestionDao {
                         }
                     }
                 }
+                */
             }
         }
         finally {

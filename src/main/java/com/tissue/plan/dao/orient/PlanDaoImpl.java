@@ -48,12 +48,12 @@ public class PlanDaoImpl implements PlanDao {
             doc.save();
             String planId = doc.getIdentity().toString();
 
-            String sql = "create edge Owner from " + planId + " to " + accountId + " set createTime = sysdate(), category = 'plan'";
+            String sql = "create edge Owns from " + accountId + " to " + planId + " set createTime = sysdate(), category = 'plan'";
             logger.debug(sql);
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge PlansTopic from " + planId + " to " + topicId;
+            sql = "create edge Contains from " + topicId + " to " + planId;
             logger.debug(sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
@@ -67,7 +67,7 @@ public class PlanDaoImpl implements PlanDao {
 
     public Plan getPlan(String planId) {
         String sql = "select @this as plan, " +
-                     "out_PlansTopic as topic " +
+                     "in_Contains as topic " +
                      "from " + planId;
          logger.debug(sql);
 
@@ -105,7 +105,7 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public Boolean isMember(String planId, String accountId) {
-        String sql = "select from " + planId + " where " + accountId + " in set(out_Owner.in, out_Member.in)";
+        String sql = "select from " + planId + " where " + accountId + " in set(in_Owns.out, out_Member.in)";
         logger.debug(sql);
 
         Boolean isMember = false;
@@ -125,9 +125,9 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public List<Plan> getPlansByUser(String userId) {
-        String sql = "select @this as plan, out_PlansTopic as topic " + 
+        String sql = "select @this as plan, in_Contains as topic " + 
                      "from Plan " +
-                     "where set(out_Owner.in.out_AccountsUser, out_Member.in.out_AccountsUser) in " + userId;
+                     "where set(in_Owns.out.out_AccountsUser, out_Member.in.out_AccountsUser) in " + userId;
         logger.debug(sql);
 
         List<Plan> plans = new ArrayList();
@@ -153,9 +153,9 @@ public class PlanDaoImpl implements PlanDao {
 
     public List<Plan> getPlansByAccount(String accountId) {
         String sql = "select @this as plan, " +
-                     "out_PlansTopic as topic " + 
+                     "in_Contains as topic " + 
                      "from plan " +
-                     "where set(out_Owner.in, out_Member.in) in " + accountId;
+                     "where set(in_Owns.out, out_Member.in) in " + accountId;
         logger.debug(sql);
 
         List<Plan> plans = new ArrayList();

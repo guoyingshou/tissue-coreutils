@@ -45,9 +45,9 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
 
     public Article getArticle(String id) {
         String sql = "select @this as article, " + 
-                     "out_PostsPlan as plan, " + 
-                     "out_PostsPlan.out_PlansTopic as topic, " + 
-                     "in('MessagesArticle') as messages " + 
+                     "in_Contains as plan, " + 
+                     "in_Contains.in_Contains as topic, " + 
+                     "out('Contains') as messages " + 
                      "from " + id;
  
         logger.debug(sql);
@@ -77,7 +77,7 @@ public class ArticleDaoImpl extends PostDaoImpl implements ArticleDao {
                         article.addMessage(message);
 
                         Set<ODocument> replyDocs = new HashSet<ODocument>();
-                        Object obj = messageDoc.field("in_RepliesMessage");
+                        Object obj = messageDoc.field("out_Contains");
                         if(obj != null) {
                             if(obj instanceof ODocument) {
                                 replyDocs.add((ODocument)obj);

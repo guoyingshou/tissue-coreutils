@@ -88,7 +88,7 @@ public class TopicMapper {
      * Add plans that belongs to the given topic.
      */
     public static void setPlans(Topic topic, ODocument doc) {
-        Object obj = doc.field("in_PlansTopic");
+        Object obj = doc.field("out_Contains");
         if(obj == null) {
             return;
         }

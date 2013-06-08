@@ -27,7 +27,7 @@ public class QuestionCommentPipeFunction extends ActivityPipeFunction  {
             Activity activity = init(doc);
             activity.setLabel(category);
 
-            ODocument postDoc = doc.field("what.out_CommentsQuestion");
+            ODocument postDoc = doc.field("what.in_Contains");
             activity.getWhat().setId(postDoc.getIdentity().toString());
 
             String title = postDoc.field("title", String.class);

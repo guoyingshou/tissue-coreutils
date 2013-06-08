@@ -48,11 +48,11 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
             doc.save();
             String replyId = doc.getIdentity().toString();
 
-            String sql = "create edge RepliesMessage from " + replyId + " to " + messageId;
+            String sql = "create edge Contains from " + messageId + " to " + replyId;
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge Owner from " + replyId + " to " + accountId + " set category = 'messageReply', createTime = sysdate()";
+            sql = "create edge Owns from " + accountId + " to " + replyId + " set category = 'messageReply', createTime = sysdate()";
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
 
@@ -69,10 +69,10 @@ public class MessageReplyDaoImpl extends ContentDaoImpl implements MessageReplyD
      */
     public MessageReply getMessageReply(String messageReplyId) {
         String sql = "select @this as reply, " +
-                     "out_RepliesMessage as message, " +
-                     "out_RepliesMessage.out_MessagesArticle as article, " +
-                     "out_RepliesMessage.out_MessagesArticle.out_PostsPlan as plan, " +
-                     "out_RepliesMessage.out_MessagesArticle.out_PostsPlan.out_PlansTopic as topic " +
+                     "in_Contains as message, " +
+                     "in_Contains.in_Contains as article, " +
+                     "in_Contains.in_Contains.in_Contains as plan, " +
+                     "in_Contains.in_Contains.in_Contains.in_Contains as topic " +
                      "from " + messageReplyId;
         logger.debug(sql);
 

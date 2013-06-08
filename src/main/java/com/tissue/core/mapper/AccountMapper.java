@@ -58,10 +58,10 @@ public class AccountMapper {
     }
 
     public static void setAccount(Node target, ODocument doc) {
-        Date createTime = doc.field("out_Owner.createTime", Date.class);
+        Date createTime = doc.field("in_Owns.createTime", Date.class);
         target.setCreateTime(createTime);
 
-        ODocument accountDoc = doc.field("out_Owner.in");
+        ODocument accountDoc = doc.field("in_Owns.out");
         Account account = buildAccount(accountDoc);
         target.setAccount(account);
     }

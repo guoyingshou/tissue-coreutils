@@ -48,7 +48,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
             String topicId = doc.getIdentity().toString();
             String accountId = command.getAccount().getId();
 
-            String sql = "create edge Owner from " + topicId + " to " + accountId + " set category = 'topic', createTime = sysdate()";
+            String sql = "create edge Owns from " + accountId + " to " + topicId + " set category = 'topic', createTime = sysdate()";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -102,9 +102,9 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      */
     public List<Topic> getTrendingTopics(int num) {
         String sql = "select out_Member.size() as memberCount, " +
-                     "out_PlansTopic as topic " +
+                     "in_Contains as topic " +
                      "from Plan " +
-                     "where out_PlansTopic.in.deleted is null " + 
+                     "where in_Contains.in.deleted is null " + 
                      "order by memberCount desc " + 
                      "limit " + num;
          logger.debug(sql);
@@ -130,7 +130,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      * Get featured topics.
      */
     public List<Topic> getFeaturedTopics(int num) {
-        String sql = "select deleted, type, @this as topic, out_Owner.createTime as createTime " +
+        String sql = "select deleted, type, @this as topic, in_Owns.createTime as createTime " +
                      "from Topic " +
                      "where deleted is null and type = 'featured' " +
                      "order by createTime desc " +
@@ -176,7 +176,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      */
     public List<Topic> getPagedTopics(int page, int size) {
 
-        String sql = "select @this as topic, out_Owner.createTime as createTime, deleted " +
+        String sql = "select @this as topic, in_Owns.createTime as createTime, deleted " +
                      "from Topic " +
                      "where deleted is null " +
                      "order by createTime desc " +
@@ -249,7 +249,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
 
     public List<Topic> getPagedTopicsByTag(String tag, int page, int size) {
 
-        String sql = "select @this as topic, out_Owner.createTime as createTime, deleted, tags " +
+        String sql = "select @this as topic, in_Owns.createTime as createTime, deleted, tags " +
                      "from Topic " +
                      "where deleted is null and tags in '" + tag + 
                      "' order by createTime desc " +

@@ -44,11 +44,11 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
             doc.save();
             String questionCommentId = doc.getIdentity().toString();
 
-            String sql = "create edge Owner from " + questionCommentId + " to " + accountId + " set category = 'questionComment', createTime = sysdate()";
+            String sql = "create edge Owns from " + accountId + " to " + questionCommentId + " set category = 'questionComment', createTime = sysdate()";
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge CommentsQuestion from " + questionCommentId + " to " + questionId;
+            sql = "create edge Contains from " + questionId + " to " + questionCommentId;
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
 
@@ -61,9 +61,9 @@ public class QuestionCommentDaoImpl extends ContentDaoImpl implements QuestionCo
 
     public QuestionComment getQuestionComment(String questionCommentId) {
         String sql = "select @this as comment, " +
-                     "out_CommentsQuestion as question, " + 
-                     "out_CommentsQuestion.out_PostsPlan as plan, " + 
-                     "out_CommentsQuestion.out_PostsPlan.out_PlansTopic as topic " +
+                     "in_Contains as question, " + 
+                     "in_Contains.in_Contains as plan, " + 
+                     "in_Contains.in_Contains.in_Contains as topic " +
                      "from " + questionCommentId;
         logger.debug(sql);
 

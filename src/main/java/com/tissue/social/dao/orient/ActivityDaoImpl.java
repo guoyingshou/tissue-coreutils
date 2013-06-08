@@ -40,9 +40,9 @@ public class ActivityDaoImpl implements ActivityDao {
      * Activities to be presented to anonymous users.
      */
     public List<Activity> getActivities(int num) {
-        String sql = "select in.out_AccountsUser as user, out as what, category, createTime " +
-                     "from Owner" +
-                     " where out.deleted is null" + 
+        String sql = "select out.out_AccountsUser as user, in as what, category, createTime " +
+                     "from Owns" +
+                     " where in.deleted is null" + 
                      " and category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer']" +
                      " order by createTime desc" +
                      " limit " + num;
@@ -67,10 +67,10 @@ public class ActivityDaoImpl implements ActivityDao {
      * Get all activities except for the viewer's.
      */
     public List<Activity> getActivities(String accountId, int num) {
-        String sql = "select in.out_AccountsUser as user, out as what, category, createTime " +
-                     "from Owner" +
-                     " where out.deleted is null" +
-                     " and in not in " + accountId +
+        String sql = "select out.out_AccountsUser as user, in as what, category, createTime " +
+                     "from Owns" +
+                     " where in.deleted is null" +
+                     " and out not in " + accountId +
                      " and category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer']" +
                      " order by createTime desc" +
                      " limit " + num;
@@ -93,22 +93,22 @@ public class ActivityDaoImpl implements ActivityDao {
     public List<Activity> getWatchedActivities(String accountId, int num) {
         List<Activity> activities = new ArrayList();
 
-        String sql = "select in.out_AccountsUser as user, out as what, category, createTime " +
-                     "from Owner" + 
+        String sql = "select out.out_AccountsUser as user, in as what, category, createTime " +
+                     "from Owns" + 
                      //my plans
-                     " let $plans = (select from plan where set(out_Owner.in, out_Member.in) in " + accountId + ") " +
-                     " where in.deleted is null " +
+                     " let $plans = (select from plan where set(in_Owns.out, out_Member.in) in " + accountId + ") " +
+                     " where out.deleted is null " +
                      //except for myself
-                     " and in not in " + accountId + 
+                     " and out not in " + accountId + 
                      //friends'activities
-                     " and (in in  (select set(out_Friend.in.in_AccountsUser, in_Friend.out.in_AccountsUser) " + 
+                     " and (out in  (select set(out_Friend.in.in_AccountsUser, in_Friend.out.in_AccountsUser) " + 
                                    "from user " +
                                    "where in_AccountsUser in " + accountId + ")" + 
                            //activities in the groups I joined
-                           " or out in $plans" + 
-                           " or out.out_PostsPlan in $plans" + 
-                           " or out.out_MessagesArticle.out_PostsPlan in $plans" + 
-                           " or out.out_AnswersQuestion.out_PostsPlan in $plans" + 
+                           " or in in $plans" + 
+                           " or in.in_Contains in $plans" + 
+                           " or in.in_Contains.in_Contains in $plans" + 
+                           //" or out.in_Contains.in_Contains in $plans" + 
                      ") " + 
                      " order by createTime " + 
                      "desc limit " + num;
@@ -130,9 +130,10 @@ public class ActivityDaoImpl implements ActivityDao {
     }
 
     public List<Activity> getActivitiesByUser(String userId, int num) {
-        String sql = "select in.out_AccountsUser as user, out as what, category, createTime from Owner" +
-                     " where out.deleted is null" +
-                     " and in.out_AccountsUser in " + userId +
+        String sql = "select out.out_AccountsUser as user, in as what, category, createTime " +
+                     " from Owns" +
+                     " where in.deleted is null" +
+                     " and out.out_AccountsUser in " + userId +
                      " order by createTime desc" +
                      " limit " + num;
          logger.debug(sql);

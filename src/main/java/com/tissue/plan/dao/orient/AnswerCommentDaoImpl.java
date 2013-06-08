@@ -49,13 +49,13 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
             doc.save();
             String answerCommentId = doc.getIdentity().toString();
 
-            String sql = "create edge Owner from " + answerCommentId + " to " + accountId + " set category = 'answerComment', createTime = sysdate()";
+            String sql = "create edge Owns from " + accountId + " to " + answerCommentId + " set category = 'answerComment', createTime = sysdate()";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge CommentsAnswer from " + answerCommentId + " to " + answerId;
+            sql = "create edge Contains from " + answerId + " to " + answerCommentId;
             logger.debug(sql);
 
             cmd = new OCommandSQL(sql);
@@ -70,10 +70,10 @@ public class AnswerCommentDaoImpl extends ContentDaoImpl implements AnswerCommen
 
     public AnswerComment getAnswerComment(String answerCommentId) {
         String sql = "select @this as comment, " +
-                     "out_CommentsAnswer as answer, " +
-                     "out_CommentsAnswer.out_AnswersQuestion as question, " +
-                     "out_CommentsAnswer.out_AnswersQuestion.out_PostsPlan as plan, " +
-                     "out_CommentsAnswer.out_AnswersQuestion.out_PostsPlan.out_PlansTopic as topic " +
+                     "in_Contains as answer, " +
+                     "in_Contains.in_Contains as question, " +
+                     "in_Contains.in_Contains.in_Contains as plan, " +
+                     "in_Contains.in_Contains.in_Contains.in_Contains as topic " +
                      "from " + answerCommentId;
         logger.debug(sql);
 

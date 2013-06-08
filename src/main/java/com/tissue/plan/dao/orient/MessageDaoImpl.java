@@ -48,11 +48,11 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
             doc.save();
             String messageId = doc.getIdentity().toString();
 
-            String sql = "create edge MessagesArticle from " + messageId + " to " + postId;
+            String sql = "create edge Contains from " + postId + " to " + messageId;
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
  
-            sql = "create edge Owner from " + messageId + " to " + accountId + " set category = 'message', createTime = sysdate()";
+            sql = "create edge Owns from " + accountId + " to " + messageId + " set category = 'message', createTime = sysdate()";
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
 
@@ -65,9 +65,9 @@ public class MessageDaoImpl extends ContentDaoImpl implements MessageDao {
 
     public Message getMessage(String messageId) {
         String sql = "select @this as message, " + 
-                     "out_MessagesArticle as article, " + 
-                     "out_MessagesArticle.out_PostsPlan as plan, " + 
-                     "out_MessagesArticle.out_PostsPlan.out_PlansTopic as topic " + 
+                     "in_Contains as article, " + 
+                     "in_Contains.in_Contains as plan, " + 
+                     "in_Contains.in_Contains.in_Contains as topic " + 
                      "from " + messageId;
         logger.debug(sql);
 
