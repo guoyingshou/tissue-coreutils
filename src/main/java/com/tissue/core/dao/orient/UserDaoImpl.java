@@ -22,6 +22,8 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.Edge;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,18 +118,22 @@ public class UserDaoImpl implements UserDao {
     }
 
     public void removeRelation(String userId1, String userId2) {
-        String sql = "delete edge from " + userId1 + " to " + userId2;
-        logger.debug(sql);
-
         OrientGraph db = dataSource.getDB();
         try {
+            String sql = "delete edge from " + userId1 + " to " + userId2;
+            logger.debug(sql);
             OCommandSQL cmd = new OCommandSQL(sql);
+            db.command(cmd).execute();
+
+            sql = "delete edge from " + userId2 + " to " + userId1;
+            logger.debug(sql);
+            cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
         }
         finally {
             db.shutdown();
         }
-    }
+     }
 
     public List<User> getNewUsers(String excludingAccountId, int limit) {
 

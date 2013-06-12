@@ -130,17 +130,7 @@ public class AccountDaoImpl implements AccountDao {
             Account account = null;
             Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql)).execute();
             for(ODocument doc : docs) {
-                ODocument accountDoc = doc.field("account");
-                account = AccountMapper.buildAccount(accountDoc);
-
-                /**
-                List<ODocument> userDocs = doc.field("user");
-                for(ODocument userDoc : userDocs) {
-                    User user = UserMapper.buildUser(userDoc);
-                    account.setUser(user);
-                    break;
-                }
-                */
+                account = AccountMapper.buildAccount(doc);
                 break;
             }
             return account;
