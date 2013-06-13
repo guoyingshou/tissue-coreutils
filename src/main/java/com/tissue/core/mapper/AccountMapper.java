@@ -50,7 +50,7 @@ public class AccountMapper {
         Set<String> roles = doc.field("roles", Set.class);
         account.setRoles(roles);
 
-        ODocument userDoc = doc.field("out_AccountsUser");
+        ODocument userDoc = doc.field("out_Belongs");
         User user = UserMapper.buildUser(userDoc);
         account.setUser(user);
 

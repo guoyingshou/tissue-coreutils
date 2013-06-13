@@ -53,7 +53,7 @@ public class AccountDaoImpl implements AccountDao {
             userDoc.save();
             String userId = userDoc.getIdentity().toString();
 
-            String sql = "create Edge AccountsUser from " + accountId + " to " + userId;
+            String sql = "create Edge Belongs from " + accountId + " to " + userId;
             OCommandSQL cmd = new OCommandSQL(sql);
             db.command(cmd).execute();
 
@@ -104,14 +104,6 @@ public class AccountDaoImpl implements AccountDao {
                 ODocument accountDoc = doc.field("account");
                 account = AccountMapper.buildAccount(accountDoc);
 
-                /**
-                List<ODocument> userDocs = doc.field("user");
-                for(ODocument userDoc : userDocs) {
-                    User user = UserMapper.buildUser(userDoc);
-                    account.setUser(user);
-                    break;
-                }
-                */
                 break;
             }
             return account;

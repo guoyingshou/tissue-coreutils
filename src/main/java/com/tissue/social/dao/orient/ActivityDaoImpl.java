@@ -40,7 +40,7 @@ public class ActivityDaoImpl implements ActivityDao {
      * Activities to be presented to anonymous users.
      */
     public List<Activity> getActivities(int num) {
-        String sql = "select out.out_AccountsUser as user, in as what, category, createTime " +
+        String sql = "select out.out_Belongs as user, in as what, category, createTime " +
                      "from Owns" +
                      " where in.deleted is null" + 
                      " and category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer']" +
@@ -67,7 +67,7 @@ public class ActivityDaoImpl implements ActivityDao {
      * Get all activities except for the viewer's.
      */
     public List<Activity> getActivities(String accountId, int num) {
-        String sql = "select out.out_AccountsUser as user, in as what, category, createTime " +
+        String sql = "select out.out_Belongs as user, in as what, category, createTime " +
                      "from Owns" +
                      " where in.deleted is null" +
                      " and out not in " + accountId +
@@ -93,7 +93,7 @@ public class ActivityDaoImpl implements ActivityDao {
     public List<Activity> getWatchedActivities(String accountId, int num) {
         List<Activity> activities = new ArrayList();
 
-        String sql = "select out.out_AccountsUser as user, in as what, category, createTime " +
+        String sql = "select out.out_Belongs as user, in as what, category, createTime " +
                      "from Owns" + 
                      //my plans
                      " let $plans = (select from plan where set(in_Owns.out, out_Member.in) in " + accountId + ") " +
@@ -101,9 +101,9 @@ public class ActivityDaoImpl implements ActivityDao {
                      //except for myself
                      " and out not in " + accountId + 
                      //friends'activities
-                     " and (out in  (select set(out_Friend.in.in_AccountsUser, in_Friend.out.in_AccountsUser) " + 
+                     " and (out in  (select set(out_Friends.in.in_Belongs, in_Friends.out.in_Belongs) " + 
                                    "from user " +
-                                   "where in_AccountsUser in " + accountId + ")" + 
+                                   "where in_Belongs in " + accountId + ")" + 
                            //activities in the groups I joined
                            " or in in $plans" + 
                            " or in.in_Contains in $plans" + 
@@ -130,10 +130,10 @@ public class ActivityDaoImpl implements ActivityDao {
     }
 
     public List<Activity> getActivitiesByUser(String userId, int num) {
-        String sql = "select out.out_AccountsUser as user, in as what, category, createTime " +
+        String sql = "select out.out_Belongs as user, in as what, category, createTime " +
                      " from Owns" +
                      " where in.deleted is null" +
-                     " and out.out_AccountsUser in " + userId +
+                     " and out.out_Belongs in " + userId +
                      " order by createTime desc" +
                      " limit " + num;
          logger.debug(sql);

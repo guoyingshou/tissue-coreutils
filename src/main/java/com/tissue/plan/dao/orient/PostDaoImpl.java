@@ -221,7 +221,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
         String sql = "select count(*) from Post " +
                      "where deleted is null " +
                      //"and type in ['concept', 'note', 'tutorial', 'question'] " +
-                     "and in_Owns.out_AccountsUser in " + userId;
+                     "and in_Owns.out_Belongs in " + userId;
         logger.debug(sql);
 
         long count = 0;
@@ -243,7 +243,7 @@ public class PostDaoImpl extends ContentDaoImpl implements PostDao {
         String sql = "select @this as post, in_Owns.createTime as createTime, deleted " +
                      " from Post " +
                      " where deleted is null " +
-                     " and in_Owns.out.out_AccountsUser in " + userId + 
+                     " and in_Owns.out.out_Belongs in " + userId + 
                      " order by createTime desc " +
                      " skip " + (page - 1) * size + 
                      " limit " + size;

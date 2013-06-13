@@ -75,7 +75,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<User> getFriends(String userId) {
-        String sql = "select set(in_Friend.out, out_Friend.in) as friends from " + userId;
+        String sql = "select set(in_Friends.out, out_Friends.in) as friends from " + userId;
         logger.debug(sql);
 
         List<User> friends = new ArrayList();
@@ -98,7 +98,7 @@ public class UserDaoImpl implements UserDao {
 
     public Boolean isFriend(String userId1, String userId2) {
         String sql = "select from " +  userId1 + 
-                     " where set(in_Friend.out, out_Friend.in) in " + userId2;
+                     " where set(in_Friends.out, out_Friends.in) in " + userId2;
         logger.debug(sql);
 
         Boolean friend = false;
@@ -137,7 +137,7 @@ public class UserDaoImpl implements UserDao {
 
     public List<User> getNewUsers(String excludingAccountId, int limit) {
 
-        StringBuilder buf = new StringBuilder("select out_AccountsUser as user from account where out_AccountsUser.status is null ");
+        StringBuilder buf = new StringBuilder("select out_Belongs as user from account where out_Belongs.status is null ");
         if(excludingAccountId != null) {
             buf.append(" and @this not in " + excludingAccountId);
         }
@@ -173,7 +173,7 @@ public class UserDaoImpl implements UserDao {
         String viewerAccountId = viewerAccount.getId();
 
         String sql = "select from " + viewerAccountId +
-                     " where set(out_Invite.in, out_AccountsUser.in_Invite.out.out_AccountsUser) in " + ownerId;
+                     " where set(out_Invites.in, out_Belongs.in_Invites.out.out_Belongs) in " + ownerId;
                    
         logger.debug(sql);
 

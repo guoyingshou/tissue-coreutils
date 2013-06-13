@@ -45,7 +45,7 @@ public class InvitationDaoImpl implements InvitationDao {
         String userId = command.getTo().getId();
         String content = command.getContent();
 
-        String sql = "create edge Invite " +
+        String sql = "create edge Invites " +
                      "from " + accountId + 
                      " to " + userId + 
                      " set category = 'invitation', createTime = sysdate(), content = '" + content + "'";
@@ -87,14 +87,9 @@ public class InvitationDaoImpl implements InvitationDao {
     }
 
     public List<Invitation> getInvitationsReceived(String accountId) {
-        /**
-        String sql = "select set(out_AccountsUser.in_Invite) as invitations " +
-                     "from " + accountId +
-                     " where out_AccountsUser.in_Invite.category = 'invitation'";
-                     */
-        String sql = "select @this as invite from Invite " +
+        String sql = "select @this as invites from Invites " +
                      "where category = 'invitation' " +
-                     "and in.in_AccountsUser in " + accountId;
+                     "and in.in_Belongs in " + accountId;
         logger.debug(sql);
 
         List<Invitation> invitations = new ArrayList();
@@ -103,7 +98,7 @@ public class InvitationDaoImpl implements InvitationDao {
         try {
             Iterable<ODocument> docs = db.command(new OSQLSynchQuery(sql).setFetchPlan("*:2")).execute();
             for(ODocument doc : docs) {
-                ODocument inviteDoc = doc.field("invite");
+                ODocument inviteDoc = doc.field("invites");
                 Invitation invitation = InvitationMapper.buildInvitation(inviteDoc);
                 invitations.add(invitation);
             }
@@ -141,7 +136,7 @@ public class InvitationDaoImpl implements InvitationDao {
             String fromId = invitation.getAccount().getUser().getId();
             String toId = invitation.getTo().getId();
 
-            sql = "create edge Friend from " + toId + " to " + fromId + " set category = 'friend', updateTime = sysdate()";
+            sql = "create edge Friends from " + toId + " to " + fromId + " set category = 'friend', updateTime = sysdate()";
             logger.debug(sql);
             cmd = new OCommandSQL(sql);
             db.command(cmd).execute();

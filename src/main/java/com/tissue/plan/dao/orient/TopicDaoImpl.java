@@ -101,7 +101,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
      * Get topics with the largest members.
      */
     public List<Topic> getTrendingTopics(int num) {
-        String sql = "select out_Member.size() as memberCount, " +
+        String sql = "select out_Members.size() as memberCount, " +
                      "in_Contains as topic " +
                      "from Plan " +
                      "where in_Contains.in.deleted is null " + 

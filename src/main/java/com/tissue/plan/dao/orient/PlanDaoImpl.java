@@ -93,7 +93,7 @@ public class PlanDaoImpl implements PlanDao {
     public void addMember(String planId, String accountId) {
         OrientGraph db = dataSource.getDB();
         try {
-            String sql = "create edge Member from " + planId + " to " + accountId + " set createTime = sysdate(), category ='member'";
+            String sql = "create edge Members from " + planId + " to " + accountId + " set createTime = sysdate(), category ='member'";
             logger.debug(sql);
 
             OCommandSQL cmd = new OCommandSQL(sql);
@@ -105,7 +105,7 @@ public class PlanDaoImpl implements PlanDao {
     }
 
     public Boolean isMember(String planId, String accountId) {
-        String sql = "select from " + planId + " where " + accountId + " in set(in_Owns.out, out_Member.in)";
+        String sql = "select from " + planId + " where " + accountId + " in set(in_Owns.out, out_Members.in)";
         logger.debug(sql);
 
         Boolean isMember = false;
@@ -127,7 +127,7 @@ public class PlanDaoImpl implements PlanDao {
     public List<Plan> getPlansByUser(String userId) {
         String sql = "select @this as plan, in_Contains as topic " + 
                      "from Plan " +
-                     "where set(in_Owns.out.out_AccountsUser, out_Member.in.out_AccountsUser) in " + userId;
+                     "where set(in_Owns.out.out_Belongs, out_Members.in.out_Belongs) in " + userId;
         logger.debug(sql);
 
         List<Plan> plans = new ArrayList();
@@ -155,7 +155,7 @@ public class PlanDaoImpl implements PlanDao {
         String sql = "select @this as plan, " +
                      "in_Contains as topic " + 
                      "from plan " +
-                     "where set(in_Owns.out, out_Member.in) in " + accountId;
+                     "where set(in_Owns.out, out_Members.in) in " + accountId;
         logger.debug(sql);
 
         List<Plan> plans = new ArrayList();
