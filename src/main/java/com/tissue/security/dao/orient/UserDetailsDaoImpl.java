@@ -48,24 +48,11 @@ public class UserDetailsDaoImpl implements UserDetailsDao {
 
         OrientGraph db = dataSource.getDB();
         try {
-            //List<ODocument> result = db.command(new OSQLSynchQuery(sql)).execute(username);
             Iterable<Vertex> docs = db.command(new OSQLSynchQuery(sql)).execute(username);
-
-            System.out.println("++++ " + docs);
-            
             for(Vertex doc : docs) {
                 userDetails = UserDetailsMapper.buildUser(doc);
                 break;
             }
-            /**
-            OCommandSQL cmd = new OCommandSQL(sql);
-            List<ODocument> docs = db.command(cmd).execute();
- 
-            if(!docs.isEmpty()) {
-                ODocument doc = docs.get(0);
-                userDetails = UserDetailsMapper.buildUser(doc);
-            }
-            */
         }
         finally {
             db.shutdown();
