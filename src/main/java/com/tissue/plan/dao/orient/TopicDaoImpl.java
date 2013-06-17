@@ -104,7 +104,7 @@ public class TopicDaoImpl extends ContentDaoImpl implements TopicDao {
         String sql = "select out_Members.size() as memberCount, " +
                      "in_Contains as topic " +
                      "from Plan " +
-                     "where in_Contains.in.deleted is null " + 
+                     "where in_Contains.deleted is null " + 
                      "order by memberCount desc " + 
                      "limit " + num;
          logger.debug(sql);
