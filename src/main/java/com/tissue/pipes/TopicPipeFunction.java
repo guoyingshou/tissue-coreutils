@@ -21,13 +21,13 @@ public class TopicPipeFunction extends ActivityPipeFunction  {
 
     public List<Activity> compute(ODocument doc) {
 
-        String category = doc.field("category", String.class);
+        String category = doc.field("action.category", String.class);
         if("topic".equals(category)) {
 
             Activity activity = init(doc);
             activity.setLabel(category);
 
-            ODocument whatDoc = doc.field("what");
+            ODocument whatDoc = doc.field("action.in");
             activity.getWhat().setId(whatDoc.getIdentity().toString());
 
             String title = whatDoc.field("title", String.class);

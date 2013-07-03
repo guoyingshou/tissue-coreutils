@@ -20,7 +20,7 @@ public class AnswerPipeFunction extends ActivityPipeFunction  {
     }
 
     public List<Activity> compute(ODocument doc) {
-        String category = doc.field("category", String.class);
+        String category = doc.field("action.category", String.class);
 
         if("answer".equals(category)) {
             logger.debug("activity type: " + category);
@@ -28,7 +28,7 @@ public class AnswerPipeFunction extends ActivityPipeFunction  {
             Activity activity = init(doc);
             activity.setLabel(category);
 
-            ODocument questionDoc = doc.field("what.in_Contains");
+            ODocument questionDoc = doc.field("action.in.in_Contains");
             activity.getWhat().setId(questionDoc.getIdentity().toString());
 
             String title = questionDoc.field("title", String.class);

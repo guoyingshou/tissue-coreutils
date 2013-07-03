@@ -20,13 +20,13 @@ public class AnswerCommentPipeFunction extends ActivityPipeFunction  {
     }
 
     public List<Activity> compute(ODocument doc) {
-        String category = doc.field("category", String.class);
+        String category = doc.field("action.category", String.class);
 
         if("answerComment".equals(category)) {
             Activity activity = init(doc);
             activity.setLabel(category);
 
-            ODocument questionDoc = doc.field("what.in_Contains.in_Contains");
+            ODocument questionDoc = doc.field("action.in.in_Contains.in_Contains");
             activity.getWhat().setId(questionDoc.getIdentity().toString());
 
             String title = questionDoc.field("title", String.class);

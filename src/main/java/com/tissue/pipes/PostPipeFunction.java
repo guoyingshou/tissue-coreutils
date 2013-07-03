@@ -20,14 +20,14 @@ public class PostPipeFunction extends ActivityPipeFunction  {
     }
 
     public List<Activity> compute(ODocument doc) {
-        String category = doc.field("category", String.class);
+        String category = doc.field("action.category", String.class);
 
         if("concept".equals(category) || "note".equals(category) || "tutorial".equals(category) || "question".equals(category)) {
             Activity activity = init(doc);
             activity.setLabel(category);
 
             //setup what
-            ODocument whatDoc = doc.field("what");
+            ODocument whatDoc = doc.field("action.in");
             String title = whatDoc.field("title", String.class);
 
             activity.getWhat().setId(whatDoc.getIdentity().toString());

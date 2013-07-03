@@ -20,14 +20,24 @@ public class PlanPipeFunction extends ActivityPipeFunction  {
     }
 
     public List<Activity> compute(ODocument doc) {
-        String category = doc.field("category", String.class);
+        String category = doc.field("action.category", String.class);
+
         if("plan".equals(category) || "member".equals(category)) {
 
             Activity activity = init(doc);
             activity.setLabel(category);
 
-            //setup what
-            ODocument whatDoc = doc.field("what");
+            /**
+            ODocument whatDoc = null;
+            if("plan".equals(category)) {
+                whatDoc = doc.field("action.in");
+            }
+            else {
+                whatDoc = doc.field("action.out");
+            }
+            */
+            ODocument whatDoc = doc.field("action.in");
+
             ODocument topicDoc = whatDoc.field("in_Contains");
             String title = topicDoc.field("title", String.class);
 

@@ -22,6 +22,8 @@ public abstract class ActivityPipeFunction implements PipeFunction<ODocument, Li
     }
 
     protected Activity init(ODocument doc) {
+        String category = doc.field("action.category", String.class);
+        
         Activity activity = new Activity();
 
         ActivityObject who = new ActivityObject();
@@ -30,10 +32,21 @@ public abstract class ActivityPipeFunction implements PipeFunction<ODocument, Li
         ActivityObject what = new ActivityObject();
         activity.setWhat(what);
 
-        Date createTime = doc.field("createTime", Date.class);
+        Date createTime = doc.field("action.createTime", Date.class);
         activity.setCreateTime(createTime);
 
-        ODocument userDoc = doc.field("user");
+        /**
+        ODocument userDoc = null;
+        if("member".equals(category)) {
+            userDoc = doc.field("action.in.out_Belongs");
+        }
+        else {
+            userDoc = doc.field("action.out.out_Belongs");
+        }
+        */
+
+        ODocument userDoc = doc.field("action.out.out_Belongs");
+
         who.setId(userDoc.getIdentity().toString());
 
         String displayName = userDoc.field("displayName", String.class);

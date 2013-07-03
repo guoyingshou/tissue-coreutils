@@ -19,7 +19,7 @@ public class QuestionCommentPipeFunction extends ActivityPipeFunction  {
     }
 
     public List<Activity> compute(ODocument doc) {
-        String category = doc.field("category", String.class);
+        String category = doc.field("action.category", String.class);
 
         if("questionComment".equals(category)) {
             logger.debug("activity type: " + category);
@@ -27,7 +27,7 @@ public class QuestionCommentPipeFunction extends ActivityPipeFunction  {
             Activity activity = init(doc);
             activity.setLabel(category);
 
-            ODocument postDoc = doc.field("what.in_Contains");
+            ODocument postDoc = doc.field("action.in.in_Contains");
             activity.getWhat().setId(postDoc.getIdentity().toString());
 
             String title = postDoc.field("title", String.class);

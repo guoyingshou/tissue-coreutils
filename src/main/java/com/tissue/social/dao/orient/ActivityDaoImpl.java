@@ -40,37 +40,17 @@ public class ActivityDaoImpl implements ActivityDao {
      * Activities to be presented to anonymous users.
      */
     public List<Activity> getActivities(int num) {
+        /**
         String sql = "select out.out_Belongs as user, in as what, category, createTime " +
                      "from Owns" +
                      " where in.deleted is null" + 
                      " and category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer']" +
                      " order by createTime desc" +
                      " limit " + num;
-        logger.debug(sql);
-
-        List<Activity> activities = new ArrayList();
-
-        OrientGraph db = dataSource.getDB();
-        try {
-            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
-            ActivityStreamMapper mapper = new ActivityStreamMapper();
-            activities = mapper.process(docs);
-        }
-        finally {
-            db.shutdown();
-        }
-        return activities;
-    }
-
-
-    /**
-     * Get all activities except for the viewer's.
-     */
-    public List<Activity> getActivities(String accountId, int num) {
-        String sql = "select out.out_Belongs as user, in as what, category, createTime " +
-                     "from Owns" +
-                     " where in.deleted is null" +
-                     " and out not in " + accountId +
+                     */
+        String sql = "select @this as action, category, createTime " +
+                     "from Actions" +
+                     " where in.deleted is null" + 
                      " and category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer']" +
                      " order by createTime desc" +
                      " limit " + num;
@@ -90,13 +70,52 @@ public class ActivityDaoImpl implements ActivityDao {
         return activities;
     }
 
+    /**
+     * Get all activities except for the viewer's.
+     */
+    public List<Activity> getActivities(String accountId, int num) {
+        /**
+        String sql = "select out.out_Belongs as user, in as what, category, createTime " +
+                     "from Owns" +
+                     " where in.deleted is null" +
+                     " and out not in " + accountId +
+                     " and category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer']" +
+                     " order by createTime desc" +
+                     " limit " + num;
+                     */
+        String sql = "select @this as action, category, createTime " +
+                     "from Actions" +
+                     " where in.deleted is null" +
+                     " and out not in " + accountId +
+                     " and category in ['topic', 'plan', 'member', 'concept', 'note', 'tutorial', 'question', 'answer']" +
+                     " order by createTime desc" +
+                     " limit " + num;
+        logger.debug(sql);
+
+        List<Activity> activities = new ArrayList();
+
+        OrientGraph db = dataSource.getDB();
+        try {
+            Iterable<ODocument> docs = db.getRawGraph().command(new OSQLSynchQuery(sql).setFetchPlan("*:3")).execute();
+            ActivityStreamMapper mapper = new ActivityStreamMapper();
+            activities = mapper.process(docs);
+        }
+        finally {
+            db.shutdown();
+        }
+        return activities;
+    }
+
+    /**
+     * Get activities of friends and those that happened in my plans.
+     */
     public List<Activity> getWatchedActivities(String accountId, int num) {
         List<Activity> activities = new ArrayList();
 
-        String sql = "select out.out_Belongs as user, in as what, category, createTime " +
-                     "from Owns" + 
+        String sql = "select @this as action, category, createTime " +
+                     "from Actions" + 
                      //my plans
-                     " let $plans = (select from plan where set(in_Owns.out, out_Member.in) in " + accountId + ") " +
+                     " let $plans = (select from plan where set(in_Owns.out, in_Members.out) in " + accountId + ") " +
                      " where out.deleted is null " +
                      //except for myself
                      " and out not in " + accountId + 
@@ -108,12 +127,10 @@ public class ActivityDaoImpl implements ActivityDao {
                            " or in in $plans" + 
                            " or in.in_Contains in $plans" + 
                            " or in.in_Contains.in_Contains in $plans" + 
-                           //" or out.in_Contains.in_Contains in $plans" + 
                      ") " + 
                      " order by createTime " + 
                      "desc limit " + num;
  
-
         logger.debug(sql);
 
         OrientGraph db = dataSource.getDB();
@@ -130,13 +147,21 @@ public class ActivityDaoImpl implements ActivityDao {
     }
 
     public List<Activity> getActivitiesByUser(String userId, int num) {
+        /**
         String sql = "select out.out_Belongs as user, in as what, category, createTime " +
                      " from Owns" +
                      " where in.deleted is null" +
                      " and out.out_Belongs in " + userId +
                      " order by createTime desc" +
                      " limit " + num;
-         logger.debug(sql);
+                     */
+        String sql = "select @this as action, category, createTime " +
+                     " from Actions" +
+                     " where in.deleted is null" +
+                     " and out.out_Belongs in " + userId +
+                     " order by createTime desc" +
+                     " limit " + num;
+        logger.debug(sql);
 
         List<Activity> activities = new ArrayList();
 
